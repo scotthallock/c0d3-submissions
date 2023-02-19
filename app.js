@@ -3,6 +3,7 @@ const express = require('express');
 /* Import routers */
 const js5_1_router = require('./src/js5-p1-ip-geolocation.js');
 const js5_2_router = require('./src/js5-p2-commands.js');
+const js5_3_router = require('./src/js5-p3-meme-gen.js');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get('/', (req, res) => {
 
 app.use('/ip-geolocation', js5_1_router);
 app.use('/commands', js5_2_router);
+app.use('/meme-gen', js5_3_router);
 
 
 const port = 8123;
