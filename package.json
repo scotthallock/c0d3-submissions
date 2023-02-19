@@ -1,0 +1,22 @@
+{
+  "name": "c0d3-submissions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scotthallock/c0d3-submissions.git"
+  },
+  "author": "Scott Hallock",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scotthallock/c0d3-submissions/issues"
+  },
+  "homepage": "https://github.com/scotthallock/c0d3-submissions#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
