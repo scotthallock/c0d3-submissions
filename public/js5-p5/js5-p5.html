@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <link rel="stylesheet" type="text/css" href="../mvp.css">
+    <style>
+        .alert {
+            color: #f44336;
+        }
+        .rooms-container {
+            justify-content: left;
+        }
+        .messages-container {
+            background-color: #edf6fe;
+            padding: 20px;
+            height: 400px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column-reverse; /* latest messages will appear at bottom */
+        }
+        .user {
+            font-weight: bold;
+        }
+        .self {
+            color: #127a6b; /* user's own username */
+        }
+        .time {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="app-container"></div>
+    </main>
+    <script>
+        /**
+         * This chatroom app uses server-side rendering. These are the 5 functions
+         * that control the page's content:
+         * 
+         * setupLogin() : The login form. User can click a link to sign up instead.
+         * setupSignup() : The signup form. User can click a link to go back to login.
+         * render() : Checks the URL, and will call renderSelectChatroom() or renderChatroom().
+         * renderSelectChatroom() : User can click on an existing chatroom, or create a new one.
+         * renderChatroom() : The page for a particular chatroom. View and post messages.
+         */ 
+
+        /*************************
+         * Render the login form *
+         *************************/ 
+        const setupLogin = () => {
+            $appContainer.innerHTML = `
+                <header>
+                    <h1>Chat your way to a better day!</h1>
+                    <p class="alert"></p>
+                </header>
+                <section><form>
+                <h1>You must be logged in</h1>
+                <p>No account? You can 
+                    <a href="#" class="instead">Sign up instead</a>
+                </p>
+                <label for="username">Username</label>
+                <input class="username" name="username" type="text" size="35">
+                <label for="password">Password</label>
+                <input class="password" name="password" type="password" size="35">
+                <button class="submit" type="button">Log In</button>
+                </form></section>
+                <hr>
+            `;
+            const $instead = document.querySelector('.instead');
+            const $username = document.querySelector('.username');
+            const $password = document.querySelector('.password');
+            const $submit = document.querySelector('.submit');
+            const $alert = document.querySelector('.alert');
+
+            $instead.addEventListener('click', setupSignup);
+            $submit.addEventListener('click', () => {
+                fetch('https://js5.c0d3.com/auth/api/sessions', {
+                    method: 'POST',
+                    credentials: 'include', // so the browser sets the cookie
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: $username.value,
+                        password: btoa($password.value)
+                    })
+                })
+                .then(res => res.json())
+                .then(body => {
+                    if (body.error) {
+                        $alert.innerText = `Error: ${body.error.message}`;
+                    }
+                    if (body.jwt && body.username) {
+                        jwtToken = body.jwt;
+                        globalUsername = body.username;
+                        localStorage.setItem('userjwt', jwtToken);
+                        render();
+                    }
+                })
+                .catch(console.error);
+            });
+        };
+
+        /**************************
+         * Render the signup form *
+         *************************/ 
+        const setupSignup = () => {
+            $appContainer.innerHTML = `
+                <header>
+                <h1>Chat your way to a better day!</h1>
+                <p class="alert"></p>
+                </header>
+                <section><form>
+                <h1>Create a new account</h1>
+                <p>Already have one? You can 
+                    <a href="#" class="instead">Log in instead</a>
+                </p>
+                <label for="name">Full Name</label>
+                <input class="name" name="name" type="text" size="35">
+                <label for="email">Email</label>
+                <input class="email" name="email" type="email" size="35">
+                <label for="username">Username</label>
+                <input class="username" name="username" type="text" size="35">
+                <label for="password">Password</label>
+                <input class="password" name="password" type="password" size="35">
+                <button class="submit" type="button">Sign up</button>
+                </form></section>
+                <hr>
+            `;
+            const $instead = document.querySelector(".instead");
+            const $name = document.querySelector(".name");
+            const $email = document.querySelector(".email");
+            const $username = document.querySelector(".username");
+            const $password = document.querySelector(".password");
+            const $submit = document.querySelector(".submit");
+            const $alert = document.querySelector('.alert');
+            
+            $instead.addEventListener('click', setupLogin);
+            $submit.addEventListener('click', () => {
+                /* Make POST request to 3rd-party API to handle user
+                   authentication. */
+                fetch('https://js5.c0d3.com/auth/api/users', {
+                    method: 'POST',
+                    credentials: 'include', // so the browser sets the cookie
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: $name.value,
+                        email: $email.value,
+                        username: $username.value,
+                        password: btoa($password.value)
+                    })
+                })
+                    .then(res => res.json())
+                    .then(body => {
+                        if (body.error) {
+                            $alert.innerText = `Error: ${body.error.message}`;
+                            return;
+                        }
+                        if (body.jwt && body.username) {
+                            jwtToken = body.jwt;
+                            globalUsername = body.username;
+                            localStorage.setItem('userjwt', jwtToken);
+                            render();
+                        }
+                    })
+                    .catch(console.error);
+            });
+
+        };
+
+        /**************************************************************************
+         * Take the user to a particular chatroom, or the chatroom selection page *
+         **************************************************************************/ 
+        const render = () => {
+            /* If URL is 'http://www.mydomain.com/chatroom/myroom' */
+            /* Then location.pathname is '/chatroom/myroom' */
+            const room = window.location.pathname.split('/')[2];
+            if (!room) {
+                return renderSelectChatroom();
+            }
+            return renderChatroom();
+        };
+
+        /**************************************
+         * Render the chatroom selection page *
+         **************************************/ 
+        const renderSelectChatroom = () => {
+            $appContainer.innerHTML = `
+                <h1>Join a chatroom</h1>
+                <section class="rooms-container">
+                <aside>
+                    <input class="room-name" type="text" placeholder="room name">
+                    <input class="room-description" type="text" placeholder="description">
+                    <button class="submit">Create New Room</button>
+                    <p class="alert"></p>
+                </aside>
+                </section>
+                <hr>
+                <a class="logout" href="#">Log out</a>
+            `;
+            const $roomsContainer = document.querySelector('.rooms-container');
+            const $roomName = document.querySelector('.room-name');
+            const $roomDescription = document.querySelector('.room-description');
+            const $submit = document.querySelector('.submit');
+            const $alert = document.querySelector('.alert');
+            logoutEventListener();
+
+            fetch('/chatroom/api/rooms', {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(room => {
+                        const element = `
+                            <aside>
+                                <a href="/chatroom/${room.name}"><h3>#${room.name}</h3></a>
+                                <p>${room.description}</p>
+                            </aside>
+                        `;
+                        $roomsContainer.insertAdjacentHTML('beforeend', element);
+                    });
+                })
+                .catch(console.error);
+
+            /* Create a new chatroom */
+            $submit.addEventListener('click', () => {
+                const name = $roomName.value.trim();
+                const description = $roomDescription.value.trim();
+                /* input validation */
+                if (!/^[a-zA-Z0-9 ]{4,20}$/.test(name)) {
+                    $alert.innerText = `Room name must be 4-20 characters long and contain no special characters.`
+                    return;
+                }
+                if (!/^[a-zA-Z0-9,. ]{4,40}$/.test(description)) {
+                    $alert.innerText = `Description must be 4-40 characters long. Only special characters allowed are ',' and '.'`;
+                    return;
+                }
+
+                /* Send request to create new room */
+                fetch('/chatroom/api/rooms', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({
+                        name,
+                        description
+                    })
+                })
+                    .then(res => res.json())
+                    .then(body => {
+                        console.log('BODY');
+                        console.log(body);
+                        if (body.error) {
+                            $alert.innerText = body.error.message;
+                        } else {
+                            // go to the room
+                            window.location = `/chatroom/${name}`;
+                        }
+                    })
+                    .catch(console.error)
+            });
+        };
+
+        /**************************************
+         * Render a chatroom and its messages *
+         **************************************/ 
+        const renderChatroom = () => {
+            const room = window.location.pathname.split("/")[2];
+            $appContainer.innerHTML = `
+                <h1>#${decodeURIComponent(room)}</h1>
+                <a href="/chatroom">← Back to chatrooms</a>
+                <br><br>
+                <div class="messages-container"></div>
+                <br>
+                <input class="new-message" type="text" placeholder="message #${decodeURIComponent(room)}">
+                <hr>
+                <a class="logout" href="#">Log out</a>
+            `;
+            const $container = document.querySelector(".messages-container");
+            const $newMessage = document.querySelector(".new-message");
+            $newMessage.focus();
+            logoutEventListener();
+
+            /* Write a message in the chatroom */
+            const writeMessage = () => {
+                fetch(`/chatroom/api/${room}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({
+                        message: $newMessage.value,
+                        time: Date.now()
+                    }),
+                })
+                    .then(() => {
+                        $newMessage.value = '';
+                    })
+                    .catch(console.error);
+            };
+            
+            /* Render the chatroom messages */
+            const renderMessages = () => {
+                fetch(`/chatroom/api/${room}/messages`)
+                    .then(res => res.json())
+                    .then(data => {
+                        $container.innerHTML = '';
+                        data.forEach(e => {
+                            const self = (globalUsername === e.user); // own username will be different color
+                            const $element = document.createElement('div');
+                            $element.innerHTML = `
+                                <span class="${self ? 'user self' : 'user'}">${e.user}</span>&nbsp;
+                                <span class="time">${e.time}</span><br>
+                                <span class="message"></span>
+                            `;
+                            /* Using innerText so the user can't inject HTML */
+                            $element.querySelector('.message').innerText = e.message;
+                            $container.prepend($element);
+                        });
+                        setTimeout(renderMessages, 500); // repeat every half second
+                    })
+                    .catch(console.error);
+            };
+            renderMessages();
+
+            /* Press [enter] to write a message */
+            $newMessage.addEventListener('keydown', e => {
+                if (e.key === 'Enter') return writeMessage();
+            });
+        };
+
+        /* Get DOM elements */
+        const $appContainer = document.querySelector('.app-container');
+
+        /* Global variables */
+        let globalUsername;
+        let jwtToken = localStorage.getItem('userjwt');
+
+        /* Logout, and return to login page */
+        const logoutEventListener = () => {
+            document.querySelector('.logout').addEventListener('click', () => {
+                globalUsername = undefined;
+                jwtToken = undefined;
+                localStorage.setItem('userjwt', undefined);
+                window.location = '/chatroom';
+            });
+        };
+
+        /* Start the app */
+        const startApp = () => {
+            fetch('/chatroom/api/session', {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                }
+            })
+                .then(res => res.json())
+                .then(body => {
+                    if (body.username) {
+                        globalUsername = body.username;
+                        return render();
+                    }
+                    return setupLogin();
+                })
+                .catch(console.error);
+        };
+        startApp();
+    </script>
+</body>
+</html>
