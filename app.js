@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/ip-geolocation', js5_1_router);
-// app.use('/commands', js5_2_router);
+app.use('/commands', js5_2_router);
 
 
 const port = 8123;
