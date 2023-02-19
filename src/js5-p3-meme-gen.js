@@ -70,7 +70,7 @@ router.get('/api/:caption', async (req, res) => {
         res.set('Content-Type', 'image/jpeg');
         res.send(buffer);
     } catch (err) {
-        res.status(400).send('Bad Request - cannot generate meme.')
+        res.status(400).send('Bad Request - cannot generate meme')
     }
 });
 
