@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const { appendFile } = require('fs');
+const { nextTick } = require('process');
 
 
 router.get('/', (req, res) => {
@@ -30,7 +31,7 @@ router.post('/api/users', jsonParser, async (req, res) => {
         return res.status(400).json({error: {message: 'password cannot be blank and must be at least 6 characters long'}});
     }
     /* username cannot be blank and must be alphanumeric */
-    if (!username || !/^\w+$/.test(password)) {
+    if (!username || !/^\w+$/.test(username)) {
         return res.status(400).json({error: {message: 'username cannot be blank and can only contain letters, numbers, and "_"'}});
     }
     /* username must be unique */
@@ -52,12 +53,11 @@ router.post('/api/users', jsonParser, async (req, res) => {
         const user = {
             username: req.body.username,
             email: req.body.email,
-            password: hashedPassword
+            password: hashedPassword,
+            // other key-value pairs
         };
-        console.log(salt);
-        console.log(hashedPassword);
         users.push(user);
-        res.sendStatus(201);
+        return res.sendStatus(201);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -65,19 +65,22 @@ router.post('/api/users', jsonParser, async (req, res) => {
 });
 
 /* POST /api/sessions to create a new session (aka login a user) */
+/* AUTHENTICATION - when the user successfully logs in using their 
+   credentials, a JSON Web Token will be returned. */
 router.post('/api/sessions', jsonParser, async (req, res) => {
     /* username field can be either username or email */
     /* password field must match the password for the user */
 
     const user = users.find(e => e.username === req.body.username);
-    if (!user) return res.status(400).json('User not found');
+    if (!user) {
+        return res.status(400).json('User not found');
+    }
     try {
         if (await bcrypt.compare(req.body.password, user.password)) {
-            // correct username + password combination
-            
-        } else {
-            res.status(400).json('Wrong credentials');
+            // credentials are correct, create a JWT
+            return res.json({user, jwt: jwt.sign(user, 'secret password')});
         }
+        res.status(400).json('Wrong credentials');
     } catch (err) {
         console.error(err);
         res.status(500).json('Internal server error');
@@ -86,16 +89,29 @@ router.post('/api/sessions', jsonParser, async (req, res) => {
 });
 
 /* GET /api/sessions to get the currently logged in user */
+/* AUTHORIZATION - */
 router.get('/api/sessions', (req, res) => {
-    const clientJWT = req.get('Authorization');
+    /* The value for the 'Authorization' header should be 'Bearer [jwt]' */
+    const authHeader = req.get('Authorization');
+    const token = authHeader && authHeader.split(' ')[1];
+    console.log(token);
+    if (!token) {
+        return res.status(401).json('Unauthorized: "Authorization" header lacks valid token or is incorrectly formatted');
+    }
+    /* Asynchronous verify token */
+    jwt.verify(token, 'secret password', (err, user) => {
+        if (err) return res.status(403).json('Token verification bad');
+        return res.json(user);
+    });
 });
 
+/* Middleware - authenticate token */
+/* Once the user is logged in, each subsequent request will include the JWT,
+   allowing the user to access routes, services, and resources that are
+   permitted with that token. */
 
-/**
- * AUTHENTICATION - Take a username and password, make sure they are correct (log in a user)
- * AUTHORIZATION - Making sure the user that sent the request to the server is the same
- *                 user that logged in during the authentication process.
- */
+
+
 
 
 module.exports = router;

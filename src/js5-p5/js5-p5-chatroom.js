@@ -64,7 +64,7 @@ router.post('/api/:room/messages', jsonParser, (req, res) => {
     const message = req.body.message;
     const room = allChatrooms.find(e => e.name === name);
     /* Add the message to the chatroom */
-    room.addMessage( {user, time, message} );
+    room.addMessage(user, time, message);
     res.sendStatus(200);
 });
 
@@ -138,11 +138,11 @@ const randElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 /* 'Shakespeare' chatroom */
 const shakespeareRoom = allChatrooms.find(e => e.name === 'Shakespeare');
 const shakespearePost = () => {
-    shakespeareRoom.addMessage({
-        user: randElement(chatbots.shakespeareBots),
-        time: Date.now(),
-        message: randElement(chatbots.shakespeareQuotes)
-    });
+    shakespeareRoom.addMessage(
+        randElement(chatbots.shakespeareBots),
+        Date.now(),
+        randElement(chatbots.shakespeareQuotes)
+    );
     setTimeout(shakespearePost, 1000 * 20);
 };
 shakespearePost();
@@ -151,11 +151,11 @@ shakespearePost();
 const catsAndDogsRoom = allChatrooms.find(e => e.name === 'Cats and Dogs');
 const catsAndDogsPost = () => {
     const coin = (Math.random() > 0.5);
-    catsAndDogsRoom.addMessage({
-        user: randElement(coin ? chatbots.catBots : chatbots.dogBots),
-        time: Date.now(),
-        message: randElement(coin ? chatbots.catQuotes : chatbots.dogQuotes)
-    });
+    catsAndDogsRoom.addMessage(
+        randElement(coin ? chatbots.catBots : chatbots.dogBots),
+        Date.now(),
+        randElement(coin ? chatbots.catQuotes : chatbots.dogQuotes)
+    );
     setTimeout(catsAndDogsPost, 1000 * 10);
 };
 catsAndDogsPost();
