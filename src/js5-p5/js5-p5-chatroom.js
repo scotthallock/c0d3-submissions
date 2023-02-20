@@ -64,7 +64,7 @@ router.post('/api/:room/messages', jsonParser, (req, res) => {
     const message = req.body.message;
     const room = allChatrooms.find(e => e.name === name);
     /* Add the message to the chatroom */
-    room.messages.push( {user, time, message} );
+    room.addMessage( {user, time, message} );
     res.sendStatus(200);
 });
 
@@ -138,7 +138,7 @@ const randElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 /* 'Shakespeare' chatroom */
 const shakespeareRoom = allChatrooms.find(e => e.name === 'Shakespeare');
 const shakespearePost = () => {
-    shakespeareRoom.messages.push({
+    shakespeareRoom.addMessage({
         user: randElement(chatbots.shakespeareBots),
         time: Date.now(),
         message: randElement(chatbots.shakespeareQuotes)
@@ -151,7 +151,7 @@ shakespearePost();
 const catsAndDogsRoom = allChatrooms.find(e => e.name === 'Cats and Dogs');
 const catsAndDogsPost = () => {
     const coin = (Math.random() > 0.5);
-    catsAndDogsRoom.messages.push({
+    catsAndDogsRoom.addMessage({
         user: randElement(coin ? chatbots.catBots : chatbots.dogBots),
         time: Date.now(),
         message: randElement(coin ? chatbots.catQuotes : chatbots.dogQuotes)

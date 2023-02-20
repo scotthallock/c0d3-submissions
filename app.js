@@ -6,6 +6,7 @@ const js5_2_router = require('./src/js5-p2/js5-p2-commands.js');
 const js5_3_router = require('./src/js5-p3/js5-p3-meme-gen.js');
 // js5_4_router
 const js5_5_router = require('./src/js5-p5/js5-p5-chatroom.js');
+const js5_6_router = require('./src/js5-p6/js5-p6-authentication.js');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/commands', js5_2_router);
 app.use('/meme-gen', js5_3_router);
 // js5_4
 app.use('/chatroom', js5_5_router);
+app.use('/authentication', js5_6_router);
 
 /* Start the server */
 const port = 8123;

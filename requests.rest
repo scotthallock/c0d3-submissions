@@ -1,0 +1,10 @@
+POST http://localhost:8123/authentication/api/users
+
+###
+
+POST http://localhost:8123/authentication/api/users
+Content-Type: application/json
+{
+    "username": "BigBoi",
+    "password": "baseball123"
+}
