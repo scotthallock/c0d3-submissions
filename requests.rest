@@ -32,13 +32,13 @@ POST http://localhost:8123/authentication/api/sessions
 Content-Type: application/json
 
 {
-    "username": "fishingfreak",
-    "password": "ilovefishing123"
+    "username": "runnerman",
+    "password": "rU/\/everyDay!"
 }
 
 ### Get the currently logged in user
 GET http://localhost:8123/authentication/api/sessions
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImZpc2hpbmdmcmVhayIsImlhdCI6MTY3Njk1Njg4MH0.s14q7r677wfPX5FKGeymTUqgrzf_SprHWiOx4TMx-Q4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJ1bm5lcm1hbiIsImlhdCI6MTY3Njk2MTMwNywiZXhwIjoxNjc2OTYxMzM3fQ.T-OaiOPxq7v_2vpXcJ00-vlFbK3e3yd4JcCHjNCitWQ
 
 ### C0D3 API - get all users
 GET https://js5.c0d3.com/auth/api/sessions
