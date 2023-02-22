@@ -4,25 +4,56 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication</title>
+    <title>Auth</title>
     <link rel="stylesheet" type="text/css" href="../mvp.css">
     <style>
         section aside {
-            width: 400px;
+            width: 450px;
         }
         section pre {
-            overflow-x: auto;
+            background-color: #f7f7f7;
+            overflow: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 500px;
         }
+        .hint {
+            color: #777;
+        }
+        .status {
+            background-color: #f7f7f7;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            color: green;
+        }
+        .status.error {
+            color: red;
+        }
+        .heartbeat {
+            display: inline-block;
+            margin-right: 10px;
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+            background-color: green;
+        }
+        .heartbeat.on {
+            background-color: lightgreen;
+        };
     </style>
 </head>
 <body>
     <main>
-        <header>
-            <h1>Authentication</h1>
-            <p>This is an explanation about this demo. Remember, the JWT expiration is set.</p>
-        </header>
+        <!-- <header> -->
+            <h1>Auth</h1>
+            <h3>This is a demo of a backend for authentication, built using <a href="https://expressjs.com/">Express</a>.</h3>
+            <p>The server generates a <a href="https://jwt.io/">JSON Web Token (JWT)</a> using the <a href="https://www.npmjs.com/package/jsonwebtoken">jsonwebtoken</a> libary. When a user creates an account or logs in, the server signs a JWT and sends it back to the client. The client stores the JWT, and sends it in the <code>Authorization</code> request header of subsequent requests to the server.</p>
+            <p>Passwords are secured using <a href="https://www.npmjs.com/package/bcrypt">bcrypt</a> password-hashing.</p>
+            <p>This is a demo, and the JWT secret key is not secure. <mark><b>Do not use real credentials</b> that you use on other accounts.</mark></p>
+            <p>For the purposes of this demo, the <mark>JWT expiration time is set to <b>30 seconds.</b></mark> When the JWT has expired, you will be logged out.</p>
+        <!-- </header> -->
         <section>
             <aside class="input-container">
             </aside>
@@ -40,22 +71,21 @@
             <p>No account? You can 
                 <a href="#" class="instead">Sign up instead</a>
             </p>
-            <label for="username">Username</label>
-            <input class="username" name="username" type="text" size="35">
+            <label for="username">Username or email</label>
+            <input class="username" name="username" type="text">
             <label for="password">Password</label>
-            <input class="password" name="password" type="password" size="35">
+            <input class="password" name="password" type="password">
             <button class="submit" type="button">Log In</button>
         `;
         const $instead = document.querySelector('.instead');
         const $username = document.querySelector('.username');
         const $password = document.querySelector('.password');
         const $submit = document.querySelector('.submit');
-        const $alert = document.querySelector('.alert');
 
         $instead.addEventListener('click', setupSignup);
         $submit.addEventListener('click', () => {
             let status;
-            fetch('/authentication/api/sessions', {
+            fetch('/auth/api/sessions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -69,12 +99,16 @@
                     status = res.status;
                     return res.json()
                 })
-                .then(data => {
-                    $responseContainer.innerHTML = 
-                    `<h1>Server responded ${status}</h1>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                    `;
-                });
+                .then(body => {
+                    renderServerResponse(status, body);
+                    if (body.jwt && body.username) {
+                        jwtToken = body.jwt;
+                        globalUsername = body.username;
+                        localStorage.setItem('userjwt', jwtToken);
+                        render();
+                    }
+                })
+                .catch(console.error);
         });
 
     };
@@ -85,9 +119,9 @@
             <p>Already have one? You can 
                 <a href="#" class="instead">Log in instead</a>
             </p>
-            <label for="name">Full Name</label>
+            <label for="name">Full Name <span class="hint">(optional)</span></label>
             <input class="name" name="name" type="text" size="35">
-            <label for="email">Email</label>
+            <label for="email">Email <span class="hint">(a fake email is OK)</span></label>
             <input class="email" name="email" type="email" size="35">
             <label for="username">Username</label>
             <input class="username" name="username" type="text" size="35">
@@ -101,12 +135,11 @@
         const $username = document.querySelector(".username");
         const $password = document.querySelector(".password");
         const $submit = document.querySelector(".submit");
-        const $alert = document.querySelector('.alert');
 
         $instead.addEventListener('click', setupLogin);
         $submit.addEventListener('click', () => {
             let status;
-            fetch('/authentication/api/users', {
+            fetch('/auth/api/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -122,22 +155,107 @@
                     status = res.status;
                     return res.json()
                 })
-                .then(data => {
-                    $responseContainer.innerHTML = 
-                    `<h1>Server responded ${status}</h1>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                    `;
+                .then(body => {
+                    renderServerResponse(status, body);
+                    if (body.jwt && body.username) {
+                        jwtToken = body.jwt;
+                        globalUsername = body.username;
+                        localStorage.setItem('userjwt', jwtToken);
+                        render();
+                    }
                 })
-
+                .catch(console.error);
         });
     };
+
+    const render = () => {
+        $inputContainer.innerHTML = `
+            <h1>Welcome, ${globalUsername}!</h1>
+            <p><span class="heartbeat"></span>
+            You are logged in.</p>
+            <p>Your JSON Web Token is:</p>
+            <pre>${jwtToken}</pre>
+            <a class="logout" href="#">Log out</a>
+        `;
+        const $heartbeat = document.querySelector('.heartbeat');
+        const $logout = document.querySelector('.logout');
+
+        $logout.addEventListener('click', () => {
+            globalUsername = undefined;
+            jwtToken = undefined;
+            localStorage.setItem('userjwt', undefined);
+            window.location.reload();
+        });
+
+        /* Once per second, check if JWT has expired */
+        const heartbeatVerifyJWT = () => {
+            let status;
+            $heartbeat.classList.toggle('on');
+            fetch('/auth/api/sessions', {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                }
+            })
+                .then(res => {
+                    status = res.status;
+                    return res.json();
+                })
+                .then(body => {
+                    if (body.error) {
+                        renderServerResponse(status, body);
+                        return setupLogin();
+                    };
+                    return setTimeout(heartbeatVerifyJWT, 1000);
+                }).catch(console.error);
+        };
+        heartbeatVerifyJWT();
+    };
+
+    const renderServerResponse = (status, body) => {
+        $responseContainer.innerHTML = `
+            <h1>Server response</h1>
+            <p><b>Status code:&nbsp;
+            <span class="status ${body.error ? 'error' : ''}">
+            ${status}
+            </span></b></p>
+            <p><b>Time:</b> ${new Date().toTimeString()}</p>
+            <p><b>Response (JSON):</b></p>
+            <pre>${JSON.stringify(body, null, 2)}</pre>
+        `;
+    };
+
+
+    /* Global variables */
+    let globalUsername;
+    let jwtToken = localStorage.getItem('userjwt');
+    console.log({jwtToken});
 
     /* Get DOM elements */
     $inputContainer = document.querySelector('.input-container');
     $responseContainer = document.querySelector('.response-container')
 
     /* Start app */
-    setupLogin();
-
+    const startApp = () => {
+        let status;
+        fetch('/auth/api/sessions', {
+            headers: {
+                Authorization: `Bearer ${jwtToken}`,
+            }
+        })
+            .then(res => {
+                    status = res.status;
+                    return res.json();
+                })
+            .then(body => {
+                renderServerResponse(status, body);
+                if (body.username) {
+                    globalUsername = body.username;
+                    return render();
+                }
+                return setupLogin();
+            })
+            .catch(console.error);
+    };
+    startApp();
 </script>
 </html>
