@@ -2,19 +2,36 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const jsonParser = require('body-parser').json();
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-const SECRET = 'not_so_secret_am_i_?';
+const JWT_SECRET = 'not_very_secret_am_i_?';
 
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p6/js5-p6.html'));
 });
 
-/* All users created since server start */
+/* Array of all users */
 const users = [];
 
-/* For testing purposes - send users array to client */
+/* For test purposes - add some users to the array */
+(async () => {
+    let salt = await bcrypt.genSalt();
+    users.push({
+        username: 'fishing_freak',
+        email: 'fishingislife@gmail.com',
+        password: await bcrypt.hash('ilovefishing123', salt)
+    });
+    salt = await bcrypt.genSalt();
+    users.push({
+        username: 'chicagoDawg',
+        email: 'doggydog@hotmail.com',
+        password: await bcrypt.hash('must4rd&rel1sh', salt)
+    });
+
+})();
+
+/* For demo purposes - send users array to client */
 router.get('/api/users', (req, res) => {
     res.json(users);
 });
@@ -55,7 +72,7 @@ router.post('/api/users', jsonParser, async (req, res) => {
             'email': email,
             'password': hashedPassword,
             ...others,
-            'jwt': jwt.sign({ username }, SECRET, {expiresIn: '30s'})
+            'jwt': jwt.sign({ username }, JWT_SECRET, {expiresIn: '30s'})
         };
         users.push(user);
         return res.status(201).json(user);
@@ -70,7 +87,7 @@ router.post('/api/sessions', jsonParser, async (req, res) => {
     const { username, password } = req.body;
     const decodedPassword = Buffer.from(password, 'base64').toString('ascii'); // atob()
 
-    /* username field can be either username or email */
+    /* allow user to login with username or email in the username field*/
     const user = users.find(e => {
         return (e.username === username) || (e.email === username);
     });
@@ -84,7 +101,7 @@ router.post('/api/sessions', jsonParser, async (req, res) => {
         /* Create a new JWT for the user */
         user.jwt = jwt.sign(
             { 'username': user.username },
-            SECRET,
+            JWT_SECRET,
             {expiresIn: '30s'}
         );
         return res.json(user);
@@ -103,11 +120,11 @@ router.get('/api/sessions', (req, res) => {
             'Unauthorized - no token provided'} });
     }
     try {
-        const decoded = jwt.verify(token, SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         const user = users.find(e => e.username === decoded.username);
         return res.json(user);
     } catch (err) {
-        // token is wrong or expired
+        /* token is wrong or expired */
         return res.status(403).json({'error': {'message': err.message} });
     }
 });
