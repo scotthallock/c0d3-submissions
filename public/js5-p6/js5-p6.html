@@ -37,7 +37,7 @@
     <main>
         <h1>Auth</h1>
         <h3>This is a demo of a backend for authentication, built using <a href="https://expressjs.com/">Express</a>.</h3>
-        <p>The server generates a <a href="https://jwt.io/">JSON Web Token (JWT)</a> using the <a href="https://www.npmjs.com/package/jsonwebtoken">jsonwebtoken</a> libary. When a user creates an account or logs in, the server signs a JWT and sends it back to the client. The client stores the JWT, and sends it in the <code>Authorization</code> request header in subsequent requests to the server.</p>
+        <p>The server generates a <a href="https://jwt.io/">JSON Web Token (JWT)</a> using the <a href="https://www.npmjs.com/package/jsonwebtoken">jsonwebtoken</a> library. When a user creates an account or logs in, the server signs a JWT and sends it back to the client. The client stores the JWT, and sends it in the <code>Authorization</code> request header in subsequent requests to the server.</p>
         <p>Passwords are secured using <a href="https://www.npmjs.com/package/bcrypt">bcrypt</a> password-hashing.</p>
         <p>This is just a demo - the JWT secret key is not secure. <mark><b>Do not use real credentials</b> that you use on other accounts.</mark></p>
         <p>For the purposes of this demo, the <mark>JWT expiration time is set to <b>30 seconds.</b></mark> When the JWT has expired, you will be logged out.</p>
@@ -170,8 +170,7 @@
     const render = () => {
         $inputContainer.innerHTML = `
             <h1>Welcome, ${globalUsername}!</h1>
-            <p><span class="heartbeat">🟢</span>
-            You are logged in.</p>
+            <p>You are logged in. <span class="heartbeat">⚫️</span></p>
             <p>Your JSON Web Token is:</p>
             <pre>${jwtToken}</pre>
             <a class="logout" href="javascript:void(0)">Log out</a>
@@ -240,9 +239,9 @@
             }
         })
             .then(res => {
-                    status = res.status;
-                    return res.json();
-                })
+                status = res.status;
+                return res.json();
+            })
             .then(body => {
                 renderServerResponse(status, body);
                 if (body.username) {

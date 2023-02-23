@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Text Extraction</title>
+    <link rel="stylesheet" type="text/css" href="../mvp.css">
+    <style>
+        .image-container {
+            display: flex;
+        }
+        .image-container img {
+            background-color: pink;
+            width: 50%
+        }
+        .image-container pre {
+            background-color: greenyellow;
+            width: 50%;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section>
+            <form>
+                <h1>Optical Character Recognition</h1>
+                <label for="img">Upload image:</label>
+                <input class="img-input" type="file" name="img" accept="image/*" multiple required>
+                <button type="button" class="submit">Submit</button>
+            </form>
+        </section>
+        <section>
+            <div class="container"></div>
+        </section>
+    </main>
+
+    <script>
+        const $submit = document.querySelector('.submit');
+        const $container = document.querySelector('.container');
+        const $imgInput = document.querySelector('.img-input');
+
+        $submit.addEventListener('click', () => {
+            $container.innerHTML = ''; // clear the container
+            files = Array.from($imgInput.files);
+            if (files.length === 0) {
+                return console.log('Please add a file')
+            }
+            const formData = new FormData();
+            files.forEach(file => {
+                formData.append('userFiles', file, file.name);
+            });
+            fetch('./api/assets', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(body => {
+                    $container.innerHTML = body.images.reduce((acc, img) => {
+                        return acc + `
+                            <div class="image-container">
+                            <img src="./uploads/${img.filename}">
+                            <pre class="extracted-text">Test</pre>
+                            </div>`
+                    }, `<h1>Your job ID is ${body.jobId}</h1>`);
+
+                    const updateData = () => {
+                        fetch(`./jobs/${body.jobId}`)
+                            .then(res => res.json())
+                            .then(body => {
+                                // for each method on data to populate pre fields
+                            })
+                            .catch(console.error);
+
+                        setTimeout(updateData, 1000);
+                    };
+                    updateData();
+                    console.log(body);
+                })
+                .catch(console.error);
+        });
+
+        let formData = new FormData();
+        // form on submit?
+
+    </script>
+</body>
+</html>
