@@ -64,7 +64,7 @@
                             <pre class="extracted-text">Test</pre>
                             </div>`
                     }, `<h1>Your job ID is ${body.jobId}</h1>`);
-
+                    
                     const updateData = () => {
                         fetch(`./jobs/${body.jobId}`)
                             .then(res => res.json())
