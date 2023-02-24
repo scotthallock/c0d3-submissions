@@ -8,7 +8,6 @@
     <link rel="stylesheet" type="text/css" href="../mvp.css">
     <style>
         hr {
-            /* margin: 10px; */
             margin-block-start: 20px;
             margin-block-end: 20px;
         }
@@ -28,7 +27,7 @@
             overflow: hidden; 
         }
         .alert-message {
-            color: red;
+            color: #e00;
         }
         .image-container {
             display: flex;
@@ -56,7 +55,7 @@
             margin-right: auto;
         }
         .text-output {
-            background-color: lavender;
+            background-color: #118bee15;;
             box-sizing: border-box;
             padding: 10px;
             width: 500px;
@@ -73,8 +72,7 @@
                 <p>This app uses <a href="https://tesseract.projectnaptha.com/" target="_blank">Tesseract.js</a>, a port of the popular Tesseract Optical Character Recognition (OCR) engine.</p>
                 <a class="try-examples" href="javascript:void(0)">👉 Click here to demo with images on the server</a><hr>
                 <label for="img">Upload your own images:</label>
-                <input class="img-input" type="file" name="img" accept="image/*" oninvalid="this.setCustomValidity('Add 1 or more files')"
-                onvalid="this.setCustomValidity('')" multiple required>
+                <input class="img-input" type="file" name="img" accept="image/*" multiple required>
                 <div class="alert-message" hidden></div>
                 <button type="button" class="submit">Submit</button>
             </form>
@@ -96,6 +94,7 @@
     </main>
 
     <script>
+    const startApp = () => {
         /* DOM elements */
         const $tryExamples = document.querySelector('.try-examples');
         const $imgInput = document.querySelector('.img-input');
@@ -109,6 +108,29 @@
         /* Global variables */
         let jobMetaData;
 
+        /* Fetch 3 random images from the server to demo the app */
+        $tryExamples.addEventListener('click', async () => {
+            /* Reset things */
+            resetVariablesAndDOM();
+
+            const res = await fetch('/image-text-extraction/api/random');
+            const body = await res.json();
+            const jobId = body.jobId;
+            const imageUrls = body.images.map(e => {
+                return `/image-text-extraction/examples/${e.filename}`; // 'examples' folder
+            });
+
+            /* Populate the status table */
+            populateStatusTable(body.images);
+            
+            /* Load the images and canvas on the DOM */
+            jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
+
+            /* Make requests to the server to get the OCR data */
+            fetchOCRDataAndUpdateDOM(jobId);
+        });
+
+        /* Upload your own images to the server to extract text from */
         $submit.addEventListener('click', async () => {
             /* There must be between 1-10 files to upload to the server */
             const files = Array.from($imgInput.files);
@@ -124,11 +146,7 @@
             }
             
             /* Reset things */
-            jobMetaData = {};
-            $alertMessage.hidden = true;
-            $statusTable.hidden = true;
-            $statusTableBody.innerHTML = '';
-            $mainContainer.innerHTML = '';
+            resetVariablesAndDOM();
             
             /* Create a FormData from the selected image files */
             const formData = new FormData();
@@ -142,29 +160,41 @@
             const body = await res.json();
             const jobId = body.jobId;
             const imageUrls = body.images.map(e => {
-                return `/image-text-extraction/uploads/${e.filename}`;
+                return `/image-text-extraction/uploads/${e.filename}`; // 'uploads' folder
             });
 
             /* Populate the status table */
-            $statusTableBody.innerHTML = body.images.reduce((acc, e) => {
-                return acc + `<tr>
-                    <td class="filename-cell"><div class="cut-text">${e.filename}</div></td>
-                    <td class="status-cell">⏳ processing</td>
-                    </tr>`;
-            }, '');
-            $statusCells = document.querySelectorAll('.status-cell');
+            populateStatusTable(body.images);
 
-            /* Unhide the status table */
-            $statusTable.hidden = false;
-
-            /* Load the images and canvas on the DOM, and an array of objects with info about the current job */
-            /* [ {$imageOverlay, $textOutput, scale_factor}, ... ] */
+            /* Load the images and canvas on the DOM */
             jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
 
             /* Make requests to the server to get the OCR data */
             fetchOCRDataAndUpdateDOM(jobId);
         });
 
+        /* Reset global variables DOM elements */
+        const resetVariablesAndDOM = () => {
+            jobMetaData = {};
+            $alertMessage.hidden = true;
+            $statusTable.hidden = true;
+            $statusTableBody.innerHTML = '';
+            $mainContainer.innerHTML = '';
+        };
+
+        /* Fill the status table with user uploads or examples */
+        const populateStatusTable = (images) => {
+            $statusTableBody.innerHTML = images.reduce((acc, e) => {
+                return acc + `<tr>
+                    <td class="filename-cell"><div class="cut-text">${e.filename}</div></td>
+                    <td class="status-cell">⏳ processing</td>
+                    </tr>`;
+            }, '');
+            $statusCells = document.querySelectorAll('.status-cell');
+            $statusTable.hidden = false; // un-hide the table
+        };
+
+        /* Load the images into the DOM, and add an overlaying <canvas> element */
         const loadImageAndCanvas = (imageUrl) => {
             return new Promise((resolve, reject) => {
                 $mainContainer.insertAdjacentHTML('beforeend', `
@@ -196,6 +226,7 @@
             });
         };
 
+        /* Fetch the job data from the server until all images are processed and the output is render on the DOM */
         const fetchOCRDataAndUpdateDOM = async (jobId, alreadyRendered) => {
             /* Fetch the current job. A job is an array; each element is data for
                an image that was processed by Tesseract OCR.. */
@@ -251,6 +282,8 @@
                 fetchOCRDataAndUpdateDOM(jobId, alreadyRendered);
             }, 500);
         };
+    };
+    startApp();
     </script>
 </body>
 </html>

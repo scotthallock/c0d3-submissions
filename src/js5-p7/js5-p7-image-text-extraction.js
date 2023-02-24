@@ -2,14 +2,17 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const multer = require('multer');
-const { createWorker, PSM, imageType } = require('tesseract.js');
+const { createWorker, PSM } = require('tesseract.js');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 
-/* Where user uploads will be stored */
+/* Where user uploads and examples will be stored */
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p7/uploads');
+const examplesDirectory = path.join(__dirname, '../../public/js5-p7/examples');
 
-/* Serve static files in /public/js5-p7/uploads */
+/* Serve static files */
 router.use('/uploads', express.static(uploadsDirectory));
+router.use('/examples', express.static(examplesDirectory));
 
 /* Configure multer storage */
 var storage = multer.diskStorage({
@@ -17,11 +20,12 @@ var storage = multer.diskStorage({
       cb(null, uploadsDirectory);
     },
     filename: (req, file, cb) => {
-      cb(null, file.originalname);
+      cb(null, file.originalname); // keep original filename
     }
 });
 var upload = multer({ storage: storage })
 
+/* Serve /image-text-extraction page */
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p7/js5-p7.html'));
 });
@@ -29,28 +33,34 @@ router.get('/', (req, res) => {
 /* Store job data */
 const jobs = {};
 
-/* Upload an image and save it */
+/* User uploads or multiple images to process */
 router.post('/api/assets', upload.array('userFiles'), async (req, res) => {
-    /* What about rotation pre-processing? */
-    console.log('/api/assets ouch ', Date.now);
-
     const images = req.files;
-    const jobId = uuidv4(); // job id
+    const jobId = uuidv4();
 
-    /* initialize data for this job */
-    jobs[jobId] = images.reduce((acc, image) => {
-      acc.push({
-        filename: image.filename,
-        size: image.size,
-        status: 'processing', // 'processing' | 'done'
-        text: null, // output from Tesseract OCR
-        ocr_data: null // output from Tesseract OCR
-      })
-      return acc;
-    }, []);
+    initializeJobData(jobId, images); // initialize data for this job
+    process(jobId, images, uploadsDirectory); // begin processing the images
+    res.status(202).json({ images, jobId }); // tell the client the job is accepted
+});
 
-    process(images, jobId); // begin processing the images
-    res.status(202).json({ images, jobId });
+/* Choose 3 random files from the 'examples' folder to process */
+router.get('/api/random', async (req, res) => {
+  const files = await fs.promises.readdir(path.join(__dirname, '../../public/js5-p7/examples'));
+  
+  /* Fisher-Yates shuffle */
+  let currIndex = files.length;
+  while (currIndex !== 0) {
+    const randIndex = Math.floor(Math.random() * currIndex);
+    currIndex -= 1;
+    [files[currIndex], files[randIndex]] = [files[randIndex], files[currIndex]];
+  }
+  const randomFiles = files.slice(0, 3);
+  const images = randomFiles.map(e => ( { filename: e } ));
+  const jobId = uuidv4();
+
+  initializeJobData(jobId, images); // initialize data for this job
+  process(jobId, images, examplesDirectory); // begin processing the images
+  res.status(202).json({ images, jobId }); // tell the client the job is accepted
 });
 
 /* Send back the job data */
@@ -60,7 +70,21 @@ router.get('/jobs/:id', (req, res) => {
   res.json(jobs[jobId]);
 });
 
-const process = (images, jobId) => {
+/* Add the job to the global 'jobs' variable */
+const initializeJobData = (jobId, images) => {
+  jobs[jobId] = images.reduce((acc, image) => {
+    acc.push({
+      filename: image.filename,
+      status: 'processing', // 'processing' | 'done'
+      text: null, // output from Tesseract OCR
+      ocr_data: null // output from Tesseract OCR
+    })
+    return acc;
+  }, []);
+};
+
+/* Use Tesseract to perform Optical Charcater Recognition on each image in the job */
+const process = (jobId, images, dir) => {
     /* use tesseract to extract text from each image */
     images.forEach(async (image, i) => {
       try {
@@ -68,11 +92,11 @@ const process = (images, jobId) => {
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
         await worker.setParameters({
-          tessedit_char_whitelist: ' 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-          tessedit_pageseg_mode: PSM.SPARSE_TEXT, // Find as much text as possible in no particular order.
+          // tessedit_pageseg_mode: PSM.SPARSE_TEXT // Different modes can change output
         });
-        const filepath = path.join(uploadsDirectory, image.filename);
+        const filepath = path.join(dir, image.filename);
         const { data: { text, tsv } } = await worker.recognize(filepath);
+
         /* the image has been processed, update status and data */
         jobs[jobId][i].status = 'done';
         jobs[jobId][i].text = text;
@@ -84,7 +108,7 @@ const process = (images, jobId) => {
     })
 };
 
-/* Parse the tab-separated-values output from Teseract */
+/* Transform the tab-separated-values output from Teseract into an object */
 const parseTSV = (tsv) => {
   const data = tsv
     .split('\n')
@@ -109,5 +133,24 @@ const parseTSV = (tsv) => {
   }, []);
 };
 
+/* Delete old files from /uploads folder */
+const deleteOldFiles = async () => {
+  const files = await fs.promises.readdir(uploadsDirectory);
+  files.forEach(async (file) => {
+      try {
+          const filepath = uploadsDirectory + '/' + file;
+          const stats = await fs.promises.stat(filepath);
+          if (Date.now() - stats.mtimeMs > 1000 * 60 * 60 * 12) { // 12 hours
+              await fs.promises.unlink(filepath);
+              console.log(`Deleted ${file} at ${new Date()}`);
+          }
+      } catch (err) {
+          console.error(err);
+      }
+  });
+  /* recursively call this function every 10 minutes */
+  setTimeout(deleteOldFiles, 1000 * 60 * 10);
+};
+deleteOldFiles();
 
 module.exports = router;
