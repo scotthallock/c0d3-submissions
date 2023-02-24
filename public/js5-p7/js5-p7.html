@@ -7,8 +7,15 @@
     <title>Image Text Extraction</title>
     <link rel="stylesheet" type="text/css" href="../mvp.css">
     <style>
+        hr {
+            /* margin: 10px; */
+            margin-block-start: 20px;
+            margin-block-end: 20px;
+        }
+        .alert-message {
+            color: red;
+        }
         .image-container {
-            border: 1px solid blue;
             display: flex;
             justify-content: center;
             position: relative;
@@ -18,7 +25,6 @@
             padding: 0;
         }
         .image-wrapper { 
-            border: 1px solid red;
             max-width: 100%;
             max-height: 100%;
         }
@@ -28,7 +34,6 @@
             max-height: 100%;
         }
         .image-overlay {
-            background-color: rgba(0, 128, 0, 0.143);
             /* center the canvas in the div so it
                overlaps the image in the div*/
             position: absolute;
@@ -37,13 +42,12 @@
         }
         .text-output {
             background-color: lavender;
-            margin: 0 10px;
             box-sizing: border-box;
+            padding: 10px;
             width: 500px;
             max-height: 250px;
             overflow: auto;
         }
-
     </style>
 </head>
 <body>
@@ -51,12 +55,28 @@
         <section>
             <form>
                 <h1>Optical Character Recognition</h1>
-                <label for="img">Upload image:</label>
-                <input class="img-input" type="file" name="img" accept="image/*" multiple required>
+                <label for="img">Upload your own images:</label>
+                <input class="img-input" type="file" name="img" accept="image/*" oninvalid="this.setCustomValidity('Add 1 or more files')"
+                onvalid="this.setCustomValidity('')" multiple required>
+                <div class="alert-message" hidden></div>
                 <button type="button" class="submit">Submit</button>
             </form>
         </section>
-        <h1 class="jobnumber"></h1>
+        <hr>
+        <div class="status-table" hidden>
+            <section>
+                <table>
+                    <thead>
+                        <tr><th>File</th><th>Status</th></tr>
+                    </thead>
+                    <tbody class="status-table-body">
+                        <tr><td>filename.png</td><td>processing...</td></tr>
+                        <tr><td>filename2.png</td><td>done</td></tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+        </div>
         <div class="main-container"></div>
     </main>
 
@@ -64,22 +84,37 @@
         /* DOM elements */
         const $imgInput = document.querySelector('.img-input');
         const $submit = document.querySelector('.submit');
+        const $alertMessage = document.querySelector('.alert-message');
         const $mainContainer = document.querySelector('.main-container');
-        const $jobnumber = document.querySelector('.jobnumber');
+        const $statusTable = document.querySelector('.status-table');
+        const $statusTableBody = document.querySelector('.status-table-body');
+        let $statusCells;
 
         /* Global variables */
         let jobMetaData;
 
         $submit.addEventListener('click', async () => {
-            /* Clear the data container */
-            jobMetaData = {};
-            $mainContainer.innerHTML = '';
-
-            /* Create a FormData from the selected image files */
+            /* There must be between 1-10 files to upload to the server */
             const files = Array.from($imgInput.files);
             if (files.length === 0) {
-                return console.log('Please add a file')
+                $alertMessage.innerText = 'Please add one or more files';
+                $alertMessage.hidden = false;
+                return;
             }
+            if (files.length > 10 ) {
+                $alertMessage.innerText = 'Limit 10 files at a time';
+                $alertMessage.hidden = false;
+                return;
+            }
+            
+            /* Reset things */
+            jobMetaData = {};
+            $alertMessage.hidden = true;
+            $statusTable.hidden = true;
+            $statusTableBody.innerHTML = '';
+            $mainContainer.innerHTML = '';
+            
+            /* Create a FormData from the selected image files */
             const formData = new FormData();
             files.forEach(file => formData.append('userFiles', file, file.name));
             
@@ -94,12 +129,20 @@
                 return `/image-text-extraction/uploads/${e.filename}`;
             });
 
+            /* Populate the status table */
+            $statusTableBody.innerHTML = body.images.reduce((acc, e) => {
+                return acc + `<tr><td>${e.filename}</td><td class="status-cell">processing...</td></tr>`
+            }, '');
+            $statusCells = document.querySelectorAll('.status-cell');
+
+            /* Unhide the status table */
+            $statusTable.hidden = false;
+
             /* Load the images and canvas on the DOM, and an array of objects with info about the current job */
             /* [ {$imageOverlay, $textOutput, scale_factor}, ... ] */
             jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
 
             /* Make requests to the server to get the OCR data */
-            $jobnumber.innerText = jobId;
             fetchOCRDataAndUpdateDOM(jobId);
         });
 
@@ -115,6 +158,7 @@
                     <section class="text-output-container">
                     <pre class="text-output"></pre>
                     </section>
+                    <hr>
                 `);
                 const $img = Array.from(document.querySelectorAll('.image')).pop();
                 const $imageOverlay = Array.from(document.querySelectorAll('.image-overlay')).pop();
@@ -149,7 +193,6 @@
                 if (alreadyRendered[i] || (processedImage.status !== 'done')) {
                     return;
                 }
-                alreadyRendered[i] = true;
 
                 const $textOutput = jobMetaData[i].$textOutput; // the <pre> element
                 const $imageOverlay = jobMetaData[i].$imageOverlay; // the <canvas> element
@@ -171,6 +214,11 @@
                     ctx.rect(left, top, width, height);
                     ctx.stroke();
                 });
+
+                /* We are done with this processedImage */
+                alreadyRendered[i] = true;
+                $statusCells[i].innerText = 'done!';
+
             });
 
             /* All images are processed */
@@ -182,7 +230,7 @@
             /* Repeat until all outputs are displayed on DOM */
             setTimeout(() => {
                 fetchOCRDataAndUpdateDOM(jobId, alreadyRendered);
-            }, 1000);
+            }, 500);
         };
     </script>
 </body>
