@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Test</title>
+    <link rel="stylesheet" type="text/css" href="../mvp.css">
+    <style>
+        .outer-container {
+            display: flex;
+            /* align-items: center; */
+            justify-content: center;
+            position: relative;
+            width: 500px;
+            min-width: 500px;
+            max-height: 500px;
+            min-height: 500px
+            /* border: 1px solid black; */
+        }
+        .image-wrapper { 
+            border: 1px solid red;
+            max-width: 100%;
+            max-height: 100%;
+            
+        }
+        .image {
+
+            
+            /* max-width:100%;
+            max-height:100%; */
+        }
+        .canvas {
+            background-color: rgba(0, 128, 0, 0.143);
+            position: absolute;
+            margin-left: auto; 
+            margin-right: auto; 
+        }
+        pre {
+            margin: 0 10px;
+            box-sizing: border-box;
+            width: 500px;
+            min-width: 500px;
+            height: 100%;
+            padding: 10px;
+
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: lightblue;
+
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section>
+            <div class="outer-container">
+            </div>
+            <pre>Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+Hello world
+            </pre>
+        </section>
+        <section>
+            <div class="outer-container">
+                <img src="/Users/scotthallock/Coding/c0d3-submissions/public/js5-p7/uploads/images-1.png">
+            </div>
+            <pre>Hello world</pre>
+        </section>
+    </main>
+</body>
+
+<script>
+    const draw = (url, ocr_data) => {
+        const $outerContainer = document.querySelector('.outer-container');
+
+        /* load image */
+        const $img = document.createElement('img');
+        $img.classList.add('image');
+        $img.src = url;
+        $outerContainer.append($img);
+        $img.onload = () => {
+            /* calculate scale factor */
+            const scale_factor = $img.width / $img.naturalWidth;
+
+            /* overlay a canvas on the image that is the same size */ 
+            const $canvas = document.createElement('canvas');
+            $canvas.classList.add('canvas');
+            $canvas.width = $img.width;
+            $canvas.height = $img.height;
+            $outerContainer.append($canvas);
+            
+            drawBoundingBoxes($canvas, ocr_data, scale_factor);
+        };
+
+    };
+
+    const drawBoundingBoxes = ($canvas, ocr_data, scale_factor) => {
+        const ctx = $canvas.getContext('2d');
+        ocr_data.forEach(e => {
+            ctx.beginPath();
+            ctx.lineWidth = '1';
+            ctx.strokeStyle = 'red';
+            let {left, top, width, height} = e;
+            left *= scale_factor;
+            top *= scale_factor;
+            width *= scale_factor;
+            height *= scale_factor;
+            ctx.rect(left, top, width, height);
+            ctx.stroke();
+        })
+    };
+
+    const url = '/Users/scotthallock/Coding/c0d3-submissions/public/js5-p7/uploads/peas.png';
+    const ocr_data = [{
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "104",
+        "top": "15",
+        "width": "33",
+        "height": "33",
+        "conf": "92.482628",
+        "text": "It"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "159",
+        "top": "15",
+        "width": "106",
+        "height": "33",
+        "conf": "90.647720",
+        "text": "would"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "287",
+        "top": "11",
+        "width": "124",
+        "height": "51",
+        "conf": "54.218437",
+        "text": "appear"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "431",
+        "top": "16",
+        "width": "74",
+        "height": "33",
+        "conf": "54.218437",
+        "text": "that"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "528",
+        "top": "16",
+        "width": "56",
+        "height": "33",
+        "conf": "92.062798",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "6",
+        "left": "607",
+        "top": "27",
+        "width": "122",
+        "height": "22",
+        "conf": "90.816284",
+        "text": "answer"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "7",
+        "left": "751",
+        "top": "22",
+        "width": "36",
+        "height": "27",
+        "conf": "91.771545",
+        "text": "to"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "8",
+        "left": "810",
+        "top": "17",
+        "width": "57",
+        "height": "32",
+        "conf": "91.771545",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "9",
+        "left": "890",
+        "top": "17",
+        "width": "148",
+        "height": "40",
+        "conf": "92.623787",
+        "text": "question"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "10",
+        "left": "1061",
+        "top": "16",
+        "width": "36",
+        "height": "32",
+        "conf": "92.623787",
+        "text": "of"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "11",
+        "left": "1117",
+        "top": "16",
+        "width": "104",
+        "height": "32",
+        "conf": "91.884621",
+        "text": "where"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "1",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "12",
+        "left": "1244",
+        "top": "21",
+        "width": "36",
+        "height": "27",
+        "conf": "92.826004",
+        "text": "to"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "2",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "21",
+        "top": "61",
+        "width": "93",
+        "height": "40",
+        "conf": "87.588974",
+        "text": "plant"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "2",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "140",
+        "top": "62",
+        "width": "104",
+        "height": "32",
+        "conf": "89.824944",
+        "text": "Sweet"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "2",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "271",
+        "top": "62",
+        "width": "81",
+        "height": "32",
+        "conf": "92.552574",
+        "text": "Peas"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "2",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "378",
+        "top": "62",
+        "width": "37",
+        "height": "37",
+        "conf": "0.000000",
+        "text": "is"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "2",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "445",
+        "top": "62",
+        "width": "277",
+        "height": "40",
+        "conf": "0.000000",
+        "text": " Everywhere"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "3",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "765",
+        "top": "62",
+        "width": "68",
+        "height": "38",
+        "conf": "90.542587",
+        "text": "But"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "3",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "860",
+        "top": "62",
+        "width": "104",
+        "height": "33",
+        "conf": "92.551453",
+        "text": "Sweet"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "3",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "989",
+        "top": "62",
+        "width": "82",
+        "height": "33",
+        "conf": "92.797386",
+        "text": "Peas"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "3",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "1097",
+        "top": "61",
+        "width": "116",
+        "height": "34",
+        "conf": "92.330246",
+        "text": "should"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "3",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "1239",
+        "top": "61",
+        "width": "41",
+        "height": "33",
+        "conf": "92.330246",
+        "text": "be"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "21",
+        "top": "107",
+        "width": "133",
+        "height": "40",
+        "conf": "92.424629",
+        "text": "planted"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "167",
+        "top": "118",
+        "width": "43",
+        "height": "21",
+        "conf": "91.868774",
+        "text": "on"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "225",
+        "top": "118",
+        "width": "19",
+        "height": "21",
+        "conf": "93.057617",
+        "text": "a"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "258",
+        "top": "107",
+        "width": "71",
+        "height": "33",
+        "conf": "91.730431",
+        "text": "well"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "342",
+        "top": "107",
+        "width": "133",
+        "height": "33",
+        "conf": "91.648743",
+        "text": "drained"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "6",
+        "left": "489",
+        "top": "108",
+        "width": "59",
+        "height": "44",
+        "conf": "90.242943",
+        "text": "soil"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "7",
+        "left": "561",
+        "top": "108",
+        "width": "87",
+        "height": "40",
+        "conf": "0.000000",
+        "text": "only"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "8",
+        "left": "663",
+        "top": "119",
+        "width": "37",
+        "height": "21",
+        "conf": "93.242928",
+        "text": "or"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "9",
+        "left": "713",
+        "top": "119",
+        "width": "61",
+        "height": "22",
+        "conf": "93.214348",
+        "text": "one"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "10",
+        "left": "787",
+        "top": "108",
+        "width": "35",
+        "height": "32",
+        "conf": "93.090591",
+        "text": "in"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "11",
+        "left": "835",
+        "top": "108",
+        "width": "104",
+        "height": "32",
+        "conf": "92.696465",
+        "text": "which"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "12",
+        "left": "953",
+        "top": "108",
+        "width": "56",
+        "height": "33",
+        "conf": "92.675552",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "13",
+        "left": "1023",
+        "top": "107",
+        "width": "158",
+        "height": "34",
+        "conf": "93.155304",
+        "text": "excessive"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "4",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "14",
+        "left": "1194",
+        "top": "107",
+        "width": "86",
+        "height": "32",
+        "conf": "92.996170",
+        "text": "rains"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "20",
+        "top": "152",
+        "width": "37",
+        "height": "33",
+        "conf": "90.607742",
+        "text": "of"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "75",
+        "top": "153",
+        "width": "115",
+        "height": "40",
+        "conf": "91.774353",
+        "text": "Spring"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "210",
+        "top": "153",
+        "width": "64",
+        "height": "33",
+        "conf": "92.764389",
+        "text": "will"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "293",
+        "top": "158",
+        "width": "60",
+        "height": "28",
+        "conf": "92.428406",
+        "text": "not"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "372",
+        "top": "164",
+        "width": "96",
+        "height": "22",
+        "conf": "92.011345",
+        "text": "cause"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "6",
+        "left": "487",
+        "top": "158",
+        "width": "100",
+        "height": "28",
+        "conf": "91.965034",
+        "text": "water"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "7",
+        "left": "607",
+        "top": "159",
+        "width": "36",
+        "height": "27",
+        "conf": "92.317688",
+        "text": "to"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "8",
+        "left": "664",
+        "top": "154",
+        "width": "96",
+        "height": "32",
+        "conf": "91.683609",
+        "text": "stand"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "9",
+        "left": "781",
+        "top": "154",
+        "width": "124",
+        "height": "32",
+        "conf": "91.645531",
+        "text": "around"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "10",
+        "left": "926",
+        "top": "154",
+        "width": "56",
+        "height": "32",
+        "conf": "92.853951",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "11",
+        "left": "1002",
+        "top": "158",
+        "width": "88",
+        "height": "28",
+        "conf": "91.884010",
+        "text": "roots"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "12",
+        "left": "1110",
+        "top": "152",
+        "width": "66",
+        "height": "39",
+        "conf": "92.105293",
+        "text": "and"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "5",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "13",
+        "left": "1196",
+        "top": "157",
+        "width": "84",
+        "height": "28",
+        "conf": "92.560921",
+        "text": "start"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "21",
+        "top": "194",
+        "width": "135",
+        "height": "37",
+        "conf": "0.000000",
+        "text": "mildew"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "199",
+        "top": "199",
+        "width": "92",
+        "height": "39",
+        "conf": "84.790222",
+        "text": "They"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "305",
+        "top": "199",
+        "width": "42",
+        "height": "32",
+        "conf": "92.864677",
+        "text": "do"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "360",
+        "top": "204",
+        "width": "60",
+        "height": "28",
+        "conf": "92.187874",
+        "text": "not"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "432",
+        "top": "199",
+        "width": "64",
+        "height": "33",
+        "conf": "93.100479",
+        "text": "like"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "6",
+        "left": "509",
+        "top": "200",
+        "width": "158",
+        "height": "32",
+        "conf": "92.630478",
+        "text": "excessive"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "7",
+        "left": "680",
+        "top": "199",
+        "width": "108",
+        "height": "37",
+        "conf": "0.000000",
+        "text": "shade"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "8",
+        "left": "803",
+        "top": "199",
+        "width": "50",
+        "height": "33",
+        "conf": "93.223289",
+        "text": "for"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "9",
+        "left": "866",
+        "top": "200",
+        "width": "57",
+        "height": "32",
+        "conf": "93.235733",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "10",
+        "left": "935",
+        "top": "199",
+        "width": "109",
+        "height": "41",
+        "conf": "92.426613",
+        "text": "plants"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "11",
+        "left": "1057",
+        "top": "198",
+        "width": "114",
+        "height": "34",
+        "conf": "92.618141",
+        "text": "should"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "6",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "12",
+        "left": "1184",
+        "top": "198",
+        "width": "95",
+        "height": "33",
+        "conf": "92.295212",
+        "text": "make"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "19",
+        "top": "244",
+        "width": "20",
+        "height": "32",
+        "conf": "92.325714",
+        "text": "a"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "58",
+        "top": "244",
+        "width": "114",
+        "height": "40",
+        "conf": "91.972221",
+        "text": "sturdy"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "191",
+        "top": "245",
+        "width": "133",
+        "height": "39",
+        "conf": "0.000000",
+        "text": "growth"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "368",
+        "top": "245",
+        "width": "39",
+        "height": "32",
+        "conf": "89.996849",
+        "text": "In"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "425",
+        "top": "245",
+        "width": "57",
+        "height": "32",
+        "conf": "92.156738",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "6",
+        "left": "499",
+        "top": "245",
+        "width": "100",
+        "height": "33",
+        "conf": "91.508018",
+        "text": "shade"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "7",
+        "left": "616",
+        "top": "245",
+        "width": "57",
+        "height": "33",
+        "conf": "93.062164",
+        "text": "the"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "8",
+        "left": "690",
+        "top": "245",
+        "width": "124",
+        "height": "40",
+        "conf": "91.356033",
+        "text": "growth"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "9",
+        "left": "832",
+        "top": "245",
+        "width": "27",
+        "height": "32",
+        "conf": "91.356033",
+        "text": "is"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "10",
+        "left": "876",
+        "top": "245",
+        "width": "91",
+        "height": "34",
+        "conf": "92.175270",
+        "text": "weak"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "11",
+        "left": "985",
+        "top": "245",
+        "width": "65",
+        "height": "33",
+        "conf": "89.770889",
+        "text": "and"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "12",
+        "left": "1068",
+        "top": "244",
+        "width": "128",
+        "height": "41",
+        "conf": "89.770889",
+        "text": "spindly"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "7",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "13",
+        "left": "1214",
+        "top": "244",
+        "width": "65",
+        "height": "33",
+        "conf": "92.695145",
+        "text": "and"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "8",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "1",
+        "left": "21",
+        "top": "290",
+        "width": "61",
+        "height": "32",
+        "conf": "93.120216",
+        "text": "but"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "8",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "2",
+        "left": "101",
+        "top": "290",
+        "width": "61",
+        "height": "33",
+        "conf": "92.858696",
+        "text": "few"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "8",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "3",
+        "left": "181",
+        "top": "290",
+        "width": "122",
+        "height": "33",
+        "conf": "92.283440",
+        "text": "flowers"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "8",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "4",
+        "left": "323",
+        "top": "301",
+        "width": "54",
+        "height": "22",
+        "conf": "93.058319",
+        "text": "are"
+    },
+    {
+        "level": "5",
+        "page_num": "1",
+        "block_num": "8",
+        "par_num": "1",
+        "line_num": "1",
+        "word_num": "5",
+        "left": "396",
+        "top": "291",
+        "width": "172",
+        "height": "41",
+        "conf": "0.000000",
+        "text": "produced"
+    }];
+
+    draw(url, ocr_data);
+</script>
+</html>

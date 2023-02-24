@@ -26,6 +26,9 @@ router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p7/js5-p7.html'));
 });
 
+/* Store job data */
+const jobs = {};
+
 /* Upload an image and save it */
 router.post('/api/assets', upload.array('userFiles'), async (req, res) => {
     /* What about rotation pre-processing? */
@@ -34,27 +37,27 @@ router.post('/api/assets', upload.array('userFiles'), async (req, res) => {
     const images = req.files;
     const jobId = uuidv4(); // job id
 
-    /* add initial data to job */
+    /* initialize data for this job */
     jobs[jobId] = images.reduce((acc, image) => {
       acc.push({
         filename: image.filename,
         size: image.size,
-        status: 'processing', // processing | done
-        ocr_data: null
+        status: 'processing', // 'processing' | 'done'
+        text: null, // output from Tesseract OCR
+        ocr_data: null // output from Tesseract OCR
       })
       return acc;
     }, []);
 
-    process(images, jobId);
-    res.status(202).json({ images, jobId }); // this will be a link to the jobs
-    // the server should then make a request once per second to jobs/:jobId
+    process(images, jobId); // begin processing the images
+    res.status(202).json({ images, jobId });
 });
 
-const jobs = {}; // id1: {}, id2: {}
-
+/* Send back the job data */
 router.get('/jobs/:id', (req, res) => {
   console.log('/jobs/:id ouch ', Date.now());
-  res.json();
+  const jobId = req.params.id;
+  res.json(jobs[jobId]);
 });
 
 const process = (images, jobId) => {
@@ -69,9 +72,10 @@ const process = (images, jobId) => {
           tessedit_pageseg_mode: PSM.SPARSE_TEXT, // Find as much text as possible in no particular order.
         });
         const filepath = path.join(uploadsDirectory, image.filename);
-        const { data: { tsv } } = await worker.recognize(filepath);
-        /* update data and status of image in job */
+        const { data: { text, tsv } } = await worker.recognize(filepath);
+        /* the image has been processed, update status and data */
         jobs[jobId][i].status = 'done';
+        jobs[jobId][i].text = text;
         jobs[jobId][i].ocr_data = parseTSV(tsv);
         await worker.terminate();
       } catch (err) {
@@ -80,6 +84,7 @@ const process = (images, jobId) => {
     })
 };
 
+/* Parse the tab-separated-values output from Teseract */
 const parseTSV = (tsv) => {
   const data = tsv
     .split('\n')
