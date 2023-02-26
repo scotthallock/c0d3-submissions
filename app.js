@@ -20,7 +20,7 @@ app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 app.use('/ip-geolocation', js5_1_router);
 app.use('/commands', js5_2_router);
 app.use('/meme-gen', js5_3_router);
-// js5_4
+// js5_4 add later
 app.use('/chatroom', js5_5_router);
 app.use('/auth', js5_6_router);
 app.use('/image-text-extraction', js5_7_router);
