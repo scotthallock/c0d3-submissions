@@ -6,7 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Text Extraction</title>
     <link rel="stylesheet" type="text/css" href="../mvp.css">
-    <link rel="stylesheet" type="text/css" href="./js5-p7-styles.css">
+    <style>
+        hr {
+            margin-block-start: 20px;
+            margin-block-end: 20px;
+        }
+        form {
+            max-width: 500px;
+        }
+        .filename-cell {
+            width: 300;
+            max-width: 300px;
+        }
+        .status-cell {
+            width: 100px;
+            max-width: 100px;
+        }
+        .cut-text {
+            text-overflow: ellipsis;
+            overflow: hidden; 
+        }
+        .alert-message {
+            color: #e00;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            width: 500px;
+            min-width: 500px;
+            max-height: 500px;
+            padding: 0;
+        }
+        .image-wrapper { 
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .image {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .image-overlay {
+            /* center the canvas in the div so it
+            overlaps the image in the div*/
+            position: absolute;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .text-output {
+            background-color: #118bee15;;
+            box-sizing: border-box;
+            padding: 10px;
+            width: 500px;
+            max-height: 250px;
+            overflow: auto;
+        }
+    </style>
 </head>
 <body>
     <main>
