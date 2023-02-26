@@ -10,6 +10,9 @@ const fs = require('fs');
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p7/uploads');
 const examplesDirectory = path.join(__dirname, '../../public/js5-p7/examples');
 
+/* Create the /uploads folder if it does not exist */
+if (!fs.existsSync(uploadsDirectory)) fs.mkdirSync(uploadsDirectory);
+
 /* Serve static files */
 router.use('/uploads', express.static(uploadsDirectory));
 router.use('/examples', express.static(examplesDirectory));
@@ -68,17 +71,17 @@ router.get('/jobs/:id', (req, res) => {
     res.json(jobs[jobId]);
 });
 
-/* Initialize the jobs[jobId] array with data */
+/* Initialize jobs[jobId] with data that will be sent to the client */
 const initializeJobData = (jobId, images) => {
-  jobs[jobId] = images.reduce((acc, image) => {
-    acc.push({
-      filename: image.filename,
-      status: 'processing', // 'processing' | 'done'
-      text: null, // output from Tesseract OCR
-      ocr_data: null // output from Tesseract OCR
-    })
-    return acc;
-  }, []);
+    jobs[jobId] = images.reduce((acc, image) => {
+        acc.push({
+            filename: image.filename,
+            status: 'processing', // 'processing' | 'done'
+            text: null, // output from Tesseract OCR
+            ocr_data: null // output from Tesseract OCR
+        });
+        return acc;
+    }, []);
 };
 
 /* Use Tesseract to perform Optical Character Recognition on each image in the job */
@@ -95,17 +98,21 @@ const processJob = (jobId, images, dir) => {
             const filepath = path.join(dir, image.filename);
             const { data: { text, tsv } } = await worker.recognize(filepath);
 
-            /* the image has been processed, update status and data */
-            jobs[jobId][i].status = 'done';
-            jobs[jobId][i].text = text;
-            jobs[jobId][i].ocr_data = parseTSV(tsv);
+            /* The image has been processed, update status and data */
+            const processedImage = jobs[jobId][i];
+            processedImage.status = 'done';
+            processedImage.text = text;
+            processedImage.ocr_data = parseTSV(tsv);
             await worker.terminate();
         } catch (err) {
-            jobs[jobId][i].status = 'done';
-            jobs[jobId][i].error = {message: {err}};
-            res.status(400).json({error: {message: 'Error during OCR: ', err}});
+            const processedImage = jobs[jobId][i];
+            processedImage.status = 'done';
+            processedImage.error = {message: {err}};
+            res.status(400).json({
+                error: {message: 'Error during Tesseract processing: ', err}
+            });
         }
-    })
+    });
 };
 
 /* Transform the tab-separated-values output from Teseract into an object */

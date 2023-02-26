@@ -7,6 +7,9 @@
     <title>Image Text Extraction</title>
     <link rel="stylesheet" type="text/css" href="../mvp.css">
     <style>
+        :root {
+            --card-width: 500px;
+        }
         hr {
             margin-block-start: 20px;
             margin-block-end: 20px;
@@ -33,9 +36,9 @@
             display: flex;
             justify-content: center;
             position: relative;
-            width: 500px;
-            min-width: 500px;
-            max-height: 500px;
+            width: var(--card-width);
+            min-width: var(--card-width);
+            max-height: var(--card-width);
             padding: 0;
         }
         .image-wrapper { 
@@ -47,7 +50,7 @@
             max-width: 100%;
             max-height: 100%;
         }
-        .image-overlay {
+        .canvas-overlay {
             /* center the canvas in the div so it
             overlaps the image in the div*/
             position: absolute;
@@ -58,7 +61,7 @@
             background-color: #118bee15;;
             box-sizing: border-box;
             padding: 10px;
-            width: 500px;
+            width: var(--card-width);
             max-height: 250px;
             overflow: auto;
         }
@@ -70,11 +73,11 @@
             <form>
                 <h1>Image Text Extraction</h1>
                 <p>This app uses <a href="https://tesseract.projectnaptha.com/" target="_blank">Tesseract.js</a>, a port of the popular Tesseract Optical Character Recognition (OCR) engine.</p>
-                <a class="try-examples" href="javascript:void(0)">👉 Click here to demo with images on the server</a><hr>
+                <p>Images can take several seconds or longer to process.</p>
+                <p>👉 <a class="try-examples" href="javascript:void(0)">Click here to demo</a> with example images on the server.</p>
                 <label for="img">Upload your own images:</label>
                 <input class="img-input" type="file" name="img" accept="image/*" multiple required>
                 <div class="alert-message" hidden></div>
-                <button type="button" class="submit">Submit</button>
             </form>
         </section>
         <hr>
@@ -98,17 +101,13 @@
         /* DOM elements */
         const $tryExamples = document.querySelector('.try-examples');
         const $imgInput = document.querySelector('.img-input');
-        const $submit = document.querySelector('.submit');
         const $alertMessage = document.querySelector('.alert-message');
         const $mainContainer = document.querySelector('.main-container');
         const $statusTable = document.querySelector('.status-table');
         const $statusTableBody = document.querySelector('.status-table-body');
         let $statusCells;
 
-        /* Global variables */
-        let jobMetaData;
-
-        /* Fetch 3 random images from the server to demo the app */
+        /* Use 3 random images from the server to demo the app */
         $tryExamples.addEventListener('click', async () => {
             /* Reset things */
             resetVariablesAndDOM();
@@ -124,14 +123,14 @@
             populateStatusTable(body.images);
             
             /* Load the images and canvas on the DOM */
-            jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
+            const jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
 
             /* Make requests to the server to get the OCR data */
-            fetchOCRDataAndUpdateDOM(jobId);
+            fetchOCRDataAndUpdateDOM(jobId, jobMetaData);
         });
 
         /* Upload your own images to the server to extract text from */
-        $submit.addEventListener('click', async () => {
+        $imgInput.addEventListener('change', async () => {
             /* There must be between 1-10 files to upload to the server */
             const files = Array.from($imgInput.files);
             if (files.length === 0) {
@@ -167,10 +166,10 @@
             populateStatusTable(body.images);
 
             /* Load the images and canvas on the DOM */
-            jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
+            const jobMetaData = await Promise.all(imageUrls.map(loadImageAndCanvas));
 
             /* Make requests to the server to get the OCR data */
-            fetchOCRDataAndUpdateDOM(jobId);
+            fetchOCRDataAndUpdateDOM(jobId, jobMetaData);
         });
 
         /* Reset global variables DOM elements */
@@ -201,7 +200,7 @@
                     <section>
                     <div class="image-container">
                     <div class="image-wrapper"><img class="image"></div>
-                    <canvas class="image-overlay" hidden></canvas>
+                    <canvas class="canvas-overlay" hidden></canvas>
                     </div>
                     </section>
                     <section class="text-output-container">
@@ -210,26 +209,27 @@
                     <hr>
                 `);
                 const $img = Array.from(document.querySelectorAll('.image')).pop();
-                const $imageOverlay = Array.from(document.querySelectorAll('.image-overlay')).pop();
+                const $canvasOverlay = Array.from(document.querySelectorAll('.canvas-overlay')).pop();
                 const $textOutput = Array.from(document.querySelectorAll('.text-output')).pop();
 
                 /* once the image loads, size the canvas to match */
                 $img.onload = () => {
                     /* calculate scale factor */
                     const scale_factor = $img.width / $img.naturalWidth;
-                    $imageOverlay.width = $img.width;
-                    $imageOverlay.height = $img.height;
-                    $imageOverlay.hidden = false;
-                    resolve({$imageOverlay, $textOutput, scale_factor});
+                    $canvasOverlay.width = $img.width;
+                    $canvasOverlay.height = $img.height;
+                    $canvasOverlay.hidden = false;
+                    /* We are resolving with two DOM elements and the scale_factor */
+                    resolve({$canvasOverlay, $textOutput, scale_factor});
                 };
                 $img.src = imageUrl;
             });
         };
 
         /* Fetch the job data from the server until all images are processed and the output is render on the DOM */
-        const fetchOCRDataAndUpdateDOM = async (jobId, alreadyRendered) => {
-            /* Fetch the current job. A job is an array; each element is data for
-               an image that was processed by Tesseract OCR.. */
+        const fetchOCRDataAndUpdateDOM = async (jobId, jobMetaData, alreadyRendered) => {
+            /* Fetch the current job. A job is an array; each element is an object
+               with data for an image that was processed by Tesseract OCR engine */
             const res = await fetch(`/image-text-extraction/jobs/${jobId}`)
             const job = await res.json();
 
@@ -245,14 +245,14 @@
                 }
 
                 const $textOutput = jobMetaData[i].$textOutput; // the <pre> element
-                const $imageOverlay = jobMetaData[i].$imageOverlay; // the <canvas> element
+                const $canvasOverlay = jobMetaData[i].$canvasOverlay; // the <canvas> element
                 const scale_factor = jobMetaData[i].scale_factor; // for scaling what will be drawn on the canvas
                 
                 /* Add the processed image's output text to the DOM */
                 $textOutput.innerText = job[i].text.replace(/\n\s*\n/g, '\n');
 
                 /* Draw the boundary boxes on the canvas */
-                const ctx = $imageOverlay.getContext("2d");
+                const ctx = $canvasOverlay.getContext("2d");
                 processedImage.ocr_data.forEach(e => {
                     const left = e.left * scale_factor;
                     const top = e.top * scale_factor;
@@ -268,7 +268,6 @@
                 /* We are done with this processedImage */
                 alreadyRendered[i] = true;
                 $statusCells[i].innerText = '✅ done!';
-
             });
 
             /* All images are processed */
@@ -279,8 +278,8 @@
 
             /* Repeat until all outputs are displayed on DOM */
             setTimeout(() => {
-                fetchOCRDataAndUpdateDOM(jobId, alreadyRendered);
-            }, 500);
+                fetchOCRDataAndUpdateDOM(jobId, jobMetaData, alreadyRendered);
+            }, 1000);
         };
     };
     startApp();
