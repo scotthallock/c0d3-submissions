@@ -7,10 +7,6 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = 'not_very_secret_am_i_?';
 
-router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/js5-p6/js5-p6.html'));
-});
-
 /* Array of all users */
 const users = [];
 
@@ -31,6 +27,48 @@ const users = [];
 
 })();
 
+/* Check user signup fields are valid */
+const validateSignUp = async (username, email, password) => {
+    if (!password || password.length <= 5) {
+        return 'password field cannot be empty and must have 6 or more characters';
+    }
+    if (!username || !/^\w+$/.test(username)) {
+        return 'username field cannot be blank and must contain alpha numeric characters only';
+    }
+    if (users.some(e => e.username.toLowerCase() === username.toLowerCase())) {
+        return 'username is taken, please pick another';
+    }
+    if (!email || !email.includes('@')) {
+        return 'email field cannot be blank and must contain a \'@\' character';
+    }
+    if (users.some(e => e.email.toLowerCase() === email.toLowerCase())) {
+        return 'there is already an account with that email';
+    }
+    return null;
+};
+
+/********************
+ * REQUEST HANDLERS *
+ ********************/
+
+/* Serve /auth page */
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/js5-p6/js5-p6.html'));
+});
+
+/* Allow Cross-Origin Resource Sharing (CORS) for /auth/api/* */
+router.options('/api/*', (req, res) => {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Credentials'
+    );
+    res.send('ok');
+  })
+
+
 /* For demo purposes - send users array to client */
 router.get('/api/users', (req, res) => {
     res.json(users);
@@ -39,29 +77,15 @@ router.get('/api/users', (req, res) => {
 /* Create a new user */
 router.post('/api/users', jsonParser, async (req, res) => {
     const { username, email, password, ...others } = req.body;
+    if (typeof password !== 'string') {
+        return res.status(400).json({ error: { message:
+            'password missing in the request body' } });
+    }
     const decodedPassword = Buffer.from(password, 'base64').toString('ascii'); // atob()
 
     /* Input validation */
-    if (!decodedPassword || decodedPassword.length <= 5) {
-        return res.status(400).json({ 'error': { 'message':
-            'password field cannot be empty and must have 6 or more characters' } });
-    }
-    if (!username || !/^\w+$/.test(username)) {
-        return res.status(400).json({ 'error': { 'message':
-            'username field cannot be blank and must contain alpha numeric characters only' } });
-    }
-    if (users.some(e => e.username.toLowerCase() === username.toLowerCase())) {
-        return res.status(400).json({ 'error': { 'message':
-            'username is taken, please pick another' } });
-    }
-    if (!email || !email.includes('@')) {
-        return res.status(400).json({ 'error': { 'message':
-            'email field cannot be blank and must contain a \'@\' character' } });
-    }
-    if (users.some(e => e.email.toLowerCase() === email.toLowerCase())) {
-        return res.status(400).json({'error': {'message':
-            'there is already an account with that email'} });
-    }
+    const errorMessage = await validateSignUp(username, email, decodedPassword);
+    if (errorMessage) return res.status(400).json({ error: { message: errorMessage } });
 
     /* create user object, hash the password, and add a JWT */
     try {
@@ -78,9 +102,10 @@ router.post('/api/users', jsonParser, async (req, res) => {
         return res.status(201).json(user);
     } catch (err) {
         console.error(err);
-        res.send(500).json('Internal server error');
+        return res.send(500).json('Internal server error');
     }
 });
+
 
 /* Login a user */
 router.post('/api/sessions', jsonParser, async (req, res) => {
