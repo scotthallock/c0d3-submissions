@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selfie Queen</title>
+    <link rel="stylesheet" type="text/css" href="../mvp.css">
+    <style>
+        .video {
+            transform: rotateY(180deg); /* mirrored webcam */
+            /* -webkit-transform:rotateY(180deg); Safari and Chrome */
+            /* -moz-transform:rotateY(180deg); Firefox */
+        }
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .selfie-container {
+            overflow: hidden;
+            width: 640px;
+            height: 480px;
+            position: relative;
+            border-radius: 10px;
+        }
+        .animation-container {
+            width: 640px;
+            height: 480px;
+        }
+        .animation-container.animate {
+            animation-name: fadein;
+            animation-duration: 1s;
+            z-index: 2;
+        }
+        @keyframes fadein {
+            from {background-color: rgba(255, 255, 255, 1);}
+            to {background-color: rgba(0, 0, 0, 0);}
+        }
+        .overlay {
+            /* overlap the video element */
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+
+        .all-selfies-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 800px;
+        }
+        .uploaded-selfie-wrapper {
+            min-width: 250px;
+            width: 250px;
+        }
+        .uploaded-selfie {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 5px;
+        }
+
+
+
+        /* EMOJI SELECT STUFF - https://codepen.io/scohal/pen/BaOQZqg */
+        :root {
+            --sun-color: orange;
+            --select-box-size: 80px;
+        }
+        .select-emoji-container {
+            display: flex;
+            background-color: #eee;
+            border-radius: calc(var(--select-box-size) / 2);
+        }
+        .select-emoji-container[hidden] {
+            display: none;
+        }
+        .select-emoji {
+            user-select: none;
+            position: relative;
+            font-size: 50px;
+            width: var(--select-box-size);
+            height: var(--select-box-size);
+            text-align: center;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .select-emoji.selected {
+            transform: translateY(-10px);
+        }
+        .emoji-select-wrapper:hover .select-emoji {
+            cursor: pointer;
+            transform: translateY(-10px); 
+        }
+        /* Animation behind selected emoji */
+        @keyframes grow {
+            from {transform: scale(50%) rotate(0deg); }
+            to {transform: scale(100%) rotate(60deg); }
+        }
+        @keyframes spin {
+            from {transform: rotate(0deg); }
+            to {transform: rotate(360deg); }
+        }
+        .sun {
+            z-index: -1; /* make sun appear behind emoji */
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--select-box-size);
+            height: var(--select-box-size);
+            animation: spin 3s linear 0.5s infinite, grow 0.5s linear;
+        }
+        .ray {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: var(--sun-color);
+        }
+        .ray:nth-child(2) {
+            transform: rotate(30deg);
+        }
+        .ray:nth-child(3) {
+            transform: rotate(60deg);
+        }
+
+    </style>
+</head>
+<body>
+    <main>
+        <section>
+            <div class="input-container">
+                <h1>Selfie Queen</h1>
+                <div class="selfie-container">
+                    <video class="video" width="640" height="480"></video>
+                    <canvas class="selfie-canvas overlay" width="640" height="480"></canvas>
+                    <div class="animation-container overlay"></div>
+                </div>
+                <button type="button" class="take-selfie">Take a selfie!</button>
+                <button type="button" class="reset-selfie">Take another pic</button>
+                <button type="button" class="submit-selfie">Submit</button>
+                <div class="select-emoji-container" hidden>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>😅</span></div>
+                    </div>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>😱</span></div>
+                    </div>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>😎</span></div>
+                    </div>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>👽</span></div>
+                    </div>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>🥺</span></div>
+                    </div>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>😈</span></div>
+                    </div>
+                    <div class="emoji-select-wrapper">
+                        <div class="select-emoji"><span>😖</span></div>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+        <hr>
+        <section>
+            <div class="all-selfies-container"></div>
+        </section>
+    </main>
+    <script>
+        const $videoElement = document.querySelector('.video');
+        const $takeSelfie = document.querySelector('.take-selfie');
+        const $resetSelfie = document.querySelector('.reset-selfie');
+        const $submitSelfie = document.querySelector('.submit-selfie');
+        const $animationContainer = document.querySelector('.animation-container');
+        const $selectEmojiContainer = document.querySelector('.select-emoji-container');
+        const $allSelfiesContainer = document.querySelector('.all-selfies-container');
+        const $selfieCanvas = document.querySelector('.selfie-canvas');
+        const context = $selfieCanvas.getContext('2d');
+        context.scale(-1, 1); // selfie mirrors user
+        
+        const fadeInSelfie = () => {
+            if ($animationContainer.classList.contains('animate')) return;
+            $animationContainer.classList.add('animate');
+            setTimeout(() => {  
+                $animationContainer.classList.remove('animate');
+            }, 1000);
+        };
+
+        const setupWebcam = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+                $videoElement.srcObject = stream;
+                $videoElement.play();
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        setupWebcam();
+
+        const renderSelectEmoji = () => {
+            $selectEmojiContainer.hidden = false;
+            $selectEmojis = document.querySelectorAll('.select-emoji');
+            const rand = Math.floor(Math.random() * $selectEmojis.length);
+
+            $selectEmojis[rand].classList.add('selected');
+            $selectEmojis[rand].insertAdjacentHTML('beforeend', `
+                <div class="sun">
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                </div>
+            `);
+            
+        };
+
+        $takeSelfie.addEventListener('click', () => {
+            fadeInSelfie();
+            renderSelectEmoji();
+            context.drawImage($videoElement, 0, 0, -640, 480); // selfie mirrors user
+        });
+
+        $resetSelfie.addEventListener('click', () => {
+            context.clearRect(0, 0, -640, 480);
+        });
+        
+        $submitSelfie.addEventListener('click', async () => {
+            const pngData = $selfieCanvas.toDataURL();
+            const base64Data = pngData.replace(/^data:image\/png;base64,/, '');
+            try {
+                const response = await fetch('/selfie-queen/api/uploads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        selfie: base64Data
+                    })
+                });
+                const body = await response.json();
+                if (body.err) {
+                    return alert(body.err.message);
+                }
+                renderAllSelfies();
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        const renderAllSelfies = async () => {
+            try {
+                const response = await fetch('/selfie-queen/api/uploads');
+                const body = await response.json();
+                $allSelfiesContainer.innerHTML = body.selfies.reduce((acc, filename) => {
+                    return acc + `
+                        <div class="uploaded-selfie-wrapper">
+                            <img class="uploaded-selfie" src="/selfie-queen/uploads/${filename}">
+                        </div>`
+                }, '');
+
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+    </script>
+</body>
+</html>
