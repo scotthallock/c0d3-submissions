@@ -23,8 +23,13 @@
             height: 480px;
             position: relative;
             border-radius: 10px;
+            background-color: gray;
+            background-image: url( 'selfie-queen/icons/videocam_off_FILL0_wght400_GRAD0_opsz48.svg' );
+            background-position: center;
+            background-repeat: no-repeat;
         }
         .animation-container {
+            z-index: 3;
             width: 640px;
             height: 480px;
         }
@@ -44,25 +49,68 @@
             left: 0px;
         }
 
+        .buttons-container {
+            position: relative;
+            z-index: 5;
+            transform: translateY(-40px);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: auto;
+            /* border: 1px solid black; */
+        }
+        .icon-button {
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            width: 80px;
+            border-radius: 50%;
+            box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+        }
+
         .all-selfies-container {
             display: flex;
             flex-direction: row;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 20px;
-            max-width: 800px;
+            gap: 30px;
+            max-width: 1080px;
         }
         .uploaded-selfie-wrapper {
+            position: relative;
             min-width: 250px;
             width: 250px;
         }
-        .uploaded-selfie {
+        .uploaded-selfie-link:hover {
+            filter: none;
+            box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+        }
+        .uploaded-selfie-img {
+            display: block;
             max-width: 100%;
             max-height: 100%;
             border-radius: 5px;
         }
+        .uploaded-selfie-emoji {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            transform: translateY(-30px);
+            width: 100%;
+            text-align: center;
+            font-size: 40px;
+        }
+        .uploaded-selfie-timestamp {
+            text-align: center;
+        }
 
-
+        /* Hidden attribute -> don't show */
+        [hidden] {
+            display: none;
+        }
 
         /* EMOJI SELECT STUFF - https://codepen.io/scohal/pen/BaOQZqg */
         :root {
@@ -135,37 +183,30 @@
     <main>
         <section>
             <div class="input-container">
-                <h1>Selfie Queen</h1>
                 <div class="selfie-container">
                     <video class="video" width="640" height="480"></video>
                     <canvas class="selfie-canvas overlay" width="640" height="480"></canvas>
                     <div class="animation-container overlay"></div>
                 </div>
-                <button type="button" class="take-selfie">Take a selfie!</button>
-                <button type="button" class="reset-selfie">Take another pic</button>
-                <button type="button" class="submit-selfie">Submit</button>
+                <div class="buttons-container">
+                    <button type="button" class="take-selfie icon-button" hidden>
+                        <img src = "selfie-queen/icons/photo_camera_FILL0_wght400_GRAD0_opsz48.svg" alt="done"/>
+                    </button>
+                    <button type="button" class="cancel-selfie icon-button" hidden>
+                        <img src = "selfie-queen/icons/close_FILL0_wght400_GRAD0_opsz48.svg" alt="done"/>
+                    </button>
+                    <button type="button" class="submit-selfie icon-button" hidden>
+                        <img src = "selfie-queen/icons/done_FILL0_wght400_GRAD0_opsz48.svg" alt="done"/>
+                    </button>
+                </div>
                 <div class="select-emoji-container" hidden>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>😅</span></div>
-                    </div>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>😱</span></div>
-                    </div>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>😎</span></div>
-                    </div>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>👽</span></div>
-                    </div>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>🥺</span></div>
-                    </div>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>😈</span></div>
-                    </div>
-                    <div class="emoji-select-wrapper">
-                        <div class="select-emoji"><span>😖</span></div>
-                    </div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>😅</span></div></div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>😱</span></div></div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>😎</span></div></div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>👽</span></div></div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>🥺</span></div></div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>😈</span></div></div>
+                    <div class="emoji-select-wrapper"><div class="select-emoji"><span>😖</span></div></div>
                 </div>
                 
             </div>
@@ -175,67 +216,102 @@
             <div class="all-selfies-container"></div>
         </section>
     </main>
+    <!--timeago.js fuzzy timestamps (https://timeago.org/)-->
+    <script src="selfie-queen/timeago.js" type="text/javascript"></script> 
     <script>
+        /* The following 3 elements are overlapping */
         const $videoElement = document.querySelector('.video');
-        const $takeSelfie = document.querySelector('.take-selfie');
-        const $resetSelfie = document.querySelector('.reset-selfie');
-        const $submitSelfie = document.querySelector('.submit-selfie');
         const $animationContainer = document.querySelector('.animation-container');
-        const $selectEmojiContainer = document.querySelector('.select-emoji-container');
-        const $allSelfiesContainer = document.querySelector('.all-selfies-container');
         const $selfieCanvas = document.querySelector('.selfie-canvas');
-        const context = $selfieCanvas.getContext('2d');
-        context.scale(-1, 1); // selfie mirrors user
-        
-        const fadeInSelfie = () => {
-            if ($animationContainer.classList.contains('animate')) return;
-            $animationContainer.classList.add('animate');
-            setTimeout(() => {  
-                $animationContainer.classList.remove('animate');
-            }, 1000);
-        };
 
+        const context = $selfieCanvas.getContext('2d');
+        context.scale(-1, 1); // selfie will mirror user
+
+        /* Icon buttons */
+        const $takeSelfie = document.querySelector('.take-selfie');
+        const $cancelSelfie = document.querySelector('.cancel-selfie');
+        const $submitSelfie = document.querySelector('.submit-selfie');
+
+        const $allSelfiesContainer = document.querySelector('.all-selfies-container');
+        const $selectEmojiContainer = document.querySelector('.select-emoji-container');
+        let selectedEmoji;
+        
         const setupWebcam = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: true,
-                    audio: false
+                    audio: false // don't want microphone
                 });
                 $videoElement.srcObject = stream;
                 $videoElement.play();
+                $takeSelfie.hidden = false;
             } catch (err) {
                 console.error(err);
             }
         };
-        setupWebcam();
 
-        const renderSelectEmoji = () => {
-            $selectEmojiContainer.hidden = false;
-            $selectEmojis = document.querySelectorAll('.select-emoji');
-            const rand = Math.floor(Math.random() * $selectEmojis.length);
-
-            $selectEmojis[rand].classList.add('selected');
-            $selectEmojis[rand].insertAdjacentHTML('beforeend', `
-                <div class="sun">
-                    <div class="ray"></div>
-                    <div class="ray"></div>
-                    <div class="ray"></div>
-                </div>
-            `);
+        const showSelectEmojiContainer = () => {
+            const $allEmojis = $selectEmojiContainer.querySelectorAll('.select-emoji');
             
+            /* Pre-select a random emoji */
+            const rand = Math.floor(Math.random() * $allEmojis.length);
+            const $emoji = $allEmojis[rand];
+
+            selectedEmoji = $emoji.innerText;
+            console.log({selectedEmoji});
+
+            showEmojiSelection($emoji);
+            $selectEmojiContainer.hidden = false;
         };
 
-        $takeSelfie.addEventListener('click', () => {
-            fadeInSelfie();
-            renderSelectEmoji();
-            context.drawImage($videoElement, 0, 0, -640, 480); // selfie mirrors user
-        });
+        const hideSelectEmojiContainer = () => {
+            $selectEmojiContainer.hidden = true;
+            $selectEmojiContainer.querySelector('.selected').classList.remove('selected');
+            $selectEmojiContainer.querySelector('.sun').remove();
+        };
 
-        $resetSelfie.addEventListener('click', () => {
+        const selectEmojiHandler = e => {
+            const $emoji = e.target.closest('.select-emoji');
+
+            if (!$emoji) return;
+            if (!$emoji.classList.contains('select-emoji')) return;
+            if ($emoji.classList.contains('selected')) return; // already selected
+
+            selectedEmoji = $emoji.innerText;
+            console.log({selectedEmoji});
+
+            $selectEmojiContainer.querySelector('.selected').classList.remove('selected');
+            $selectEmojiContainer.querySelector('.sun').remove();
+            showEmojiSelection($emoji);
+        };
+
+        const showEmojiSelection = ($emoji) => {
+            $emoji.classList.add('selected');
+            $emoji.insertAdjacentHTML(
+                'beforeend', 
+                '<div class="sun"><div class="ray"></div><div class="ray"></div><div class="ray"></div></div>'
+            );
+        };
+
+        const takeSelfieHandler = () => {
+            fadeInSelfie();
+            context.drawImage($videoElement, 0, 0, -640, 480); // selfie mirrors user
+            $takeSelfie.hidden = true;
+            $cancelSelfie.hidden = false;
+            $submitSelfie.hidden = false;
+            showSelectEmojiContainer();
+        };
+
+        const cancelSelfieHandler = () => {
             context.clearRect(0, 0, -640, 480);
-        });
-        
-        $submitSelfie.addEventListener('click', async () => {
+            $cancelSelfie.hidden = true;
+            $submitSelfie.hidden = true;
+            $selectEmojiContainer.hidden = true;
+            $takeSelfie.hidden = false;
+            hideSelectEmojiContainer();
+        };
+
+        const submitSelfieHandler = async () => {
             const pngData = $selfieCanvas.toDataURL();
             const base64Data = pngData.replace(/^data:image\/png;base64,/, '');
             try {
@@ -245,35 +321,62 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        selfie: base64Data
+                        selfie: base64Data,
+                        emoji: selectedEmoji
                     })
                 });
                 const body = await response.json();
                 if (body.err) {
                     return alert(body.err.message);
                 }
+                cancelSelfieHandler();
                 renderAllSelfies();
-            } catch (err) {
-                console.error(err);
-            }
-        });
-
-        const renderAllSelfies = async () => {
-            try {
-                const response = await fetch('/selfie-queen/api/uploads');
-                const body = await response.json();
-                $allSelfiesContainer.innerHTML = body.selfies.reduce((acc, filename) => {
-                    return acc + `
-                        <div class="uploaded-selfie-wrapper">
-                            <img class="uploaded-selfie" src="/selfie-queen/uploads/${filename}">
-                        </div>`
-                }, '');
-
             } catch (err) {
                 console.error(err);
             }
         };
 
+        /* Fetch all submitted selfies from the server and render them */
+        const renderAllSelfies = async () => {
+            try {
+                const response = await fetch('/selfie-queen/api/uploads');
+                const selfies = await response.json();
+                const filenames = Object.keys(selfies);
+                $allSelfiesContainer.innerHTML = filenames.reduceRight((acc, filename) => {
+                    return acc + `
+                        <div class="uploaded-selfie-wrapper">
+                            <a class="uploaded-selfie-link" href="selfie-queen/uploads/${filename}">
+                            <img class="uploaded-selfie-img" src="selfie-queen/uploads/${filename}">
+                            </a>
+                            <div class="uploaded-selfie-emoji">${selfies[filename].emoji}</div>
+                            <div class="uploaded-selfie-timestamp" 
+                            datetime="${new Date(selfies[filename].timestamp).toISOString()}"></div>
+                        </div>`
+                }, '');
+                timeago.render(document.querySelectorAll('.uploaded-selfie-timestamp'));
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        /* Trigger fade-in animation when user takes selfie */
+        const fadeInSelfie = () => {
+            if ($animationContainer.classList.contains('animate')) return;
+            $animationContainer.classList.add('animate');
+            setTimeout(() => {  
+                $animationContainer.classList.remove('animate');
+            }, 1000);
+        };
+
+        /* Event listeners */
+        $takeSelfie.addEventListener('click', takeSelfieHandler);
+        $cancelSelfie.addEventListener('click', cancelSelfieHandler);
+        $submitSelfie.addEventListener('click', submitSelfieHandler);
+        $selectEmojiContainer.addEventListener('click', selectEmojiHandler);
+
+        /* Start app */
+        setupWebcam();
+        renderAllSelfies();
     </script>
 </body>
 </html>

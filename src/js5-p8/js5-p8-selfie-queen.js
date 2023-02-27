@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p8/uploads');
+const iconsDirectory = path.join(__dirname, '../../public/js5-p8/icons');
 
 /* Create the /uploads folder if it does not exist */
 if (!fs.existsSync(uploadsDirectory)) fs.mkdirSync(uploadsDirectory);
@@ -15,51 +16,72 @@ if (!fs.existsSync(uploadsDirectory)) fs.mkdirSync(uploadsDirectory);
 router.use(bodyParser.json({limit: '10mb'}));
 
 router.use('/uploads', express.static(uploadsDirectory));
+router.use('/icons', express.static(iconsDirectory));
+
+/* Using timeago.min.js script in the html <script> */
+router.get('/timeago.js', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../node_modules/timeago.js/dist/timeago.min.js'));
+});
 
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p8/js5-p8.html'));
 });
 
+/* Initialize selfie metadata object */
+const selfies = {
+    '_animal-selfie-1.png': {
+        timestamp: Date.now() - (1000 * 60 * 60),
+        emoji: '😎'
+    },
+    '_animal-selfie-2.png': {
+        timestamp: Date.now(),
+        emoji: '😈'
+    }
+};
+
 /* User submits a selfie */
 router.post('/api/uploads', jsonParser, async (req, res) => {
     console.log('/api/uploads ouch ', Date.now());
-    if (!req.body.selfie) {
-        res.status(400).json({error: {message: 'Request is missing a selfie'}});
+    console.log('the emoji is ', req.body.emoji);
+    if (!req.body.selfie || !req.body.emoji) {
+        res.status(400).json({error: {message: 'Request is missing a selfie or emoji'}});
     }
-
-    const filename = uuidv4() + '.png';
+    const time = Date.now();
+    const filename = time + '_' + uuidv4() + '.png';
     const filepath = uploadsDirectory + '/' + filename;
 
     try {
         await fs.promises.writeFile(filepath, req.body.selfie, 'base64')
+        selfies[filename] = {
+            timestamp: time,
+            emoji: req.body.emoji
+        };
+        res.status(201).json(selfies[filename]);
     } catch (err) {
         console.error(err);
         res.status(500).json({error: {message: 'Error while saving seflie file to server'}});
     }
-
-    res.status(201).json({ filename });
 });
 
 /* Send all selfies in the /uploads folder */
-router.get('/api/uploads', async (req, res) => {
+router.get('/api/uploads', (req, res) => {
     console.log('/api/uploads ouch ', Date.now());
-    try {
-        const selfies = await fs.promises.readdir(uploadsDirectory);
-        res.json({ selfies });
-    } catch (err) {
-        res.status(500).json({error: {message: 'Error reading /uploads directory'}});
-    }
+    res.json(selfies);
 });
 
 /* Delete old selfies from server */
 const deleteOldSelfies = async () => {
     try {
         const files = await fs.promises.readdir(uploadsDirectory);
-        files.forEach(async (file) => {
-            const filepath = uploadsDirectory + '/' + file;
+        files.forEach(async (filename) => {
+            const filepath = uploadsDirectory + '/' + filename;
             const stats = await fs.promises.stat(filepath);
+            if (filename.startsWith('_animal')) { // don't delete the example animal selfies
+                return;
+            }
             if (Date.now() - stats.mtimeMs > 1000 * 60 * 60 * 24) { // 24 hours
-                await fs.promises.unlink(filepath);
+                await fs.promises.unlink(filepath); // delete the file
+                delete selfies[filename]; // delete the metadata
                 console.log(`Deleted ${file} from /uploads folder at ${new Date()}`);
             }
         });
