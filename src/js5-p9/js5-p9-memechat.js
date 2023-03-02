@@ -3,8 +3,10 @@ const router = express.Router();
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const Jimp = require('jimp');
+const { createCanvas, loadImage } = require('canvas');
+const fsp = require('fs').promises;
 
-router.use(express.json());
+const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 
 const sessions = {};
 const memes = {
@@ -14,39 +16,50 @@ const memes = {
     }
 };
 
-/* Generate meme and return Promise for buffer */
-const generateMeme = async (src, black, caption, blur) => {
-    try {
-        /* load the image */
-        const loadedImage = await Jimp.read(src);
-        /* blur the image */
-        if (blur > 0) loadedImage.blur(blur);
-        /* load the font */
-        const font = black === 'true' ? 
-            await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK) : 
-            await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
-        /* put the caption on the image */
-        loadedImage.print(
-            font,
-            0, // x
-            30, // y
-            {
-            text: caption,
-            alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-            alignmentY: Jimp.VERTICAL_ALIGN_TOP
-            },
-            loadedImage.bitmap.width // max width before text wrap
-        );
-        /* return a Promise for the binary buffer */
-        return loadedImage.getBufferAsync(Jimp.MIME_JPEG);
-    } catch (err) {
-        console.error(err)
-    }
+const createMeme = async (username, image, captionTop, captionBot) => {
+    const filename = username + '.png'
+    const filepath = uploadsDirectory + '/' + filename;
+
+    return new Promise(async (resolve, reject) => {
+        await fsp.writeFile(filepath, image, {encoding: 'base64url'});
+
+        // load image to draw onto canvas
+        const loadedImage = await loadImage(filepath);
+        const canvas = createCanvas(640, 480);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(loadedImage, 0, 0, 640, 480);
+
+        // set up ctx
+        ctx.font = 'bold 50px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 5;
+        ctx.miterLimit = 2;
+        ctx.fillStyle = 'white';
+        const centerX = canvas.width / 2;
+        const topY = 70;
+        const botY = 450;
+        
+        // add captions
+        ctx.strokeText(captionTop, centerX, topY);
+        ctx.fillText(captionTop, centerX, topY);
+        ctx.strokeText(captionBot, centerX, botY);
+        ctx.fillText(captionBot, centerX, botY);
+
+        // overwrite the saved image with the meme
+        const buffer = canvas.toBuffer("image/png");
+        await fsp.writeFile(filepath, buffer);
+
+        const meme = {
+            filename,
+            createdAt: Date.now()
+        };
+        memes[username] = meme;
+        resolve(meme);
+    });
 };
 
-
-
-
+router.use(express.json({limit: '10mb'}));
 
 /* Serve /memechat page */
 router.get('/', (req, res) => {
@@ -55,7 +68,6 @@ router.get('/', (req, res) => {
 
 router.post('/login', (req, res) => {
     const { username } = req.body;
-    
     if (!username) {
         return res.status(401).json({error: {message: 'Please include username in request'}});
     }
@@ -86,8 +98,21 @@ router.get('/api/session', (req, res) => {
 });
 
 /* create meme */
-router.post('/api/memes', (req, res) => {
-
+router.post('/api/memes', async (req, res) => {
+    console.log('ouch /api/memes', Date.now());
+    const { username, image, captionTop, captionBot } = req.body;
+    
+    if (!username || !image || (!captionTop && !captionBot)) {
+        return res.status(400).json({error: 
+            {message: 'Request is missing username, image, or a caption'}
+        });
+    }
+    try {
+        const meme = await createMeme(username, image, captionTop, captionBot);
+        res.json({ meme });
+    } catch (err) {
+        res.status(500).json({error: {message: err}});
+    }
 });
 
 
@@ -95,7 +120,5 @@ router.post('/api/memes', (req, res) => {
 router.get('/api/memes', (req, res) => {
 
 });
-
-
 
 module.exports = router;

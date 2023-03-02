@@ -63,70 +63,101 @@
 
         const render = async () => {
             $appContainer.innerHTML = `
-                <h1>Welcome... ${globalUsername}</h1>
+                <h1>Welcome, ${globalUsername}!</h1>
                 <div>
                     <video class="video" width="640" height="480"></video>
                     <canvas class="canvas" width="640" height="480" hidden></canvas>
-                    <label for="caption">Add a caption:</label>
-                    <input class="caption" name="caption" type="text" />
+                    <label>Add a caption:</label>
+                    <input class="caption-top" name="caption" type="text" placeholder="TOP TEXT"/>
+                    <input class="caption-bot" name="caption" type="text" placeholder="BOTTOM TEXT"/>
+                    <div class="message"></div>
                     <button class="submit" type="button" hidden>Submit</button>
                 </div>
                 <a class="logout" href="javascript:void(0)">Log out</a>
             `;
             const $video = document.querySelector('.video');
             const $canvas = document.querySelector('.canvas');
-            const context = $canvas.getContext('2d');
             const $logout = document.querySelector('.logout');
-            const $caption = document.querySelector('.caption');
+            const $captionTop = document.querySelector('.caption-top');
+            const $captionBot = document.querySelector('.caption-bot');
+            const $message = document.querySelector('.message');
             const $submit = document.querySelector('.submit');
+
+            const submitMemeHandler = async () => {
+                const captionTop = $captionTop.value.trim();
+                const captionBot = $captionBot.value.trim();
+                if (!captionTop && !captionBot) {
+                    return $message.innerText = 'Add a caption!';
+                }
+                const context = $canvas.getContext('2d');
+                context.drawImage($video, 0, 0, 640, 480);
+                const base64Data = $canvas
+                    .toDataURL()
+                    .replace(/^data:image\/png;base64,/, '');
+                try {
+                    const response = await fetch('/memechat/api/memes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: globalUsername,
+                            image: base64Data,
+                            captionTop,
+                            captionBot
+                        })
+                    });
+                    const body = await response.json();
+                    if (body.err) {
+                        $message.innerText = body.err.message;
+                        return;
+                    }
+                    console.log('meme creation success');
+                    renderAllMemes();
+
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            await setupWebcam($video);
+            $submit.hidden = false;
+            $captionTop.focus();
 
             $logout.addEventListener('click', logoutHandler);
             $submit.addEventListener('click', () => {
-                context.drawImage($videoElement, 0, 0, 640, 480);
-                
-                submitMemeHandler(caption.value)
+                submitMemeHandler();
             });
-
-            await setupWebcam();
-
-            $submit.hidden = false;
-
-            
-
-
-            
+            $captionTop.addEventListener('keydown', (e) => {
+                if (e.key == 'Enter') return $captionBot.focus();
+            });
+            $captionBot.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                submitMemeHandler();
+            });
 
         };
 
         const renderAllMemes = () => {
-
+            $appContainer.innerHTML = `
+                <h1>This is the page where we render all memes</h1>
+            `;
         };
 
-        const setupWebcam = async () => {
+        const setupWebcam = async ($video) => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: true,
                     audio: false
                 });
-                $videoElement.srcObject = stream;
-                $videoElement.play();
+                $video.srcObject = stream;
+                $video.play();
             } catch (err) {
                 console.error(err);
             }
         };
 
-        const submitMemeHandler = async () => {
-            try {
-                fetch('/memechat/api/memes', {
-                    method: 'POST',
-                    headers: {
-
-                    }
-                })
-            } catch (err) {
-                console.error(err);
-            }
-        };
+        
 
         const logoutHandler = async () => {
             try {
