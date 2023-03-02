@@ -9,12 +9,7 @@ const fsp = require('fs').promises;
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 
 const sessions = {};
-const memes = {
-    'user1': {
-        filename: 'user1.png',
-        created: Date.now()
-    }
-};
+const memes = {};
 
 const createMeme = async (username, image, captionTop, captionBot) => {
     const filename = username + '.png'
@@ -51,6 +46,7 @@ const createMeme = async (username, image, captionTop, captionBot) => {
         await fsp.writeFile(filepath, buffer);
 
         const meme = {
+            username, 
             filename,
             createdAt: Date.now()
         };
@@ -60,6 +56,8 @@ const createMeme = async (username, image, captionTop, captionBot) => {
 };
 
 router.use(express.json({limit: '10mb'}));
+
+router.use('/uploads', express.static(uploadsDirectory));
 
 /* Serve /memechat page */
 router.get('/', (req, res) => {
@@ -97,7 +95,10 @@ router.get('/api/session', (req, res) => {
     return res.json({ username: userSession.username });
 });
 
-/* create meme */
+router.get('/api/memes', (req, res) => {
+    res.json(memes);
+});
+
 router.post('/api/memes', async (req, res) => {
     console.log('ouch /api/memes', Date.now());
     const { username, image, captionTop, captionBot } = req.body;
@@ -116,9 +117,6 @@ router.post('/api/memes', async (req, res) => {
 });
 
 
-/* get all memes */
-router.get('/api/memes', (req, res) => {
 
-});
 
 module.exports = router;

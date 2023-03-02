@@ -24,18 +24,19 @@
         const setupLogin = async () => {
             $appContainer.innerHTML = `
                 <h1>Welcome to MemeChat</h1>
-                <form>
+                <form class="form">
                     <label for="username">What should we call you?</label>
                     <input class="username" name="username" type="text"/>
                     <div class="message"></div>
                     <button class="login" type="button">Log in</button>
                 </form>
             `;
+            const $form = document.querySelector('.form');
             const $username = document.querySelector('.username');
             const $message = document.querySelector('.message');
             const $login = document.querySelector('.login');
-            
-            $login.addEventListener('click', async () => {
+
+            const loginHandler = async () => {
                 const username = $username.value.trim();
                 if (!username) return;
 
@@ -58,6 +59,15 @@
                     return render();
                 }
                 $message.innerText = 'Unable to login';
+            };
+            
+            $form.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+            $login.addEventListener('click', loginHandler);
+            $username.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                loginHandler();
             });
         };
 
@@ -138,10 +148,30 @@
 
         };
 
-        const renderAllMemes = () => {
-            $appContainer.innerHTML = `
-                <h1>This is the page where we render all memes</h1>
-            `;
+        const renderAllMemes = async () => {
+            try {
+                const response = await fetch('/memechat/api/memes');
+                const body = await response.json();
+                if (body.error) {
+                    return alert(body.error.message);
+                }
+                const data = Object.values(body);
+
+                $appContainer.innerHTML = data.reduce((acc, e) => {
+                    return `
+                        <div>
+                        <div>${e.username}</div>
+                        <a target="_blank" href="memechat/uploads/${e.filename}">
+                        <img src="memechat/uploads/${e.filename}">
+                        </a>
+                        <div>${e.createdAt}</div>
+                        </div>
+                        ` + acc;
+                }, '');
+
+            } catch (err) {
+                console.error(err);
+            }
         };
 
         const setupWebcam = async ($video) => {
