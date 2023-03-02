@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemeChat</title>
+    <link rel="stylesheet" type="text/css" href="../mvp.css">
+</head>
+<body>
+    <main>
+        <section>
+           <div class="app-container"></div>
+        </section>
+    </main>
+
+    <script>
+        /* DOM elements */
+        const $appContainer = document.querySelector('.app-container');
+
+        /* Global variables */
+        let globalUsername;
+
+        const setupLogin = async () => {
+            $appContainer.innerHTML = `
+                <h1>Welcome to MemeChat</h1>
+                <form>
+                    <label for="username">What should we call you?</label>
+                    <input class="username" name="username" type="text"/>
+                    <div class="message"></div>
+                    <button class="login" type="button">Log in</button>
+                </form>
+            `;
+            const $username = document.querySelector('.username');
+            const $message = document.querySelector('.message');
+            const $login = document.querySelector('.login');
+            
+            $login.addEventListener('click', async () => {
+                const username = $username.value.trim();
+                if (!username) return;
+
+                const response = await fetch('/memechat/login', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username
+                    })
+                });
+                const body = await response.json();
+                if (body.error) {
+                    $message.innerText = body.error.message;
+                    return;
+                } else if (body.username) {
+                    globalUsername = body.username;
+                    return render();
+                }
+                $message.innerText = 'Unable to login';
+            });
+        };
+
+        const render = async () => {
+            $appContainer.innerHTML = `
+                <h1>Welcome... ${globalUsername}</h1>
+                <div>
+                    <video class="video" width="640" height="480"></video>
+                    <canvas class="canvas" width="640" height="480" hidden></canvas>
+                    <label for="caption">Add a caption:</label>
+                    <input class="caption" name="caption" type="text" />
+                    <button class="submit" type="button" hidden>Submit</button>
+                </div>
+                <a class="logout" href="javascript:void(0)">Log out</a>
+            `;
+            const $video = document.querySelector('.video');
+            const $canvas = document.querySelector('.canvas');
+            const context = $canvas.getContext('2d');
+            const $logout = document.querySelector('.logout');
+            const $caption = document.querySelector('.caption');
+            const $submit = document.querySelector('.submit');
+
+            $logout.addEventListener('click', logoutHandler);
+            $submit.addEventListener('click', () => {
+                context.drawImage($videoElement, 0, 0, 640, 480);
+                
+                submitMemeHandler(caption.value)
+            });
+
+            await setupWebcam();
+
+            $submit.hidden = false;
+
+            
+
+
+            
+
+        };
+
+        const renderAllMemes = () => {
+
+        };
+
+        const setupWebcam = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+                $videoElement.srcObject = stream;
+                $videoElement.play();
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        const submitMemeHandler = async () => {
+            try {
+                fetch('/memechat/api/memes', {
+                    method: 'POST',
+                    headers: {
+
+                    }
+                })
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        const logoutHandler = async () => {
+            try {
+                await fetch('/memechat/logout');
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+            } 
+        };
+
+
+        // START APP
+        (async () => {
+            console.log('app started');
+            try {
+                const response = await fetch('/memechat/api/session');
+                const body = await response.json();
+                if (body.username) {
+                    globalUsername = body.username;
+                    console.log(`user is authenticated! Welcome, ${globalUsername}` );
+                    return render();
+                }
+                console.log('...need to login');
+                return setupLogin();
+            } catch (err) {
+                console.error(err);
+            }
+        })();
+    </script>
+</body>
+</html>

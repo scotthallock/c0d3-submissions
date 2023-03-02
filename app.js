@@ -9,6 +9,7 @@ const js5_5_router = require('./src/js5-p5/js5-p5-chatroom.js');
 const js5_6_router = require('./src/js5-p6/js5-p6-auth.js');
 const js5_7_router = require('./src/js5-p7/js5-p7-image-text-extraction.js')
 const js5_8_router = require('./src/js5-p8/js5-p8-selfie-queen.js')
+const js5_9_router = require('./src/js5-p9/js5-p9-memechat.js')
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/chatroom', js5_5_router);
 app.use('/auth', js5_6_router);
 app.use('/image-text-extraction', js5_7_router);
 app.use('/selfie-queen', js5_8_router);
+app.use('/memechat', js5_9_router);
 
 /* Start the server */
 const port = 8123;
