@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nabla&family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/memechat/js5-p9-styles.css">
+</head>
+<style>
+
+    .animated-text {
+        font-size: 80px;
+    }
+    .animated-letter {
+        display: inline-block;
+        animation: 1s wavytext backwards ease-in-out infinite;
+    }
+    @keyframes wavytext {
+        0% { transform: translateY(0px); }
+        50%{ transform: translateY(-20px); }
+    }
+
+    .message {
+        margin: 10px;
+        color: orange;
+    }
+</style>
+<body>
+    <main>
+        <h1 class="animated-text">MEME CHAT</h1>
+        <input class="username" name="username" type="text" placeholder="What should we call you?"/>
+        <div class="message"></div>
+        <button class="login" type="button">Enter</button>
+    </main>
+    
+    <script>
+        const $animatedText = document.querySelector('.animated-text');
+        const $username = document.querySelector('.username');
+        const $message = document.querySelector('.message');
+        const $login = document.querySelector('.login');
+
+        /* Animate the Meme Chat logo */
+        const textArray = $animatedText.innerText.split('');
+        $animatedText.innerHTML = '';
+        const elArray = textArray.forEach((letter, i) => {
+            if (letter === ' ') letter = '&nbsp;';
+            const el = document.createElement('span');
+            el.className = 'animated-letter';
+            el.innerHTML = letter;
+            el.style.animationDelay = (i / textArray.length) + 's';
+            $animatedText.append(el);
+        });
+
+
+        const loginHandler = async () => {
+            const username = $username.value.trim();
+            if (!username) return;
+
+            const response = await fetch('/memechat/api/login', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username
+                })
+            });
+            const body = await response.json();
+            if (body.error) {
+                return $message.innerText = body.error.message;
+            }
+            if (body.username) {
+                return window.location.replace(window.location.href.replace('/login', ''));
+            }
+            $message.innerText = 'Unable to login';
+        };
+        
+        $login.addEventListener('click', loginHandler);
+        $username.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            loginHandler();
+        });
+
+    </script>
+
+</body>
+</html>

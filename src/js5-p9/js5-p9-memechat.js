@@ -9,7 +9,43 @@ const fsp = require('fs').promises;
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 
 const sessions = {};
-const memes = {};
+const memes = {
+    '_example1': {
+        username: '_example1',
+        filename: '_example1.png',
+        createdAt: Date.now()
+    },
+    '_example2': {
+        username: '_example2',
+        filename: '_example2.png',
+        createdAt: Date.now()
+    },
+    '_example3': {
+        username: '_example3',
+        filename: '_example3.png',
+        createdAt: Date.now()
+    },
+    '_example4': {
+        username: '_example4',
+        filename: '_example4.png',
+        createdAt: Date.now()
+    },
+    '_example5': {
+        username: '_example5',
+        filename: '_example5.png',
+        createdAt: Date.now()
+    },
+    '_example6': {
+        username: '_example6',
+        filename: '_example6.png',
+        createdAt: Date.now()
+    },
+    '_example7': {
+        username: '_example7',
+        filename: '_example7.png',
+        createdAt: Date.now()
+    },
+};
 
 const createMeme = async (username, image, captionTop, captionBot) => {
     const filename = username + '.png'
@@ -59,12 +95,24 @@ router.use(express.json({limit: '10mb'}));
 
 router.use('/uploads', express.static(uploadsDirectory));
 
-/* Serve /memechat page */
-router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9.html'));
+/* External style sheet */
+router.get('/js5-p9-styles.css', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-styles.css'));
 });
 
-router.post('/login', (req, res) => {
+/* Serve /memechat page */
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-memechat.html'));
+});
+
+/* Serve /memechat/login page */
+router.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-login.html'));
+});
+
+
+
+router.post('/api/login', (req, res) => {
     const { username } = req.body;
     if (!username) {
         return res.status(401).json({error: {message: 'Please include username in request'}});
@@ -79,7 +127,7 @@ router.post('/login', (req, res) => {
     res.json({ username });
 });
 
-router.get('/logout', (req, res) => {
+router.get('/api/logout', (req, res) => {
     const sessionId = req.headers.cookie?.split('=')[1];
     delete sessions[sessionId];
     res.clearCookie('session');
