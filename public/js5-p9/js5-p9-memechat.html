@@ -6,43 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MemeChat</title>
     <link rel="stylesheet" type="text/css" href="/memechat/js5-p9-styles.css">
-    <style>
-        .all-memes {
-            background-color: lavender;
-        }
-        .post-meme {
-            background-color: floralwhite;
-        }
-    </style>
 </head>
 
 <body>
     <nav>
         <ul>
-            <li><h2>MEME CHAT</h2></li>
-            <li><button>Create a Meme</button></li>
-            <li class="right">Welcome, User</li>
-            <li><button>About</button></li>
+            <li><span class="logo">MEME CHAT</span></li>
+            <li class="right"><span class="welcome"></span></li>
             <li><button class="logout">Logout</button></li>
         </ul>
     </nav>
-
     <div class="all-memes-container"></div>
-
-    <button class="create-meme">Create a Meme</button>
-
-
+    <div class="invisible-container" hidden></div>
     <div class="create-meme-container offscreen">
         <video class="video" width="640" height="480"></video> 
         <canvas class="canvas" width="640" height="480" hidden></canvas>
-        <input class="caption-top" name="caption" type="text" placeholder="TOP TEXT"/>
-        <input class="caption-bot" name="caption" type="text" placeholder="BOTTOM TEXT"/>
+        <input class="caption-top caption" name="caption" type="text" placeholder="TOP TEXT"/>
+        <input class="caption-bot caption" name="caption" type="text" placeholder="BOTTOM TEXT"/>
         <div class="message"></div>
-        <button class="submit" hidden>Submit</button>
+        <button class="submit">Submit</button>
         <button class="cancel">Cancel</button>
     </div>
-
-
+    <div>
+        <button class="create-meme">Create a Meme</button>
+    </div>
+    <!--timeago.js fuzzy timestamps (https://timeago.org/)-->
+    <script src="memechat/timeago.js" type="text/javascript"></script> 
     <script>
         /* First thing, if user is not authenticated, redirect to login page */
         (async () => {
@@ -52,8 +41,8 @@
                 const body = await response.json();
                 if (body.username) {
                     globalUsername = body.username;
-                    console.log(`user is authenticated! Welcome, ${globalUsername}` );
-                    return renderAllMemes();
+                    document.querySelector('.welcome').innerText = `Hey, ${globalUsername}!`;
+                    return refreshMemes();
                 }
                 return window.location.replace(window.location.href + '/login');
             } catch (err) {
@@ -61,33 +50,65 @@
             }
         })();
 
-        /* Render all the memes. Should be called every few seconds for live-updates */
-        const renderAllMemes = async () => {
+        const refreshMemes = async (oldData) => {
             try {
                 const response = await fetch('/memechat/api/memes');
                 const body = await response.json();
-                if (body.error) {
-                    return alert(body.error.message);
-                }
+                if (body.error) return alert(body.error.message);
+
                 const data = Object.values(body);
 
-                $allMemesContainer.innerHTML = data.reduce((acc, e) => {
-                    return `
-                        <div class="meme-container">
-                        <div>${e.username}</div>
-                        <a target="_blank" href="/memechat/uploads/${e.filename}">
-                        <img class="meme-img" src="/memechat/uploads/${e.filename}">
-                        </a>
-                        <div>${e.createdAt}</div>
-                        </div>
-                        ` + acc;
-                }, '');
+                /* if there are more memes than last refresh, create more containers */
+
+                /* Display most recent memes at top */
+                data.sort((a, b) => b.createdAt - a.createdAt);
+
+                $invisibleContainer.innerHTML = createMemeContainers(data);
+
+                const numImages = data.length;
+                let numLoaded = 0;
+
+                $invisibleContainer.querySelectorAll('.meme-img').forEach((img, i) => {
+                    img.onload = () => {
+                        numLoaded +=1;
+                        if (numImages === numLoaded) {
+                            $allMemesContainer.innerHTML = $invisibleContainer.innerHTML;
+                        }
+                    };
+                    img.src = `/memechat/uploads/${data[i].filename}?${Date.now()}`;
+                });
+
+                timeago.render(document.querySelectorAll('.timestamp'));
             } catch (err) {
                 console.error(err);
             }
-            setTimeout(renderAllMemes, 1000);
+            setTimeout(() => {refreshMemes(data)}, 2000);
         };
-        renderAllMemes();
+
+        const updateMemeImages = (srcs) => {
+            $allMemesContainer.querySelectorAll('.meme-img').forEach((img, i) => {
+                img.src = srcs[i];
+            });
+        }
+
+
+
+
+        const createMemeContainers = (data) => {
+            return data.reduce((acc, e) => {
+                return acc + `
+                    <div class="meme-container">
+                    <a target="_blank" href="/memechat/uploads/${e.filename}">
+                    <img class="meme-img">
+                    </a>
+                    <div class="meme-info-container">
+                    <div>${e.username}</div>
+                    <div class="timestamp" datetime="${new Date(e.createdAt).toISOString()}"></div>
+                    </div>
+                    </div>
+                    `;
+            }, '');
+        };
 
         /* Submit a meme */
         const submitMemeHandler = async () => {
@@ -96,8 +117,13 @@
             if (!captionTop && !captionBot) {
                 return $message.innerText = 'Add a caption!';
             }
-            const context = $canvas.getContext('2d');
-            context.drawImage($video, 0, 0, 640, 480);
+            $captionTop.value = '';
+            $captionBot.value = '';
+            $message.innerText ='';
+            $createMemeContainer.classList.add('offscreen');
+
+            const ctx = $canvas.getContext('2d');
+            ctx.drawImage($video, 0, 0, 640, 480);
             const base64Data = $canvas
                 .toDataURL()
                 .replace(/^data:image\/png;base64,/, '');
@@ -110,18 +136,12 @@
                     body: JSON.stringify({
                         username: globalUsername,
                         image: base64Data,
-                        captionTop,
-                        captionBot
+                        captionTop: captionTop.toUpperCase(), // real memes are all caps
+                        captionBot: captionBot.toUpperCase()
                     })
                 });
                 const body = await response.json();
-                if (body.err) {
-                    $message.innerText = body.err.message;
-                    return;
-                }
-                console.log('meme creation success');
-                // call render memes here?
-
+                if (body.err) alert(err);
             } catch (err) {
                 console.error(err);
             }
@@ -152,6 +172,7 @@
         /* DOM elements - */
         const $pageElements = document.querySelectorAll('.page');
         const $allMemesContainer = document.querySelector('.all-memes-container');
+        const $invisibleContainer = document.querySelector('.invisible-container');
         const $video = document.querySelector('.video');
         const $canvas = document.querySelector('.canvas');
         const $logout = document.querySelector('.logout');
@@ -169,8 +190,6 @@
 
 
         setupWebcam($video);
-        $submit.hidden = false;
-        // $captionTop.focus();
 
         /* Event listeners */
         $logout.addEventListener('click', logoutHandler);

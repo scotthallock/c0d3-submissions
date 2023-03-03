@@ -1,8 +1,24 @@
-:root {
-    --sans-font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
-    --mono-font-family: "Source Code Pro", Consolas, Monaco, "Courier New", monospace;
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&display=swap');
 
-    --border: 2px solid black;
+:root {
+    --display-font-family: 'Bebas Neue', Impact, Arial, sans-serif;
+    --mono-font-family: "Source Code Pro", Consolas, Monaco, "Courier New", monospace;
+    --border: 1px solid black;
+
+    --color-purple: #E3E3FF;
+    --color-blue: #DFF2FD;
+    --color-green: #E2FCE6;
+    --color-yellow: #FCFADE;
+    --color-green: #FFEEE2;
+    --color-red: #FFDBDB;
+
+    --color-red-pastel: #FF6D6A;
+    --color-orange-pastel: #EFBE7D;
+    --color-yellow-pastel: #E9EC6B;
+    --color-blue-pastel: #8BD3E6;
+    --color-pink-pastel: #E9CDD0;
+    --color-purple-pastel: #B1A2CA;
+
 }
 * {
     box-sizing: border-box;
@@ -10,22 +26,26 @@
     padding: 0;
 }
 body {
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: auto;
     max-width: 1080px;
+    min-width: 700px;
     height: 100vh;
     margin: auto;
-    background-color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     font-family: var(--mono-font-family);
+}
+h1 {
+    font-family: var(--display-font-family);
 }
 button {
     font-family: var(--mono-font-family);
     padding: 0.5rem 1rem;
-    /* margin: 1rem; */
     border: var(--border);
-    background-color: pink;
+    background-color: var(--color-red-pastel);
     transition: all 0.1s linear;
     text-align: left;
 }
@@ -43,20 +63,34 @@ input {
     background: white;
     padding: 10px 20px;
     font-family: var(--mono-font-family);
-    width: 80%;
+    text-align: center;
 }
 
 video {
-    border: 2px dashed black;
+    border: 1px solid black;
 }
 
+/* LOGIN PAGE ================== */
+.login-container {
+    border: 1px solid black;
+    border-radius: 5px;
+    box-shadow: -8px 8px black;
+    padding: 20px;
 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.username {
+    width: 100%;
+}
 
 /* NAV BAR ===================== */
 nav {
+    max-width: 90vw;
     position: sticky;
     width: 100%;
-    background: gray;
     top: 0;
     left: 0;
 }
@@ -74,105 +108,122 @@ nav li {
 nav li.right {
     margin-left: auto;
 }
+.logo {
+    font-family: var(--display-font-family);
+    font-size: 2.5rem;
+}
+.logout {
+    background-color: var(--color-orange-pastel);
+}
 
 /* MEME RENDERING ============== */
 .all-memes-container {
     overflow: auto;
-    border: 1px solid red;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
     padding: 20px;
-    max-width: 90vw;
-    width: 100%;
+    max-width: 100vw;
+    width: 100vw;
+    background-color: white;
 
-    flex-grow: 1; /* nice */
+    /* fill the entire space between nav bar
+       and 'Create a Meme' button */
+    flex-grow: 1; 
 
     display: flex;
     flex-direction: row;
     align-content: flex-start;
     justify-content: center;
-    gap: 10px;
+    gap: 30px;
     flex-wrap: wrap;
 }
 .meme-container {
-    width: 300px;
-    padding: 10px;
-    border: 1px solid blue;
+    overflow: hidden;
+    border: 1px solid black;
     border-radius: 5px;
+    box-shadow: -8px 8px black;
+    background-color: white;
     
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+.meme-info-container {
+    width: 100%;
+    border-top: 1px dashed black;
+    text-align: center;
+    padding: 5px;
+}
+.meme-container:nth-child(6n + 1) > .meme-info-container{
+    background-color: var(--color-red-pastel);
+}
+.meme-container:nth-child(6n + 2) > .meme-info-container {
+    background-color: var(--color-orange-pastel);
+}
+.meme-container:nth-child(6n + 3) > .meme-info-container {
+    background-color: var(--color-yellow-pastel);
+}
+.meme-container:nth-child(6n + 4) > .meme-info-container {
+    background-color: var(--color-blue-pastel);
+}
+.meme-container:nth-child(6n + 5) > .meme-info-container {
+    background-color: var(--color-pink-pastel);
+}
+.meme-container:nth-child(6n + 6) > .meme-info-container {
+    background-color: var(--color-purple-pastel);
+}
+
 .meme-img {
     display: block;
-    max-width: 100%;
-    max-height: 100%;
+    width: 250px;
+    margin: 10px;
+    border: 1px solid black;
 }
 
 
 /* CREATE MEME ================== */
 .create-meme {
-    color: white;
-    position: fixed;
-    bottom: 10vh;
-    margin: auto;
-    font-size: 1.5rem;
-    z-index: 2;
-
-    background: repeating-linear-gradient(
-        135deg,
-        #D50000,
-        #D50000 10px,
-        #C51162 10px,
-        #C51162 20px,
-        #AA00FF 20px,
-        #AA00FF 30px,
-        #6200EA 30px,
-        #6200EA 40px,
-        #304FFE 40px,
-        #304FFE 50px,
-        #2962FF 50px,
-        #2962FF 60px,
-        #0091EA 60px,
-        #0091EA 70px,
-        #00B8D4 70px,
-        #00B8D4 80px,
-        #00BFA5 80px,
-        #00BFA5 90px,
-        #00C853 90px,
-        #00C853 100px,
-        #64DD17 100px,
-        #64DD17 110px,
-        #AEEA00 110px,
-        #AEEA00 120px,
-        #FFD600 120px,
-        #FFD600 130px,
-        #FFAB00 130px,
-        #FFAB00 140px,
-        #FF6D00 140px,
-        #FF6D00 150px,
-        #DD2C00 150px,
-        #DD2C00 160px
-    );
+    margin: 20px auto;
+    font-family: var(--display-font-family);
+    font-size: 2rem;
 }
-
 .create-meme-container {
     position: absolute;
     margin: auto;
     top: 50%;
     transform: translateY(-50%);
 
-    border: var(--border);
-    border-radius: 10px;
+    width: 100vw;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
     padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
 
-    background-color: lightblue;
-
-    transition: all 0.5s ease-in;
+    background-image: radial-gradient(circle, #444 1px, white 1px);
+    background-size: 20px 20px;
+    transition: all 0.4s linear;
 }
 .create-meme-container.offscreen {
     transform: translateY(100vh);
+}
+.caption {
+    width: 400px;
+    font-family: var(--display-font-family);
+    font-size: 2rem;
+}
+
+/* ANIMATED TEXT ================ */
+.animated-text {
+    font-size: 80px;
+}
+.animated-letter {
+    display: inline-block;
+    animation: 1s wavytext backwards ease-in-out infinite;
+}
+@keyframes wavytext {
+    0% { transform: translateY(0px); }
+    50%{ transform: translateY(-20px); }
 }

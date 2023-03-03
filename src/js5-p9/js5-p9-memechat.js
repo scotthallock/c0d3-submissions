@@ -100,6 +100,12 @@ router.get('/js5-p9-styles.css', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-styles.css'));
 });
 
+/* Using timeago.min.js script in the html <script> */
+router.get('/timeago.js', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../node_modules/timeago.js/dist/timeago.min.js'));
+});
+
+
 /* Serve /memechat page */
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-memechat.html'));
