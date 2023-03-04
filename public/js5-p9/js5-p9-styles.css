@@ -119,7 +119,7 @@ nav li.right {
     background-color: white;
 
     /* fill the entire space between nav bar
-       and 'Create a Meme' button */
+       and 'Create Meme' button */
     flex-grow: 1; 
 
     display: flex;
