@@ -38,12 +38,16 @@ button {
     transition: all 0.1s linear;
     text-align: left;
 }
-button:hover {
+/* Wrap buttons in a div.button-wrapper element to prevent bouncing */
+.button-wrapper {
+    display: inline-block;
+}
+.button-wrapper:hover button { 
     cursor: pointer;
     transform: translate(5px, -5px);
     box-shadow: -5px 5px black;
 }
-button:active {
+.button-wrapper:active button {
     transform: none;
     box-shadow: none;
 }
