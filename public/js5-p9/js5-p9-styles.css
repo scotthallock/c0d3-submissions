@@ -60,6 +60,10 @@ input {
 }
 video {
     border: var(--border);
+    background-color: gray;
+    background-image: url( 'icons/videocam_off_FILL0_wght400_GRAD0_opsz48.svg' );
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* LOGIN PAGE ================== */
@@ -146,7 +150,8 @@ nav li.right {
 
     transition: all 0.1s linear;
 }
-.meme-container:hover {
+
+.meme-container-wrapper:hover .meme-container {
     transform: translate(8px, -8px);
     box-shadow: -16px 16px black;
 }
@@ -156,22 +161,22 @@ nav li.right {
     text-align: center;
     padding: 5px;
 }
-.meme-container:nth-child(6n + 1) > .meme-info-container{
+.meme-container-wrapper:nth-child(6n + 1) .meme-info-container{
     background-color: var(--color-red-pastel);
 }
-.meme-container:nth-child(6n + 2) > .meme-info-container {
+.meme-container-wrapper:nth-child(6n + 2) .meme-info-container {
     background-color: var(--color-orange-pastel);
 }
-.meme-container:nth-child(6n + 3) > .meme-info-container {
+.meme-container-wrapper:nth-child(6n + 3) .meme-info-container {
     background-color: var(--color-yellow-pastel);
 }
-.meme-container:nth-child(6n + 4) > .meme-info-container {
+.meme-container-wrapper:nth-child(6n + 4) .meme-info-container {
     background-color: var(--color-blue-pastel);
 }
-.meme-container:nth-child(6n + 5) > .meme-info-container {
+.meme-container-wrapper:nth-child(6n + 5) .meme-info-container {
     background-color: var(--color-pink-pastel);
 }
-.meme-container:nth-child(6n + 6) > .meme-info-container {
+.meme-container-wrapper:nth-child(6n + 6) .meme-info-container {
     background-color: var(--color-purple-pastel);
 }
 .meme-img {

@@ -85,11 +85,13 @@
         const addMemeContainers = (n) => {
             $allMemesContainer.insertAdjacentHTML(
                 'afterbegin',
-                `<div class="meme-container">
+                `<div class="meme-container-wrapper">
+                <div class="meme-container">
                 <a target="_blank"><img class="meme-img"></a>
                 <div class="meme-info-container">
                 <div class="meme-info-username">dummy text</div>
                 <div class="timestamp" datetime=""></div>
+                </div>
                 </div>
                 </div>`.repeat(n)
             );

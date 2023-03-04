@@ -7,6 +7,7 @@ const fsp = require('fs').promises;
 const defaultMemes = require('./defaultMemes');
 
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
+const iconsDirectory = path.join(__dirname, '../../public/js5-p9/icons');
 
 const sessions = {};
 const memes = defaultMemes;
@@ -63,6 +64,7 @@ const createMeme = async (username, image, captionTop, captionBot) => {
 router.use(express.json({limit: '10mb'}));
 
 router.use('/uploads', express.static(uploadsDirectory));
+router.use('/icons', express.static(iconsDirectory));
 
 /* External style sheet */
 router.get('/js5-p9-styles.css', (req, res) => {
@@ -141,7 +143,5 @@ router.post('/api/memes', authenticateUser, async (req, res) => {
         res.status(500).json({error: {message: err}});
     }
 });
-
-console.log('HERE!')
 
 module.exports = router;
