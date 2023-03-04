@@ -5,20 +5,12 @@
     --mono-font-family: "Source Code Pro", Consolas, Monaco, "Courier New", monospace;
     --border: 1px solid black;
 
-    --color-purple: #E3E3FF;
-    --color-blue: #DFF2FD;
-    --color-green: #E2FCE6;
-    --color-yellow: #FCFADE;
-    --color-green: #FFEEE2;
-    --color-red: #FFDBDB;
-
     --color-red-pastel: #FF6D6A;
     --color-orange-pastel: #EFBE7D;
     --color-yellow-pastel: #E9EC6B;
     --color-blue-pastel: #8BD3E6;
     --color-pink-pastel: #E9CDD0;
     --color-purple-pastel: #B1A2CA;
-
 }
 * {
     box-sizing: border-box;
@@ -26,10 +18,8 @@
     padding: 0;
 }
 body {
-    overflow-y: hidden;
-    overflow-x: auto;
+    overflow: hidden;
     max-width: 1080px;
-    min-width: 700px;
     height: 100vh;
     margin: auto;
     display: flex;
@@ -67,7 +57,7 @@ input {
 }
 
 video {
-    border: 1px solid black;
+    border: var(--border);
 }
 
 /* LOGIN PAGE ================== */
@@ -112,6 +102,10 @@ nav li.right {
     font-family: var(--display-font-family);
     font-size: 2.5rem;
 }
+.welcome-username {
+    font-family: var(--display-font-family);
+    font-size: 1.5rem;
+}
 .logout {
     background-color: var(--color-orange-pastel);
 }
@@ -147,6 +141,12 @@ nav li.right {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    transition: all 0.1s linear;
+}
+.meme-container:hover {
+    transform: translate(8px, -8px);
+    box-shadow: -16px 16px black;
 }
 .meme-info-container {
     width: 100%;
@@ -172,12 +172,15 @@ nav li.right {
 .meme-container:nth-child(6n + 6) > .meme-info-container {
     background-color: var(--color-purple-pastel);
 }
-
 .meme-img {
     display: block;
     width: 250px;
     margin: 10px;
     border: 1px solid black;
+}
+.meme-info-username {
+    font-family: var(--display-font-family);
+    font-size: 1.5rem;
 }
 
 
@@ -213,6 +216,12 @@ nav li.right {
     width: 400px;
     font-family: var(--display-font-family);
     font-size: 2rem;
+}
+.submit {
+    background-color: var(--color-purple-pastel);
+}
+.cancel {
+    background-color: var(--color-blue-pastel);
 }
 
 /* ANIMATED TEXT ================ */

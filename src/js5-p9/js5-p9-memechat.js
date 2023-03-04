@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const Jimp = require('jimp');
 const { createCanvas, loadImage } = require('canvas');
 const fsp = require('fs').promises;
 
@@ -10,40 +9,40 @@ const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 
 const sessions = {};
 const memes = {
-    '_example1': {
-        username: '_example1',
-        filename: '_example1.png',
-        createdAt: Date.now()
+    'sharpclaws': {
+        username: 'sharpclaws',
+        filename: '_sharpclaws.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 12
     },
-    '_example2': {
-        username: '_example2',
-        filename: '_example2.png',
-        createdAt: Date.now()
+    'xX_gamer_Xx': {
+        username: 'xX_gamer_Xx',
+        filename: '_xX_gamer_Xx.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 14
     },
-    '_example3': {
-        username: '_example3',
-        filename: '_example3.png',
-        createdAt: Date.now()
+    'Snoooooze': {
+        username: 'Snoooooze',
+        filename: '_Snoooooze.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 17
     },
-    '_example4': {
-        username: '_example4',
-        filename: '_example4.png',
-        createdAt: Date.now()
+    'smalls': {
+        username: 'smalls',
+        filename: '_smalls.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 18
     },
-    '_example5': {
-        username: '_example5',
-        filename: '_example5.png',
-        createdAt: Date.now()
+    'plant_god': {
+        username: 'plant_god',
+        filename: '_plant_god.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 20
     },
-    '_example6': {
-        username: '_example6',
-        filename: '_example6.png',
-        createdAt: Date.now()
+    'fangz': {
+        username: 'fangz',
+        filename: '_fangz.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 31
     },
-    '_example7': {
-        username: '_example7',
-        filename: '_example7.png',
-        createdAt: Date.now()
+    'picasso': {
+        username: 'picasso',
+        filename: '_picasso.png',
+        createdAt: Date.now() - 1000 * 60 * 60 * 100
     },
 };
 
@@ -61,7 +60,7 @@ const createMeme = async (username, image, captionTop, captionBot) => {
         ctx.drawImage(loadedImage, 0, 0, 640, 480);
 
         // set up ctx
-        ctx.font = 'bold 50px sans-serif';
+        ctx.font = 'bold 60px Impact Arial sans-serif';
         ctx.textAlign = 'center';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 5;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meme Chat</title>
+    <title>MEME CHAT</title>
     <link rel="stylesheet" type="text/css" href="/memechat/js5-p9-styles.css">
 </head>
 <body>
@@ -16,23 +16,11 @@
     </div>
     
     <script>
+        /* DOM Elements */
         const $animatedText = document.querySelector('.animated-text');
         const $username = document.querySelector('.username');
         const $message = document.querySelector('.message');
         const $login = document.querySelector('.login');
-
-        /* Animate the Meme Chat logo */
-        const textArray = $animatedText.innerText.split('');
-        $animatedText.innerHTML = '';
-        const elArray = textArray.forEach((letter, i) => {
-            if (letter === ' ') letter = '&nbsp;';
-            const el = document.createElement('span');
-            el.className = 'animated-letter';
-            el.innerHTML = letter;
-            el.style.animationDelay = (i / textArray.length) + 's';
-            $animatedText.append(el);
-        });
-
 
         const loginHandler = async () => {
             const username = $username.value.trim();
@@ -55,16 +43,26 @@
             if (body.username) {
                 return window.location.replace(window.location.href.replace('/login', ''));
             }
-            $message.innerText = 'Unable to login';
         };
         
+        /* Event Listeners */
         $login.addEventListener('click', loginHandler);
         $username.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter') return;
             loginHandler();
         });
 
+        /* Fun stuff: animate Meme Chat logo */
+        const textArray = $animatedText.innerText.split('');
+        $animatedText.innerHTML = '';
+        const elArray = textArray.forEach((letter, i) => {
+            if (letter === ' ') letter = '&nbsp;';
+            const el = document.createElement('span');
+            el.className = 'animated-letter';
+            el.innerHTML = letter;
+            el.style.animationDelay = (i / textArray.length) + 's';
+            $animatedText.append(el);
+        });
     </script>
-
 </body>
 </html>

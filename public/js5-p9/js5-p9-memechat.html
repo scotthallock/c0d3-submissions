@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemeChat</title>
+    <title>MEME CHAT</title>
     <link rel="stylesheet" type="text/css" href="/memechat/js5-p9-styles.css">
 </head>
 
@@ -12,12 +12,11 @@
     <nav>
         <ul>
             <li><span class="logo">MEME CHAT</span></li>
-            <li class="right"><span class="welcome"></span></li>
+            <li class="right"><span class="welcome-username"></span></li>
             <li><button class="logout">Logout</button></li>
         </ul>
     </nav>
     <div class="all-memes-container"></div>
-    <div class="invisible-container" hidden></div>
     <div class="create-meme-container offscreen">
         <video class="video" width="640" height="480"></video> 
         <canvas class="canvas" width="640" height="480" hidden></canvas>
@@ -41,7 +40,7 @@
                 const body = await response.json();
                 if (body.username) {
                     globalUsername = body.username;
-                    document.querySelector('.welcome').innerText = `Hey, ${globalUsername}!`;
+                    document.querySelector('.welcome-username').innerText = globalUsername;
                     return refreshMemes();
                 }
                 return window.location.replace(window.location.href + '/login');
@@ -67,7 +66,9 @@
 
                 /* Update contents of meme container */
                 $memeContainers.forEach((el, i) => {
-                    el.querySelector('.meme-img').src = '/memechat/uploads/' + data[i].filename + '?' + Date.now();
+                    const path = '/memechat/uploads/' + data[i].filename;
+                    el.querySelector('img').src = path + '?' + Date.now(); // bust cache
+                    el.querySelector('a').href =  path;
                     el.querySelector('.meme-info-username').innerText = data[i].username;
                     el.querySelector('.timestamp').setAttribute('datetime', new Date(data[i].createdAt).toISOString());
                 });
@@ -121,8 +122,8 @@
                     body: JSON.stringify({
                         username: globalUsername,
                         image: base64Data,
-                        captionTop: captionTop.toUpperCase(), // real memes are all caps
-                        captionBot: captionBot.toUpperCase()
+                        captionTop: captionTop.toUpperCase(), // real memes
+                        captionBot: captionBot.toUpperCase()  // are all caps
                     })
                 });
                 const body = await response.json();
@@ -157,7 +158,6 @@
         /* DOM elements - */
         const $pageElements = document.querySelectorAll('.page');
         const $allMemesContainer = document.querySelector('.all-memes-container');
-        const $invisibleContainer = document.querySelector('.invisible-container');
         const $video = document.querySelector('.video');
         const $canvas = document.querySelector('.canvas');
         const $logout = document.querySelector('.logout');
