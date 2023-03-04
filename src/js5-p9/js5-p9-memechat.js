@@ -104,24 +104,29 @@ router.get('/api/logout', (req, res) => {
 /* Middleware for authenticating. */
 /* If the 'session' cookie is deleted, user will be kicked out of app */ 
 const authenticateUser = (req, res, next) => {
+    console.log('authenticateUser middleware ouch ', Date.now());
     const sessionId = req.headers.cookie?.split('=')[1];
     const userSession = sessions[sessionId];
     if (!userSession) {
         return res.status(401).json({error: {message: 'Invalid session'}});
     }
     res.locals.username = userSession.username;
+    console.log('the session is valid... going to next')
     next();
 };
 
 router.get('/api/session', authenticateUser, (req, res) => {
+    console.log('api/session ouch', Date.now());
     return res.json({ username: res.locals.username });
 });
 
 router.get('/api/memes', authenticateUser, (req, res) => {
+    console.log('api/memes (GET) ouch', Date.now());
     return res.json(memes);
 });
 
 router.post('/api/memes', authenticateUser, async (req, res) => {
+    console.log('api/memes (POST) ouch', Date.now());
     const { username, image, captionTop, captionBot } = req.body;
 
     if (!username || !image || (!captionTop && !captionBot)) {
