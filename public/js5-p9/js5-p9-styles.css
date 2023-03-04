@@ -4,7 +4,6 @@
     --display-font-family: 'Bebas Neue', Impact, Arial, sans-serif;
     --mono-font-family: "Source Code Pro", Consolas, Monaco, "Courier New", monospace;
     --border: 1px solid black;
-
     --color-red-pastel: #FF6D6A;
     --color-orange-pastel: #EFBE7D;
     --color-yellow-pastel: #E9EC6B;
@@ -55,7 +54,6 @@ input {
     font-family: var(--mono-font-family);
     text-align: center;
 }
-
 video {
     border: var(--border);
 }
@@ -113,8 +111,8 @@ nav li.right {
 /* MEME RENDERING ============== */
 .all-memes-container {
     overflow: auto;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
+    border-top: var(--border);
+    border-bottom: var(--border);
     padding: 20px;
     max-width: 100vw;
     width: 100vw;
@@ -133,7 +131,7 @@ nav li.right {
 }
 .meme-container {
     overflow: hidden;
-    border: 1px solid black;
+    border: var(--border);
     border-radius: 5px;
     box-shadow: -8px 8px black;
     background-color: white;
@@ -176,13 +174,12 @@ nav li.right {
     display: block;
     width: 250px;
     margin: 10px;
-    border: 1px solid black;
+    border: var(--border);
 }
 .meme-info-username {
     font-family: var(--display-font-family);
     font-size: 1.5rem;
 }
-
 
 /* CREATE MEME ================== */
 .create-meme {

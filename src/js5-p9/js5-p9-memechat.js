@@ -4,47 +4,12 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { createCanvas, loadImage } = require('canvas');
 const fsp = require('fs').promises;
+const defaultMemes = require('./defaultMemes');
 
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 
 const sessions = {};
-const memes = {
-    'sharpclaws': {
-        username: 'sharpclaws',
-        filename: '_sharpclaws.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 12
-    },
-    'xX_gamer_Xx': {
-        username: 'xX_gamer_Xx',
-        filename: '_xX_gamer_Xx.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 14
-    },
-    'Snoooooze': {
-        username: 'Snoooooze',
-        filename: '_Snoooooze.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 17
-    },
-    'smalls': {
-        username: 'smalls',
-        filename: '_smalls.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 18
-    },
-    'plant_god': {
-        username: 'plant_god',
-        filename: '_plant_god.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 20
-    },
-    'fangz': {
-        username: 'fangz',
-        filename: '_fangz.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 31
-    },
-    'picasso': {
-        username: 'picasso',
-        filename: '_picasso.png',
-        createdAt: Date.now() - 1000 * 60 * 60 * 100
-    },
-};
+const memes = defaultMemes;
 
 const createMeme = async (username, image, captionTop, captionBot) => {
     const filename = username + '.png'
@@ -104,7 +69,6 @@ router.get('/timeago.js', (req, res) => {
     res.sendFile(path.join(__dirname, '../../node_modules/timeago.js/dist/timeago.min.js'));
 });
 
-
 /* Serve /memechat page */
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-memechat.html'));
@@ -115,15 +79,13 @@ router.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p9/js5-p9-login.html'));
 });
 
-
-
 router.post('/api/login', (req, res) => {
     const { username } = req.body;
     if (!username) {
         return res.status(401).json({error: {message: 'Please include username in request'}});
     }
     if (Object.values(sessions).some(e => e.username.toLowerCase() === username.toLowerCase())) {
-        return res.status(400).json({error: {message: 'Sorry, that username is currently taken'}});
+        return res.status(400).json({error: {message: 'That name is currently taken'}});
     }
 
     const sessionId = uuidv4();
@@ -139,23 +101,29 @@ router.get('/api/logout', (req, res) => {
     res.end();
 }) 
 
-router.get('/api/session', (req, res) => {
+/* Middleware for authenticating. */
+/* If the 'session' cookie is deleted, user will be kicked out of app */ 
+const authenticateUser = (req, res, next) => {
     const sessionId = req.headers.cookie?.split('=')[1];
     const userSession = sessions[sessionId];
     if (!userSession) {
         return res.status(401).json({error: {message: 'Invalid session'}});
     }
-    return res.json({ username: userSession.username });
+    res.locals.username = userSession.username;
+    next();
+};
+
+router.get('/api/session', authenticateUser, (req, res) => {
+    return res.json({ username: res.locals.username });
 });
 
-router.get('/api/memes', (req, res) => {
-    res.json(memes);
+router.get('/api/memes', authenticateUser, (req, res) => {
+    return res.json(memes);
 });
 
-router.post('/api/memes', async (req, res) => {
-    console.log('ouch /api/memes', Date.now());
+router.post('/api/memes', authenticateUser, async (req, res) => {
     const { username, image, captionTop, captionBot } = req.body;
-    
+
     if (!username || !image || (!captionTop && !captionBot)) {
         return res.status(400).json({error: 
             {message: 'Request is missing username, image, or a caption'}
@@ -168,8 +136,5 @@ router.post('/api/memes', async (req, res) => {
         res.status(500).json({error: {message: err}});
     }
 });
-
-
-
 
 module.exports = router;
