@@ -121,12 +121,12 @@ router.get('/api/session', authenticateUser, (req, res) => {
 });
 
 router.get('/api/memes', authenticateUser, (req, res) => {
-    console.log('api/memes (GET) ouch', Date.now());
+    console.log('/api/memes (GET) ouch', Date.now());
     return res.json(memes);
 });
 
 router.post('/api/memes', authenticateUser, async (req, res) => {
-    console.log('api/memes (POST) ouch', Date.now());
+    console.log('/api/memes (POST) ouch', Date.now());
     const { username, image, captionTop, captionBot } = req.body;
 
     if (!username || !image || (!captionTop && !captionBot)) {
@@ -141,5 +141,7 @@ router.post('/api/memes', authenticateUser, async (req, res) => {
         res.status(500).json({error: {message: err}});
     }
 });
+
+console.log('HERE!')
 
 module.exports = router;
