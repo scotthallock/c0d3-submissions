@@ -13,8 +13,6 @@ const sessions = {};
 const onlineUsers = new Set(); // so we can do O(1) lookup of users
 const memes = defaultMemes;
 
-
-
 const createMeme = async (username, isStreaming, image, captionTop, captionBot) => {
     const filename = username + '.png'
     const filepath = uploadsDirectory + '/' + filename;

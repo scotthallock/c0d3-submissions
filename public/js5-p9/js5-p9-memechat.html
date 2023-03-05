@@ -21,7 +21,6 @@
         <canvas class="canvas" width="640" height="480" hidden></canvas>
         <input class="caption-top caption" name="caption" type="text" placeholder="TOP TEXT"/>
         <input class="caption-bot caption" name="caption" type="text" placeholder="BOTTOM TEXT"/>
-        <p>If webcam not streaming, a random image will be used instead.</p>
         <div class="message"></div>
         <div class="button-wrapper"><button class="submit">Submit</button></div>
         <div class="button-wrapper"><button class="cancel">Cancel</button></div>
@@ -126,9 +125,9 @@
                     },
                     body: JSON.stringify({
                         // NOTE: Don't need to send username to server, because
-                        // cookie authentication middleware will get it
+                        // cookie authentication middleware will get it.
                         isStreaming, // NOTE: If no webcam, server will provide random image.
-                        // This does not catch a scenario where the user initially
+                        // This does NOT catch a scenario where the user initially
                         // grants webcam permission, but later denies it, and submits
                         // another meme.
                         image: base64Data,
