@@ -16,49 +16,47 @@ const createMeme = async (username, image, captionTop, captionBot) => {
     const filename = username + '.png'
     const filepath = uploadsDirectory + '/' + filename;
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            await fsp.writeFile(filepath, image, {encoding: 'base64'});
+    try {
+        await fsp.writeFile(filepath, image, {encoding: 'base64'});
 
-            // load image to draw onto canvas
-            const loadedImage = await loadImage(filepath);
-            const canvas = createCanvas(640, 480);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(loadedImage, 0, 0, 640, 480);
-    
-            // set up ctx
-            ctx.font = 'bold 60px Impact Arial sans-serif';
-            ctx.textAlign = 'center';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 5;
-            ctx.miterLimit = 2;
-            ctx.fillStyle = 'white';
-            const centerX = canvas.width / 2;
-            const topY = 70;
-            const botY = 450;
-            
-            // add captions
-            ctx.strokeText(captionTop, centerX, topY);
-            ctx.fillText(captionTop, centerX, topY);
-            ctx.strokeText(captionBot, centerX, botY);
-            ctx.fillText(captionBot, centerX, botY);
-    
-            // overwrite the saved image with the meme
-            const buffer = canvas.toBuffer("image/png");
-            await fsp.writeFile(filepath, buffer);
+        // load image to draw onto canvas
+        const loadedImage = await loadImage(filepath);
+        const canvas = createCanvas(640, 480);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(loadedImage, 0, 0, 640, 480);
 
-            const meme = {
-                username, 
-                filename,
-                createdAt: Date.now()
-            };
-            memes[username] = meme;
-            resolve(meme);
+        // set up ctx
+        ctx.font = 'bold 60px Impact Arial sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 5;
+        ctx.miterLimit = 2;
+        ctx.fillStyle = 'white';
+        const centerX = canvas.width / 2;
+        const topY = 70;
+        const botY = 450;
+        
+        // add captions
+        ctx.strokeText(captionTop, centerX, topY);
+        ctx.fillText(captionTop, centerX, topY);
+        ctx.strokeText(captionBot, centerX, botY);
+        ctx.fillText(captionBot, centerX, botY);
 
-        } catch (err) {
-            reject(err);
-        }
-    });
+        // overwrite the saved image with the meme
+        const buffer = canvas.toBuffer("image/png");
+        await fsp.writeFile(filepath, buffer);
+
+        const meme = {
+            username, 
+            filename,
+            createdAt: Date.now()
+        };
+        memes[username] = meme;
+        return meme;
+
+    } catch (err) {
+        console.error(err);
+    }
 };
 
 router.use(express.json({limit: '10mb'}));
