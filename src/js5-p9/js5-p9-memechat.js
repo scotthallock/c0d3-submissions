@@ -10,14 +10,24 @@ const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 const iconsDirectory = path.join(__dirname, '../../public/js5-p9/icons');
 
 const sessions = {};
+const onlineUsers = new Set(); // so we can do O(1) lookup of users
 const memes = defaultMemes;
 
-const createMeme = async (username, image, captionTop, captionBot) => {
+
+
+const createMeme = async (username, isStreaming, image, captionTop, captionBot) => {
     const filename = username + '.png'
     const filepath = uploadsDirectory + '/' + filename;
 
     try {
-        await fsp.writeFile(filepath, image, {encoding: 'base64'});
+        // use webcam capture OR a random image from loremflickr
+        if (isStreaming) {
+            await fsp.writeFile(filepath, image, {encoding: 'base64'});
+        } else {
+            const response = await fetch('https://loremflickr.com/640/480');
+            const arrBuffer = await response.arrayBuffer();
+            await fsp.writeFile(filepath, Buffer.from(arrBuffer), {encoding: 'base64'});
+        }
 
         // load image to draw onto canvas
         const loadedImage = await loadImage(filepath);
@@ -53,10 +63,17 @@ const createMeme = async (username, image, captionTop, captionBot) => {
         };
         memes[username] = meme;
         return meme;
-
     } catch (err) {
         console.error(err);
     }
+};
+
+const validateUsername = (username) => {
+    if (!username) return 'Please include username in request';
+    if (onlineUsers.has(username)) return 'That name is currently taken';
+    if (username.length > 20) return 'Limit 20 characters';
+    if (!(/^\w+$/.test(username))) return 'Letters, numbers, and underscores only';
+    return undefined;
 };
 
 router.use(express.json({limit: '10mb'}));
@@ -86,25 +103,17 @@ router.get('/login', (req, res) => {
 
 router.post('/api/login', (req, res) => {
     const { username } = req.body;
-    if (!username) {
-        return res.status(401).json({error: {message: 'Please include username in request'}});
-    }
-    if (Object.values(sessions).some(e => e.username.toLowerCase() === username.toLowerCase())) {
-        return res.status(400).json({error: {message: 'That name is currently taken'}});
-    }
+
+    const errMessage = validateUsername(username);
+    if (errMessage) return res.status(400).json({error: {message: errMessage}});
 
     const sessionId = uuidv4();
     sessions[sessionId] = { username };
+    onlineUsers.add(username);
+
     res.cookie('session', sessionId);
     res.json({ username });
 });
-
-router.get('/api/logout', (req, res) => {
-    const sessionId = req.headers.cookie?.split('=')[1];
-    delete sessions[sessionId];
-    res.clearCookie('session');
-    res.end();
-}) 
 
 /* Middleware for authenticating. */
 /* If the 'session' cookie is deleted, user will be kicked out of app */ 
@@ -118,6 +127,14 @@ const authenticateUser = (req, res, next) => {
     next();
 };
 
+router.get('/api/logout', authenticateUser, (req, res) => {
+    const sessionId = req.headers.cookie?.split('=')[1];
+    delete sessions[sessionId];
+    onlineUsers.delete(res.locals.username);
+    res.clearCookie('session');
+    res.end();
+}) 
+
 router.get('/api/session', authenticateUser, (req, res) => {
     return res.json({ username: res.locals.username });
 });
@@ -127,15 +144,16 @@ router.get('/api/memes', authenticateUser, (req, res) => {
 });
 
 router.post('/api/memes', authenticateUser, async (req, res) => {
-    const { username, image, captionTop, captionBot } = req.body;
+    const { isStreaming = true, image, captionTop, captionBot } = req.body;
+    const username = res.locals.username;
 
-    if (!username || !image || (!captionTop && !captionBot)) {
+    if (!image || (!captionTop && !captionBot)) {
         return res.status(400).json({error: 
-            {message: 'Request is missing username, image, or a caption'}
+            {message: 'Request is missing image, or a caption'}
         });
     }
     try {
-        const meme = await createMeme(username, image, captionTop, captionBot);
+        const meme = await createMeme(username, isStreaming, image, captionTop, captionBot);
         res.json({ meme });
     } catch (err) {
         res.status(500).json({error: {message: err}});

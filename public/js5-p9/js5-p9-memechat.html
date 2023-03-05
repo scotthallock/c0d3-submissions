@@ -21,6 +21,7 @@
         <canvas class="canvas" width="640" height="480" hidden></canvas>
         <input class="caption-top caption" name="caption" type="text" placeholder="TOP TEXT"/>
         <input class="caption-bot caption" name="caption" type="text" placeholder="BOTTOM TEXT"/>
+        <p>If webcam not streaming, a random image will be used instead.</p>
         <div class="message"></div>
         <div class="button-wrapper"><button class="submit">Submit</button></div>
         <div class="button-wrapper"><button class="cancel">Cancel</button></div>
@@ -45,6 +46,7 @@
 
         /* Global variables */
         let globalUsername;
+        let isStreaming = false;
 
         const redirectToLogin = () => {
             return window.location.replace('/memechat/login');
@@ -99,6 +101,7 @@
         };
 
         const submitMemeHandler = async () => {
+            console.log('STREAMING? ', $video.playing);
             const captionTop = $captionTop.value.trim();
             const captionBot = $captionBot.value.trim();
             if (!captionTop && !captionBot) {
@@ -122,7 +125,12 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        username: globalUsername,
+                        // NOTE: Don't need to send username to server, because
+                        // cookie authentication middleware will get it
+                        isStreaming, // NOTE: If no webcam, server will provide random image.
+                        // This does not catch a scenario where the user initially
+                        // grants webcam permission, but later denies it, and submits
+                        // another meme.
                         image: base64Data,
                         captionTop: captionTop.toUpperCase(),
                         captionBot: captionBot.toUpperCase()
@@ -155,6 +163,7 @@
                 });
                 $video.srcObject = stream;
                 $video.play();
+                isStreaming = true;
             } catch (err) {
                 console.error(err);
             }
