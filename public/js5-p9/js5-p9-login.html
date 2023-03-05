@@ -8,21 +8,24 @@
     <link rel="stylesheet" type="text/css" href="/memechat/js5-p9-styles.css">
 </head>
 <body>
-    <div class="login-container">
+    <form class="login-form">
         <h1 class="animated-text">MEME CHAT</h1>
         <input class="username" name="username" type="text" placeholder="What should we call you?"/>
         <div class="message"></div>
-        <div class="button-wrapper"><button class="login" type="button">Enter</button></div>
-    </div>
+        <div class="button-wrapper"><button type="submit">Enter</button></div>
+    </form>
     
     <script>
         /* DOM Elements */
         const $animatedText = document.querySelector('.animated-text');
+        const $loginForm = document.querySelector('.login-form');
         const $username = document.querySelector('.username');
         const $message = document.querySelector('.message');
-        const $login = document.querySelector('.login');
+        
+        /* Event Listeners */
+        $loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const loginHandler = async () => {
             const username = $username.value.trim();
             if (!username) return;
 
@@ -43,13 +46,6 @@
             if (body.username) {
                 return window.location.replace(window.location.href.replace('/login', ''));
             }
-        };
-        
-        /* Event Listeners */
-        $login.addEventListener('click', loginHandler);
-        $username.addEventListener('keydown', (e) => {
-            if (e.key !== 'Enter') return;
-            loginHandler();
         });
 
         /* Fun stuff: animate Meme Chat logo */

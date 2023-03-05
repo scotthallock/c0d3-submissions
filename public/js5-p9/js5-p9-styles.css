@@ -67,7 +67,7 @@ video {
 }
 
 /* LOGIN PAGE ================== */
-.login-container {
+.login-form {
     border: 1px solid black;
     border-radius: 5px;
     box-shadow: -8px 8px black;
@@ -176,7 +176,7 @@ nav li.right {
 .meme-container-wrapper:nth-child(6n + 5) .meme-info-container {
     background-color: var(--color-pink-pastel);
 }
-.meme-container-wrapper:nth-child(6n + 6) .meme-info-container {
+.meme-container-wrapper:nth-child(6n) .meme-info-container {
     background-color: var(--color-purple-pastel);
 }
 .meme-img {
