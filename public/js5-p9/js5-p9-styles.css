@@ -150,7 +150,6 @@ nav li.right {
 
     transition: all 0.1s linear;
 }
-
 .meme-container-wrapper:hover .meme-container {
     transform: translate(8px, -8px);
     box-shadow: -16px 16px black;
