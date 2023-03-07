@@ -1,10 +1,14 @@
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const cors = require('cors');
-const path = require('path');
-const jsonParser = require('body-parser').json();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const jsonParser = bodyParser.json();
 
 const JWT_SECRET = 'not_very_secret_am_i_?';
 
@@ -49,7 +53,6 @@ const validateSignUp = async (username, email, password) => {
 const findUserByUsernameOrEmail = (usernameOrEmail) => {
     if (users[usernameOrEmail]) return users[usernameOrEmail];
     const user = Object.values(users).find(u => u.email === usernameOrEmail);
-    console.log({user});
     if (user) return user;
     return undefined; // user not found
 };
@@ -159,4 +162,4 @@ router.get('/api/sessions', (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
