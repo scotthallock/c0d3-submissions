@@ -1,13 +1,15 @@
 /* Create router for JS5 Challenge 5 - Chatroom */
-const express = require('express');
-const router = express.Router();
-const path = require('path');
-const jsonParser = require('body-parser').json();
-const dayjs = require('dayjs');
-const relativeTime = require('dayjs/plugin/relativeTime');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import bodyParser from 'body-parser';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime.js';
 dayjs.extend(relativeTime);
-const chatbots = require('./chatbots');
-const app = express();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const router = express.Router();
+const jsonParser = bodyParser.json();
 
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p5/js5-p5.html'));
@@ -125,6 +127,14 @@ class Chatroom {
 /****************************************************************************/
 /* Fun stuff - add default chatrooms with some randomly generated messages. */
 /****************************************************************************/
+import {
+    shakespeareBots,
+    shakespeareQuotes,
+    catBots,
+    catQuotes,
+    dogBots,
+    dogQuotes
+} from './chatbots.js';
 
 /* Set up default chatrooms */
 const allChatrooms = [
@@ -139,9 +149,9 @@ const randElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const shakespeareRoom = allChatrooms.find(e => e.name === 'Shakespeare');
 const shakespearePost = () => {
     shakespeareRoom.addMessage(
-        randElement(chatbots.shakespeareBots),
+        randElement(shakespeareBots),
         Date.now(),
-        randElement(chatbots.shakespeareQuotes)
+        randElement(shakespeareQuotes)
     );
     setTimeout(shakespearePost, 1000 * 20);
 };
@@ -152,12 +162,12 @@ const catsAndDogsRoom = allChatrooms.find(e => e.name === 'Cats and Dogs');
 const catsAndDogsPost = () => {
     const coin = (Math.random() > 0.5);
     catsAndDogsRoom.addMessage(
-        randElement(coin ? chatbots.catBots : chatbots.dogBots),
+        randElement(coin ? catBots : dogBots),
         Date.now(),
-        randElement(coin ? chatbots.catQuotes : chatbots.dogQuotes)
+        randElement(coin ? catQuotes : dogQuotes)
     );
     setTimeout(catsAndDogsPost, 1000 * 10);
 };
 catsAndDogsPost();
 
-module.exports = router;
+export default router;

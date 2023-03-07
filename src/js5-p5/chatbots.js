@@ -1,7 +1,6 @@
-/* 70 Shakespeare quotes */
-module.exports.shakespeareBots = ['shakespeare-bot-1', 'shakespeare-bot-2'];
+export const shakespeareBots = ['shakespeare-bot-1', 'shakespeare-bot-2'];
 
-module.exports.shakespeareQuotes = [
+export const shakespeareQuotes = [
     "Be not afraid of greatness. Some are born great, some achieve greatness, and others have greatness thrust upon them.",
     "We know what we are, but know not what we may be.",
     "Sweet are the uses of adversity which, like the toad, ugly and venomous, wears yet a precious jewel in his head.",
@@ -74,7 +73,7 @@ module.exports.shakespeareQuotes = [
     "He jests at scars that never felt a wound."
 ];
 
-module.exports.catBots = [
+export const catBots = [
     'American-Shorthair',
     'Bengal',
     'British-Shorthair',
@@ -85,7 +84,7 @@ module.exports.catBots = [
     'Turkish-Angora'
 ]
 
-module.exports.catQuotes = [
+export const catQuotes = [
     'meow',
     'mrrrow',
     'wrraoo!',
@@ -98,7 +97,7 @@ module.exports.catQuotes = [
     'nya'
 ];
 
-module.exports.dogBots = [
+export const dogBots = [
     'German-Shepherd',
     'Labrador',
     'French-Bulldog',
@@ -111,7 +110,7 @@ module.exports.dogBots = [
     'Australian-Shepherd'
 ];
 
-module.exports.dogQuotes = [
+export const dogQuotes = [
     'ruff ruff',
     'yap yap',
     'yip yip',
