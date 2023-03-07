@@ -1,10 +1,14 @@
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import multer from 'multer';
+import { createWorker } from 'tesseract.js';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const path = require('path');
-const multer = require('multer');
-const { createWorker, PSM } = require('tesseract.js');
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
+
 
 /* Where user uploads and examples will be stored */
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p7/uploads');
@@ -66,7 +70,6 @@ router.get('/api/random', async (req, res) => {
 
 /* Send back the job data */
 router.get('/jobs/:id', (req, res) => {
-    console.log('/jobs/:id ouch ', Date.now());
     const jobId = req.params.id;
     res.json(jobs[jobId]);
 });
@@ -160,4 +163,4 @@ const deleteOldFiles = async () => {
 };
 deleteOldFiles();
 
-module.exports = router;
+export default router;
