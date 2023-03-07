@@ -1,8 +1,12 @@
 /* Create router for JS5 Challenge 1 - IP Geolocation */
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import bodyParser from 'body-parser';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const path = require('path');
-const jsonParser = require('body-parser').json();
+const jsonParser = bodyParser.json();
 
 /* Global variables */
 const visitorAPI = []; // data to send when '/api/visitors' is requested
@@ -11,7 +15,7 @@ const locFrequency = {}; // key: location | value: visitor count
 const cityPageFrequency = {} // key: location | value: how many times the page has been visited
 
 router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/js5-p5/js5-p1.html'));
+    res.sendFile(path.join(__dirname, '../../public/js5-p1/js5-p1.html'));
 });
 
 /* Log a visit from the location */
@@ -80,4 +84,4 @@ router.get('/api/visitors', (req, res) => {
     res.json(visitorAPI);
 });
 
-module.exports = router;
+export default router;
