@@ -1,10 +1,13 @@
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { v4 as uuidv4 } from 'uuid';
+import { createCanvas, loadImage } from 'canvas';
+import { promises as fsp } from 'fs';
+import defaultMemes from './defaultMemes.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const { createCanvas, loadImage } = require('canvas');
-const fsp = require('fs').promises;
-const defaultMemes = require('./defaultMemes');
 
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p9/uploads');
 const iconsDirectory = path.join(__dirname, '../../public/js5-p9/icons');
@@ -158,4 +161,4 @@ router.post('/api/memes', authenticateUser, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

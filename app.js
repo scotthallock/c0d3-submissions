@@ -11,7 +11,8 @@ import js5_5_router from './src/js5-p5/js5-p5-chatroom.js';
 import js5_6_router from './src/js5-p6/js5-p6-auth.js';
 import js5_7_router from './src/js5-p7/js5-p7-image-text-extraction.js';
 import js5_8_router from './src/js5-p8/js5-p8-selfie-queen.js';
-// const js5_9_router = require('./src/js5-p9/js5-p9-memechat.js');
+import js5_9_router from './src/js5-p9/js5-p9-memechat.js';
+
 // const { typeDefs, resolvers, router: js6_2_router } = require('./src/js6-p2/js6-p2-graphql-part2.js')
 
 const app = express();
@@ -30,7 +31,7 @@ app.use('/chatroom', js5_5_router);
 app.use('/auth', js5_6_router);
 app.use('/image-text-extraction', js5_7_router);
 app.use('/selfie-queen', js5_8_router);
-// app.use('/memechat', js5_9_router);
+app.use('/memechat', js5_9_router);
 // app.use('/graphql-part2', js6_2_router);
 
 // js6

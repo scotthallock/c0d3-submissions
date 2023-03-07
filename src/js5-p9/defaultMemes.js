@@ -1,4 +1,4 @@
-module.exports = {
+const defaultMemes = {
     'sharpclaws': {
         username: 'sharpclaws',
         filename: '_sharpclaws.png',
@@ -35,3 +35,5 @@ module.exports = {
         createdAt: Date.now() - 1000 * 60 * 60 * 100
     }
 };
+
+export default defaultMemes;
