@@ -1,4 +1,3 @@
-/* Create router for JS5 Challenge 2 - Commands */
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';

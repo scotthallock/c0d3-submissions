@@ -5,8 +5,8 @@ import express from 'express';
 /* Import the routers */
 import js5_1_router from './src/js5-p1/js5-p1-ip-geolocation.js';
 import js5_2_router from './src/js5-p2/js5-p2-commands.js';
+import js5_3_router from './src/js5-p3/js5-p3-meme-gen.js';
 
-// const js5_3_router = require('./src/js5-p3/js5-p3-meme-gen.js');
 // // js5_4_router
 // const js5_5_router = require('./src/js5-p5/js5-p5-chatroom.js');
 // const js5_6_router = require('./src/js5-p6/js5-p6-auth.js');
@@ -25,7 +25,7 @@ app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 /* Register the routers */
 app.use('/ip-geolocation', js5_1_router);
 app.use('/commands', js5_2_router);
-// app.use('/meme-gen', js5_3_router);
+app.use('/meme-gen', js5_3_router);
 // // js5_4 add later
 // app.use('/chatroom', js5_5_router);
 // app.use('/auth', js5_6_router);

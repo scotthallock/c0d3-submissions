@@ -1,4 +1,3 @@
-/* Create router for JS5 Challenge 1 - IP Geolocation */
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';

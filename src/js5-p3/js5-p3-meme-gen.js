@@ -1,8 +1,10 @@
-/* Create router for JS5 Challenge 3 - Meme Gen */
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Jimp from 'jimp';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const path = require('path');
-const Jimp = require('jimp');
 
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p3/js5-p3.html'));
@@ -72,4 +74,4 @@ router.get('/api/:caption', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
