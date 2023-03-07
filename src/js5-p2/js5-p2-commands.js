@@ -1,9 +1,13 @@
 /* Create router for JS5 Challenge 2 - Commands */
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import child_process from 'child_process';
+import bodyParser from 'body-parser';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const path = require('path');
-const jsonParser = require('body-parser').json();
-const child_process = require('child_process');
+const jsonParser = bodyParser.json();
 
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/js5-p2/js5-p2.html'));
@@ -63,4 +67,4 @@ router.post('/', jsonParser, (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;
