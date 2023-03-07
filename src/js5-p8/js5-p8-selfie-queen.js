@@ -1,10 +1,13 @@
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import bodyParser from 'body-parser';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const path = require('path');
-const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json();
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
 
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p8/uploads');
 const iconsDirectory = path.join(__dirname, '../../public/js5-p8/icons');
@@ -94,4 +97,4 @@ router.post('/api/uploads', jsonParser, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

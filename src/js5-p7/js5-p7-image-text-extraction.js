@@ -9,7 +9,6 @@ import fs from 'fs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
 
-
 /* Where user uploads and examples will be stored */
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p7/uploads');
 const examplesDirectory = path.join(__dirname, '../../public/js5-p7/examples');
