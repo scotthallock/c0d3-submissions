@@ -72,7 +72,7 @@
 
                 const loadSelection = (name) => {
                     selection.innerHTML = "";
-                    sendQuery(`{getPokemon(name:"${name}"){name, image}}`).then(
+                    sendQuery(`{getPokemon(str:"${name}"){name, image}}`).then(
                         (result) => {
                             selection.innerHTML = `
                                 <h1>${result.getPokemon.name}</h1>

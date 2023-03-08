@@ -46,16 +46,7 @@ app.use(
         cookie: { maxAge: 1000 * 60 * 60 * 24 },
     }),
     expressMiddleware(server, {
-        context: async ({ req, res }) => {
-            const { cache } = server;
-            return {
-                req,
-                dataSources: {
-                    lessonsAPI: new js6_2.LessonsAPI({ cache }),
-                    pokemonAPI: new js6_2.PokemonAPI({ cache }),
-                },
-            };
-        },
+        context: async ({ req }) => ({ req }), // pass request into resolver
     }),
 );
 

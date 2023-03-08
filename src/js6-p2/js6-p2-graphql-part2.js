@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { RESTDataSource } from '@apollo/datasource-rest';
 import { GraphQLError } from 'graphql';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,29 +15,39 @@ const allPokemonData =
     .then(res => res.results);
 const allPokemonNames = allPokemonData.map(e => ({ name: e.name }));
 
-/* Populate users object - one user per pokemon */
+/* Populate users object - one user per pokemon (~1200) */
 allPokemonData.forEach(async (e) => {
     users[e.name] = {};
     const user = users[e.name];
 
-    /* Is this right...? This is >1000 fetches for pokemon images... */
     user.name = e.name;
-    user.image = await fetch(e.url)
-        .then(res => res.json())
-        .then(body => body.sprites.front_default);
+    user.image = null; // fetch this only when we need it
     user.lessons = [];
 });
 
-/* Helper functions */
-const enroll = (title) => {
-
+const getLessons = async () => {
+    const response = await fetch(`
+        https://www.c0d3.com/api/lessons/
+    `);
+    const data = await response.json();
+    return data;
 };
 
-/* Using the example UI for this challenge: */
-/* https://js5.c0d3.com/js6/addLessons.html */
-router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/js6-p2/js6-p2-example.html'));
-});
+const getPokemonNameAndSprite = async (name) => {
+    const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`
+    );
+    const data = await response.json();
+    const pokemonName = data.name;
+    const image = data.sprites.front_default;
+
+    users[pokemonName].image = image;  // add the image to the users object
+    return {
+        name: pokemonName,
+        image
+    };
+};
+
 
 /* Define schema */
 const typeDefs = `#graphql
@@ -59,7 +68,7 @@ const typeDefs = `#graphql
     }
     type Query {
         lessons: [Lesson]
-        getPokemon(name: String!): Pokemon
+        getPokemon(str: String!): Pokemon
         search(str: String!): [BasicPokemon]
         login(pokemon: String!): User
         user: User
@@ -70,37 +79,13 @@ const typeDefs = `#graphql
     }
 `;
 
-/* Extend RESTDataSource classes to fetch data from REST APIs */
-/* https://www.apollographql.com/docs/apollo-server/data/fetching-rest */
-class LessonsAPI extends RESTDataSource {
-    baseURL = 'https://www.c0d3.com/api/lessons/';
-
-    async getLessons() {
-        return this.get('./');
-    }
-}
-
-class PokemonAPI extends RESTDataSource {
-    baseURL = 'https://pokeapi.co/api/v2/';
-
-    async getPokemon(name) {
-        const data = await this.get(`./pokemon/${name}`);
-        return {
-            name: data.name,
-            image: data.sprites.front_default,
-        };
-    }
-}
-
 /* Define resolver functions */
 const resolvers = {
     Query: {
-        lessons: async (_, __, { dataSources }) => {
-            return dataSources.lessonsAPI.getLessons();
-        },
-        getPokemon: async (_, { name }, { dataSources }) => {
-            return dataSources.pokemonAPI.getPokemon(name);
-        },
+        lessons: getLessons,
+
+        getPokemon: (_, { str }) => getPokemonNameAndSprite(str),
+
         search: (_, { str }) => {
             return allPokemonNames.filter(e => {
                 return e.name.includes(str.toLowerCase());
@@ -113,6 +98,7 @@ const resolvers = {
         user: (_, __, { req }) => {
             const pokemon = req.session.user;
             if (!pokemon) throw new GraphQLError('Not authorized');
+            if (!users[pokemon].image) getPokemonNameAndSprite(pokemon); // adds image to user object
             return users[pokemon];
         },
     },
@@ -138,10 +124,14 @@ const resolvers = {
     },
 };
 
+/* Using the example UI for this challenge: */
+/* https://js5.c0d3.com/js6/addLessons.html */
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/js6-p2/js6-p2-example.html'));
+});
+
 export default {
     typeDefs,
     resolvers,
-    router,
-    PokemonAPI,
-    LessonsAPI,
+    router
 };
