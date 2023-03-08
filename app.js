@@ -1,4 +1,5 @@
 import express from 'express';
+import session from 'express-session'; // for js-6 graphql server
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -39,11 +40,16 @@ app.use(
     '/graphql',
     cors(),
     express.json(),
+    session({
+        secret: 'not very secret',
+        resave: false,
+        saveUninitialized: true,
+        cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    }),
     expressMiddleware(server, {
         context: async ({ req, res }) => {
             const { cache } = server;
             return {
-                // token: req.headers.token,
                 req,
                 dataSources: {
                     lessonsAPI: new js6_2.LessonsAPI({ cache }),

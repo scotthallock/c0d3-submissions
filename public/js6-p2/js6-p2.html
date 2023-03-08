@@ -5,8 +5,154 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GraphQL Part 2</title>
+    <style>
+        .match {
+            cursor: pointer;
+            color: blue;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello, this is GraphQL Part 2</h1>
+    <div class="app">
+        <h1>Search for a Pokemon</h1>
+        <input class="searchBox" type="text">
+        <div class="suggestions"></div>
+        <hr>
+        <div class="selectedSection"></div>
+    </div>
+
+    <script>
+        const debounce = (fn, time) => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    fn()
+                }, time);
+            };
+        };
+
+        const sendQuery = async (query) => {
+            const response = await fetch('/graphql', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    operationName: null, // what for?
+                    variables: {}, // what for?
+                    query,
+                }),
+            });
+            const result = await response.json();
+            return result.data;
+        };
+
+        const renderLogin = () => {
+            document.querySelector(".app").innerHTML = `
+                <h1>Pokemon Search</h1>
+                <input class="searchBox" type="text">
+                <div class="suggestions"></div>
+                <hr>
+                <div class="selectedSection"></div>
+            `;
+            const $searchBox = document.querySelector(".searchBox");
+            const $suggestions = document.querySelector(".suggestions");
+            const $selection = document.querySelector(".selectedSection");
+
+            /* Display the Pokemon name, image, and login button */
+            const loadSelection = async (name) => {
+                $selection.innerHTML = '';
+                const data = await sendQuery(`{
+                    getPokemon(name: "${name}") {
+                        name
+                        image
+                    }
+                }`);
+
+                $selection.innerHTML = `
+                    <h1>${data.getPokemon.name}</h1>
+                    <img src="${data.getPokemon.image}">
+                    <button class="login">Login</button>
+                `;
+                $selection
+                    .querySelector('.login')
+                    .addEventListener('click', async () => {
+                        const data = await sendQuery(`{
+                            login(pokemon: "${name}") {
+                                name
+                                # image
+                                # lessons { title }
+                            }
+                        }`);
+                        window.location.reload();
+                    });
+            };
+
+            const createSuggestionElement = (container, name) => {
+                const el = document.createElement('h3');
+                el.innerHTML = `<span class="match">${name}</span>`;
+                container.append(el);
+                el.addEventListener('click', () => {
+                    container.innerHTML = '';
+                    loadSelection(name);
+                });
+            };
+
+            /* Populate suggestions when user searches for Pokemon */
+            const runSearch = debounce(async () => {
+                console.log('runSearch()');
+                $selection.innerHTMl = '';
+                const data = await sendQuery(`{
+                    search(searchString: "${$searchBox.value}") {
+                        name
+                    }
+                }`);
+                const results = data.search || [];
+                results.forEach(result => {
+                    createSuggestionElement($suggestions, result.name);
+                }); 
+            }, 500);
+
+            $searchBox.addEventListener('keyup', e => {
+                if (e.key === 'Enter') {
+                    $suggestions.innerHTML = '';
+                    return loadSelection($searchBox.value);
+                }
+                runSearch();
+            });
+            $searchBox.focus();
+        };
+        
+
+        const renderLessons = () => {
+
+        };
+
+
+        /* Start app */
+        (async () => {
+            /* The 'user' query is for authentication */
+            const data = await sendQuery(`{
+                user {
+                    name
+                    image
+                    lessons {
+                        title
+                    }
+                }
+                lessons {
+                    title
+                }
+            }`);
+            if (!data.user) {
+                renderLogin();
+                console.log('No user...');
+                return;
+            }
+            console.log('Welcome, ', data.user);
+            renderLessons(data.user, data.lessons);
+        })();
+    </script>
 </body>
 </html>

@@ -1,33 +1,55 @@
 import express from 'express';
-import session from 'express-session';
 import { RESTDataSource } from '@apollo/datasource-rest';
+import { GraphQLError } from 'graphql';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
 
+const users = {};
+
+/* Get list of all pokemon names from PokeAPI */
+const allPokemonData = 
+    await fetch('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=10000') // 10 for testing
+    .then(res => res.json())
+    .then(res => res.results);
+const allPokemonNames = allPokemonData.map(e => ({ name: e.name }));
+
+/* Populate users object - one user per pokemon */
+allPokemonData.forEach(async (e) => {
+    users[e.name] = {};
+    const user = users[e.name];
+
+    /* Is this right? This is over 1000 fetches being made... */
+    user.name = e.name;
+    user.image = await fetch(e.url)
+        .then(res => res.json())
+        .then(body => body.sprites.front_default);
+    user.lessons = [];
+});
+
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/js6-p2/js6-p2.html'))
+});
+
 /* Define schema */
 const typeDefs = `#graphql
     type Lesson {
         title: String
     }
-
     type Pokemon {
         name: String
         image: String
     }
-
     type BasicPokemon {
         name: String
     }
-
     type User {
         name: String
         image: String
-        lessons: [Lesson]
+        lessons: [Lesson] # this stores enrolled lessons
     }
-
     type Query {
         lessons: [Lesson]
         getPokemon(name: String!): Pokemon
@@ -35,7 +57,6 @@ const typeDefs = `#graphql
         login(pokemon: String!): User
         user: User
     }
-
     type Mutation {
         enroll(enrollTitle: String!): User
         unenroll(unenrollTitle: String!): User
@@ -58,7 +79,7 @@ class PokemonAPI extends RESTDataSource {
     baseURL = 'https://pokeapi.co/api/v2/';
 
     async getPokemon(name) {
-        const data = this.get(`./pokemon/${name}`);
+        const data = await this.get(`./pokemon/${name}`);
         return {
             name: data.name,
             image: data.sprites.front_default,
@@ -66,22 +87,13 @@ class PokemonAPI extends RESTDataSource {
     }
 }
 
-/**
- * Get list of all pokemon names from PokeAPI.
- * (Set ?limit=10000 so all pokemon are returned on one page.)
- */
-const allPokemonData = 
-    await fetch('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=10000')
-    .then(res => res.json());
-const allPokemonNames = allPokemonData.results.map(e => ({ name: e.name }));
-
-/* Define resolvers */
+/* Define resolver functions */
 const resolvers = {
     Query: {
         lessons: async (_, __, { dataSources }) => {
             return dataSources.lessonsAPI.getLessons();
         },
-        getPokemon: async (_, { name }, { dataSources }) => {
+        getPokemon: (_, { name }, { dataSources }) => {
             return dataSources.pokemonAPI.getPokemon(name);
         },
         search: (_, { searchString }) => {
@@ -89,14 +101,26 @@ const resolvers = {
                 return e.name.includes(searchString.toLowerCase());
             });
         },
-        login: (_, {pokemon}) => {
-            return {
-                name: 'test',
-                image: 'test',
-                lessons: [{title: 'test'}],
+        login: (_, { pokemon }, { req }) => {
+            console.log('login ouch')
+            req.session.user = pokemon;
+            return users[pokemon];
+        },
+        user: (_, __, { req }) => {
+            console.log('user ouch')
+            const pokemon = req.session.user;
+            if (!pokemon) {
+                console.log('not authorized')
+                throw new GraphQLError(
+                    'You are not authorized',
+                    { extensions: { code: 'FORBIDDEN' } },
+                );
             }
+            console.log('authorized');
+            return users[pokemon];
         },
     },
+
     Mutation: {
         enroll: () => {
             return {
@@ -115,9 +139,7 @@ const resolvers = {
     },
 };
 
-router.use('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/js6-p2/js6-p2.html'))
-});
+
 
 export default {
     typeDefs,
