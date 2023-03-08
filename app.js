@@ -1,12 +1,13 @@
 import express from 'express';
-import session from 'express-session'; // for js-6 graphql server
+/* Imports below needed for Apollo Server, JS6 */
+import session from 'express-session';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-
 import http from 'http';
 import cors from 'cors';
 
+/* Import the routers for each challenge solution */
 import js5_1_router from './src/js5-p1/js5-p1-ip-geolocation.js';
 import js5_2_router from './src/js5-p2/js5-p2-commands.js';
 import js5_3_router from './src/js5-p3/js5-p3-meme-gen.js';
@@ -21,11 +22,8 @@ import js6_2 from './src/js6-p2/js6-p2-graphql-part2.js';
 
 const app = express();
 
-
-/**
- * Set up ApolloServer instance (v4)
- * https://www.apollographql.com/docs/apollo-server/migration/#migrate-from-apollo-server-express
- */
+/* Set up Apollo Server v4 */
+/* See: https://www.apollographql.com/docs/apollo-server/migration/#migrate-from-apollo-server-express */
 const httpServer = http.createServer(app);
 const server = new ApolloServer({
     typeDefs: js6_2.typeDefs,
@@ -36,11 +34,12 @@ const server = new ApolloServer({
     ],
 });
 await server.start();
+
 app.use(
-    '/graphql',
+    '/graphql', // the endpoint for the gql server
     cors(),
     express.json(),
-    session({
+    session({  // set up express-session middleware 
         secret: 'not very secret',
         resave: false,
         saveUninitialized: true,
@@ -54,31 +53,33 @@ app.use(
                 dataSources: {
                     lessonsAPI: new js6_2.LessonsAPI({ cache }),
                     pokemonAPI: new js6_2.PokemonAPI({ cache }),
-                }
-            }
-        }, // not really sure what this does...
+                },
+            };
+        },
     }),
 );
-await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
-console.log(`🚀 Server ready at /graphql`);
 
-/* Serve static files */
+
 app.use(express.static('public'));
-
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 
-/* Register the routers */
+/* Mount the imported routers */
 app.use('/ip-geolocation', js5_1_router);
 app.use('/commands', js5_2_router);
 app.use('/meme-gen', js5_3_router);
-// // js5_4 add later
+// js5_4 add later
 app.use('/chatroom', js5_5_router);
 app.use('/auth', js5_6_router);
 app.use('/image-text-extraction', js5_7_router);
 app.use('/selfie-queen', js5_8_router);
 app.use('/memechat', js5_9_router);
+// js6_1 links to a separate web service
 app.use('/graphql-part2', js6_2.router);
 
-/* Start the express server */
+/* Start the GraphQL server */
+await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
+console.log(`🚀 GraphQL server ready at /graphql`);
+
+/* Start the Express server */
 const port = 8123;
 app.listen(process.env.PORT || port, () => console.log(`Server running on port ${port}`));

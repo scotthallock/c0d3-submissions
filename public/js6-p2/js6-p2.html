@@ -104,7 +104,7 @@
                 console.log('runSearch()');
                 $selection.innerHTMl = '';
                 const data = await sendQuery(`{
-                    search(searchString: "${$searchBox.value}") {
+                    search(str: "${$searchBox.value}") {
                         name
                     }
                 }`);
@@ -125,8 +125,83 @@
         };
         
 
-        const renderLessons = () => {
+        const renderLessons = (user, lessons) => {
+            const createEnrolledLessonElement = (container, title) => {
+                const el = document.createElement('h4');
+                el.innerHTML = title;
+                container.append(el);
+                el.addEventListener('click', async () => {
+                    await sendQuery(`mutation {
+                        unenroll(title: "${title}") {
+                            name
+                        }
+                    }`);
+                    window.location.reload();
+                });
+            };
 
+            const createNotEnrolledLessonElement = (container, title) => {
+                const el = document.createElement('h4');
+                el.innerHTML = title;
+                container.append(el);
+                el.addEventListener('click', async () => {
+                    await sendQuery(`mutation {
+                        enroll(title: "${title}") {
+                            name
+                        }
+                    }`);
+                    window.location.reload();
+                });
+            };
+
+            const lessonMap = lessons.reduce((acc, lesson) => {
+                acc[lesson.title] = { enrolled: false };
+                return acc;
+            }, {});
+
+            user.lessons.forEach((lesson) => {
+                lessonMap[lesson.title].enrolled = true;
+            });
+            console.log('lesson map:')
+            console.log(lessonMap);
+
+            const enrolledLessons = Object.keys(lessonMap).filter(
+                (title) => lessonMap[title].enrolled
+            );
+            const notEnrolledLessons = Object.keys(lessonMap).filter(
+                (title) => !lessonMap[title].enrolled
+            );
+
+            const $app = document.querySelector('.app');
+            $app.innerHTML = `
+                <h1>${user.name}</h1>
+                <img src=${user.image}>
+                <hr>
+                <div class="enrolledSection"></div>
+                <hr>
+                <div class="notEnrolledSection"></div>
+            `;
+
+            if (notEnrolledLessons.length) {
+                const $notEnrolledSection = $app.querySelector('.notEnrolledSection');
+                $notEnrolledSection.innerHTML = `
+                    <h2>You are <i>not</i> enrolled in these lessons:</h2>
+                    <p>(Click to enroll)</p>
+                `;
+                notEnrolledLessons.forEach((title) => {
+                    createNotEnrolledLessonElement($notEnrolledSection, title);
+                });
+            }
+            if (enrolledLessons.length) {
+                const $enrolledSection = $app.querySelector(".enrolledSection");
+                $enrolledSection.innerHTML = `
+                    <h2>You <i>are</i> enrolled in these lessons:</h2>
+                    <p>(Click to unenroll)</p>
+                `;
+                enrolledLessons.forEach((title) => {
+                    createEnrolledLessonElement($enrolledSection, title);
+                });
+            }
         };
 
 

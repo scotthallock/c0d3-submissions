@@ -1,12 +1,10 @@
+<!-- Example UI from https://js5.c0d3.com/js6/addLessons.html -->
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
         <title>Pokemon Search</title>
         <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css" />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"
-        />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"/>
         <style>
             input {
                 width: 100%;
@@ -45,7 +43,7 @@
             };
 
             const sendQuery = (query) => {
-                return fetch("https://js5.c0d3.com/js6c2/graphql", {
+                return fetch("/graphql", {
                     method: "POST",
                     headers: {
                         "content-type": "application/json",
@@ -62,28 +60,25 @@
 
             const renderLogin = () => {
                 document.querySelector(".app").innerHTML = `
-    <h1>Pokemon Search</h1>
-  
-    <input class="searchBox" type="text">
-    <div class="suggestions"></div>
-  
-    <hr>
-  
-    <div class="selectedSection"></div>
-    `;
+                    <h1>Pokemon Search</h1>
+                    <input class="searchBox" type="text">
+                    <div class="suggestions"></div>
+                    <hr>
+                    <div class="selectedSection"></div>
+                `;
                 const searchBox = document.querySelector(".searchBox");
                 const suggestions = document.querySelector(".suggestions");
                 const selection = document.querySelector(".selectedSection");
 
                 const loadSelection = (name) => {
                     selection.innerHTML = "";
-                    sendQuery(`{getPokemon(str:"${name}"){name, image}}`).then(
+                    sendQuery(`{getPokemon(name:"${name}"){name, image}}`).then(
                         (result) => {
                             selection.innerHTML = `
-      <h1>${result.getPokemon.name}</h1>
-      <img src=${result.getPokemon.image} />
-      <button class="continue">Login</button>
-      `;
+                                <h1>${result.getPokemon.name}</h1>
+                                <img src=${result.getPokemon.image} />
+                                <button class="continue">Login</button>
+                            `;
                             selection
                                 .querySelector(".continue")
                                 .addEventListener("click", () => {
@@ -178,22 +173,21 @@
                     (title) => !lessonMap[title].enrolled
                 );
                 document.querySelector(".app").innerHTML = `
-    <h1>${userInfo.name}</h1>
-    <img src=${userInfo.image} />
-  
-    <hr>
-    <div class="enrolledSection"></div>
-    <hr />
-    <div class="notEnrolledSection"></div>
-    `;
+                    <h1>${userInfo.name}</h1>
+                    <img src=${userInfo.image}>
+                    <hr>
+                    <div class="enrolledSection"></div>
+                    <hr>
+                    <div class="notEnrolledSection"></div>
+                `;
                 if (notEnrolledLessons.length) {
                     const notEnrolledSection = document.querySelector(
                         ".notEnrolledSection"
                     );
                     notEnrolledSection.innerHTML = `
-      <h2>Not Enrolled</h2>
-      <p>Click to enroll</p>
-      `;
+                        <h2>Not Enrolled</h2>
+                        <p>Click to enroll</p>
+                    `;
                     notEnrolledLessons.forEach((title) => {
                         new NotEnrolled(notEnrolledSection, title);
                     });
@@ -202,9 +196,9 @@
                     const enrolledSection =
                         document.querySelector(".enrolledSection");
                     enrolledSection.innerHTML = `
-      <h2>Enrolled</h2>
-      <p>Click to unenroll</p>
-      `;
+                        <h2>Enrolled</h2>
+                        <p>Click to unenroll</p>
+                    `;
                     enrolledLessons.forEach((title) => {
                         new Enrolled(enrolledSection, title);
                     });
@@ -212,9 +206,9 @@
             };
 
             sendQuery(`{
-    user {name, image, lessons {title}},
-    lessons {title}
-  }`).then((result) => {
+                user {name, image, lessons {title}},
+                lessons {title}
+            }`).then((result) => {
                 if (!result.user) {
                     return renderLogin();
                 }
