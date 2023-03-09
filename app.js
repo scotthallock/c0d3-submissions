@@ -17,8 +17,9 @@ import js5_6_router from './src/js5-p6/js5-p6-auth.js';
 import js5_7_router from './src/js5-p7/js5-p7-image-text-extraction.js';
 import js5_8_router from './src/js5-p8/js5-p8-selfie-queen.js';
 import js5_9_router from './src/js5-p9/js5-p9-memechat.js';
-// js6
+// js6_1 links to a different web service
 import js6_2 from './src/js6-p2/js6-p2-graphql-part2.js';
+// js6_3 is static
 
 const app = express();
 
@@ -50,7 +51,6 @@ app.use(
     }),
 );
 
-
 app.use(express.static('public'));
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 
@@ -66,6 +66,7 @@ app.use('/selfie-queen', js5_8_router);
 app.use('/memechat', js5_9_router);
 // js6_1 links to a separate web service
 app.use('/graphql-part2', js6_2.router);
+// js6_3 is static
 
 /* Start the GraphQL server */
 await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
