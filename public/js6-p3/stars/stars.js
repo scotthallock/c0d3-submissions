@@ -1,6 +1,6 @@
 const { useState } = React;
 
-function Star({ active, onMouseEnter, onMouseLeave, onLockIn }) {
+const Star = ({ active, onMouseEnter, onMouseLeave, onLockIn }) => {
     return (
         <div
         className={active ? "star active" : "star"}
@@ -13,7 +13,7 @@ function Star({ active, onMouseEnter, onMouseLeave, onLockIn }) {
     );
 };
 
-function Stars() {
+const Stars = () => {
     const [rating, setRating] = useState(0);
     const [lockedRating, setLockedRating] = useState(0);
     const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
@@ -22,7 +22,7 @@ function Stars() {
     const handleMouseEnter = (n) => {
         setRating(n);
     }
-    const lockInRating = (n) => {
+    const handleLockIn = (n) => {
         setCursorEnteredAgain(false);
         setLockedRating(n);
     }
@@ -45,14 +45,14 @@ function Stars() {
     }
 
     const starComponents = Array(5).fill(null).map((_, i) => {
-    return (
-        <Star
-        key={i}
-        active={numActiveStars >= (i + 1)}
-        onMouseEnter={() => handleMouseEnter(i + 1)}
-        onLockIn={() => lockInRating(i + 1)}
-        />
-    );
+        return (
+            <Star
+            key={i}
+            active={numActiveStars >= (i + 1)}
+            onMouseEnter={() => handleMouseEnter(i + 1)}
+            onLockIn={() => handleLockIn(i + 1)}
+            />
+        );
     });
 
     return (
@@ -69,7 +69,7 @@ function Stars() {
             </div>
         </div>
     );
-}
+};
 
 const domContainer = document.querySelector('#root');
 const root = ReactDOM.createRoot(domContainer);
