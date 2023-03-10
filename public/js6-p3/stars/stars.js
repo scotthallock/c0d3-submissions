@@ -16,10 +16,12 @@ function Star({ active, onMouseEnter, onMouseLeave, onLockIn }) {
 function Stars() {
     const [rating, setRating] = useState(0);
     const [lockedRating, setLockedRating] = useState(0);
-    const [cursorEnteredAgain, setCursorEnteredAgain] = useState(undefined);
+    const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
 
     /* These two handlers are passed down to child components */
-    const handleMouseEnter = (n) => setRating(n);
+    const handleMouseEnter = (n) => {
+        setRating(n);
+    }
     const lockInRating = (n) => {
         setCursorEnteredAgain(false);
         setLockedRating(n);
@@ -32,11 +34,13 @@ function Stars() {
     let message = "Rate this demo?";
     let numActiveStars = 0;
 
-    if (lockedRating > 0 && cursorEnteredAgain === false) {
+    if (lockedRating === 0 && !cursorEnteredAgain) {
+        // do nothing - user hasn't rated yet
+    } else if (lockedRating > 0 && !cursorEnteredAgain) {
         message = `You gave a ${lockedRating}-star rating`;
         numActiveStars = lockedRating;
     } else if (rating > 0) {
-        message = `You are giving ${rating}-stars`;
+        message = `Give ${rating} stars?`;
         numActiveStars = rating;
     }
 
