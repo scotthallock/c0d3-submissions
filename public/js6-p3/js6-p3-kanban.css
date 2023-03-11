@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap');
+
+:root {
+  --color-normal: lightgoldenrodyellow;
+  --color-hover: blanchedalmond;
+  --color-pastel-green: #a8e6cf;
+  --color-pastel-yellow: #fdffab;
+  --color-pastel-orange: #ffd3b6;
+  --color-pastel-red: #ffaaa5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: rgb(52, 80, 52);
+  display: flex;
+  justify-content: center;
+  padding: 50px 0;
+  overflow: auto;
+}
+
+/* Kanban Items (Sticky Notes) ========================== */
+.kanban-board {
+  border: 1px solid red;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.kanban-column h1 {
+  color: white;
+  text-align: center;
+  font-family: 'Rock Salt', cursive;
+  font-size: 1.25rem;
+  padding-bottom: 20px;
+}
+
+.kanban-column > .items {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Kanban Items (Sticky Notes) ========================== */
+.kanban-item {
+  width: 250px;
+  position: relative;
+  box-shadow: 0 6px 4px -4px rgba(0,0,0,0.7); 
+  transition: all 0.15s linear;
+}
+
+.kanban-item > .menu {
+  background-color: var(--color-normal);
+
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  
+  display: flex;
+  justify-content: space-between;
+
+  transition: all 0.15s linear;
+}
+
+.kanban-item > .content {
+  position: relative;
+  min-height: 50px;
+  max-height: 300px;
+  width: 100%;
+
+  padding: 1rem;
+  overflow-y: auto;
+  
+  /* Hide menu behind content */
+  z-index: 2; 
+}
+
+.kanban-item > .content::-webkit-scrollbar {
+  display: none; /* hide scrollbar Chrome, Safari and Opera */
+}
+.kanban-item > .content {
+  -ms-overflow-style: none;  /* hide scrollbar IE and Edge */
+  scrollbar-width: none;  /* hide scrollbar Firefox */
+
+  word-wrap: break-word;
+  white-space: pre-wrap; /* preserve white space */
+  outline: none; /* hide focus outline */
+}
+
+.kanban-item .editing {
+  color: blue;
+  filter: brightness(90%);
+}
+
+.kanban-item button {
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  flex-grow: 1;
+  padding: 0.5rem;
+  outline: none; /* hide focus outline */
+}
+.kanban-item button:hover {
+  filter: brightness(90%);
+}
+
+/* Background colors */
+.kanban-item:nth-child(4n + 1) :is(.content, .menu, button) {
+  background-color: var(--color-pastel-green);
+}
+.kanban-item:nth-child(4n + 2) :is(.content, .menu, button) {
+  background-color: var(--color-pastel-yellow);
+}
+.kanban-item:nth-child(4n + 3) :is(.content, .menu, button) {
+  background-color: var(--color-pastel-orange);
+}
+.kanban-item:nth-child(4n) :is(.content, .menu, button) {
+  background-color: var(--color-pastel-red);
+}
+
+/* Rotation */
+.kanban-item:nth-child(4n + 1) {
+  transform: rotate(-1deg);
+}
+.kanban-item:nth-child(4n + 2) {
+  transform: rotate(3deg);
+}
+.kanban-item:nth-child(4n + 3) {
+  transform: rotate(1deg);
+}
+.kanban-item:nth-child(4n + 4) {
+  transform: rotate(-3deg);
+}
+
+/* We use :nth-child(n) below for added specifity */
+/* Without it, these transformations will not show on hover */
+.kanban-item:nth-child(n):hover,
+.kanban-item.editing {
+  transform: scale(110%);
+  z-index: 3;
+}
+.kanban-item:nth-child(n):hover .menu,
+.kanban-item.editing .menu {
+  transform: translateY(-98%);
+}
