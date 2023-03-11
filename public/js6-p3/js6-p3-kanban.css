@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mynerve&display=swap');
 
 :root {
   --color-normal: lightgoldenrodyellow;
@@ -24,7 +24,7 @@ body {
   overflow: auto;
 }
 
-/* Kanban Items (Sticky Notes) ========================== */
+/* Kanban Board ======================================== */
 .kanban-board {
   border: 1px solid red;
   display: flex;
@@ -36,8 +36,8 @@ body {
 .kanban-column h1 {
   color: white;
   text-align: center;
-  font-family: 'Rock Salt', cursive;
-  font-size: 1.25rem;
+  font-family: 'Mynerve', cursive;
+  font-size: 2rem;
   padding-bottom: 20px;
 }
 
@@ -111,7 +111,7 @@ body {
 }
 
 /* Background colors */
-.kanban-item:nth-child(4n + 1) :is(.content, .menu, button) {
+/* .kanban-item:nth-child(4n + 1) :is(.content, .menu, button) {
   background-color: var(--color-pastel-green);
 }
 .kanban-item:nth-child(4n + 2) :is(.content, .menu, button) {
@@ -122,10 +122,10 @@ body {
 }
 .kanban-item:nth-child(4n) :is(.content, .menu, button) {
   background-color: var(--color-pastel-red);
-}
+} */
 
 /* Rotation */
-.kanban-item:nth-child(4n + 1) {
+/* .kanban-item:nth-child(4n + 1) {
   transform: rotate(-1deg);
 }
 .kanban-item:nth-child(4n + 2) {
@@ -135,6 +135,31 @@ body {
   transform: rotate(1deg);
 }
 .kanban-item:nth-child(4n + 4) {
+  transform: rotate(-3deg);
+} */
+
+.kanban-item.green :is(.content, .menu, button) {
+  background-color: var(--color-pastel-green);
+}
+.kanban-item.yellow :is(.content, .menu, button) {
+  background-color: var(--color-pastel-yellow);
+}
+.kanban-item.orange :is(.content, .menu, button) {
+  background-color: var(--color-pastel-orange);
+}
+.kanban-item.red :is(.content, .menu, button) {
+  background-color: var(--color-pastel-red);
+}
+.kanban-item.green {
+  transform: rotate(-1deg);
+}
+.kanban-item.yellow {
+  transform: rotate(3deg);
+}
+.kanban-item.orange {
+  transform: rotate(1deg);
+}
+.kanban-item.red {
   transform: rotate(-3deg);
 }
 
@@ -148,4 +173,15 @@ body {
 .kanban-item:nth-child(n):hover .menu,
 .kanban-item.editing .menu {
   transform: translateY(-98%);
+}
+
+
+/* Kanban New-Item ===================================== */
+.kanban-new-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.kanban-new-item > input {
+  width: 200px;
 }

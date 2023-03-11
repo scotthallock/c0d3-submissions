@@ -11,7 +11,7 @@ const ITEMS = [
       {
           id: 2,
           text: 'this is my second todo item',
-          color: "green",
+          color: "yellow",
           editing: false,
       }
   ],
@@ -19,13 +19,13 @@ const ITEMS = [
       {
           id: 3,
           text: 'this is my first in progress item',
-          color: "green",
+          color: "orange",
           editing: false,
       },
       {
           id: 4,
           text: 'this is my second in progress item',
-          color: "green",
+          color: "red",
           editing: false,
       }
   ],
@@ -33,13 +33,13 @@ const ITEMS = [
       {
           id: 5,
           text: 'this is my first complete item',
-          color: "green",
+          color: "yellow",
           editing: false,
       },
       {
           id: 6,
           text: 'this is my second complete item',
-          color: "green",
+          color: "orange",
           editing: false,
       }
   ],
@@ -47,7 +47,7 @@ const ITEMS = [
       {
           id: 7,
           text: 'this is my first in review item',
-          color: "green",
+          color: "orange",
           editing: false,
       },
       {
@@ -59,7 +59,7 @@ const ITEMS = [
   ]
 ];
 
-const KanbanItem = ({ itemId, content, colNum, itemNum, moveItem, editItem, editing, saveItem, deleteItem }) => {
+const KanbanItem = ({ itemId, color, content, colNum, itemNum, moveItem, editItem, editing, saveItem, deleteItem }) => {
   let newContent = content;
 
   const handleInput = (e) => {
@@ -73,9 +73,8 @@ const KanbanItem = ({ itemId, content, colNum, itemNum, moveItem, editItem, edit
     editItem(colNum, itemNum);
   };
 
-
   return (
-    <div className={"kanban-item" + (editing ? " editing" : "")}>
+    <div className={"kanban-item" + (editing ? " editing" : "") + " " + color}>
       <div
         className={"content" + (editing ? " editing" : "")}
         contentEditable={editing}
@@ -116,7 +115,7 @@ const KanbanNewItem = ({ colNum, addItem }) => {
   };
   return (
     <form className="kanban-new-item" onSubmit={handleSubmit}>
-      <input name="input" className="new-item-input"></input>
+      <input name="input" type="text" />
       <button className="new-item-submit" type="submit">Add</button>
     </form>
   );
@@ -129,6 +128,7 @@ const KanbanColumn = ({ columnName, columnItems, colNum, moveItem, editItem, sav
         <KanbanItem
           key={i} // need this?
           itemId={item.id}
+          color={item.color}
           content={item.text}
           colNum={colNum}
           itemNum={i}
@@ -147,9 +147,9 @@ const KanbanColumn = ({ columnName, columnItems, colNum, moveItem, editItem, sav
       <div className="items">
         {itemComponents}
         <KanbanNewItem
-        colNum={colNum}
-        addItem={addItem}
-      />
+          colNum={colNum}
+          addItem={addItem}
+        />
       </div>
     </div>
   );
