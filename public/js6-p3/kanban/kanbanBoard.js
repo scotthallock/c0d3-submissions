@@ -110,14 +110,26 @@ const KanbanNewItem = ({ colNum, addItem }) => {
     const formData = new FormData(e.target);
     const formJson = Object.fromEntries(formData.entries());
 
-    const newItemText = formJson["input"]; // "input" comes from the name prop
-    addItem(colNum, newItemText);
+    const newItemText = formJson["content"]; // "input" comes from the name prop
+    addItem(colNum, newItemText, "yellow");
   };
   return (
-    <form className="kanban-new-item" onSubmit={handleSubmit}>
-      <input name="input" type="text" />
-      <button className="new-item-submit" type="submit">Add</button>
-    </form>
+    <div className="kanban-new-item">
+      <form onSubmit={handleSubmit}>
+        <input name="content" type="text" />
+        <div class="row">
+          <input id="input1" type="radio" class="color-input" name="color-input" value="1"/>
+          <label for="input1" class="color-input green"></label>
+          <input id="input2" type="radio" class="color-input" name="color-input" value="2"/>
+          <label for="input2" class="color-input yellow"></label>
+          <input id="input3" type="radio" class="color-input" name="color-input" value="3"/>
+          <label for="input3" class="color-input orange"></label>
+          <input id="input4" type="radio" class="color-input" name="color-input" value="4"/>
+          <label for="input4" class="color-input red"></label>  
+          <button className="new-item-submit" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
   );
 };
 
@@ -209,10 +221,11 @@ const App = () => {
     console.log('saving');
   };
 
-  const handleAddItem = (colNum, text) => {
+  const handleAddItem = (colNum, text, color) => {
     const newItem = {
       id: 'idk',
       text: text,
+      color: color || "yellow",
       time: Date.now()
     };
     const nextItems = [...items];

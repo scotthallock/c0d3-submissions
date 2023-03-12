@@ -26,7 +26,6 @@ body {
 
 /* Kanban Board ======================================== */
 .kanban-board {
-  border: 1px solid red;
   display: flex;
   justify-content: center;
   gap: 60px;
@@ -34,6 +33,7 @@ body {
 }
 
 .kanban-column h1 {
+  width: 250px;
   color: white;
   text-align: center;
   font-family: 'Mynerve', cursive;
@@ -95,6 +95,8 @@ body {
 
 .kanban-item .editing {
   color: blue;
+}
+.kanban-item button.editing {
   filter: brightness(90%);
 }
 
@@ -109,34 +111,6 @@ body {
 .kanban-item button:hover {
   filter: brightness(90%);
 }
-
-/* Background colors */
-/* .kanban-item:nth-child(4n + 1) :is(.content, .menu, button) {
-  background-color: var(--color-pastel-green);
-}
-.kanban-item:nth-child(4n + 2) :is(.content, .menu, button) {
-  background-color: var(--color-pastel-yellow);
-}
-.kanban-item:nth-child(4n + 3) :is(.content, .menu, button) {
-  background-color: var(--color-pastel-orange);
-}
-.kanban-item:nth-child(4n) :is(.content, .menu, button) {
-  background-color: var(--color-pastel-red);
-} */
-
-/* Rotation */
-/* .kanban-item:nth-child(4n + 1) {
-  transform: rotate(-1deg);
-}
-.kanban-item:nth-child(4n + 2) {
-  transform: rotate(3deg);
-}
-.kanban-item:nth-child(4n + 3) {
-  transform: rotate(1deg);
-}
-.kanban-item:nth-child(4n + 4) {
-  transform: rotate(-3deg);
-} */
 
 .kanban-item.green :is(.content, .menu, button) {
   background-color: var(--color-pastel-green);
@@ -178,10 +152,49 @@ body {
 
 /* Kanban New-Item ===================================== */
 .kanban-new-item {
+  width: 250px;
+  background-color: var(--color-pastel-yellow);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.kanban-new-item > input {
-  width: 200px;
+.kanban-new-item input[type=text] {
+  width: 100%;
+  padding: 1rem;
 }
+
+.kanban-new-item .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Custom Color Radio Buttons =========================== */
+input.color-input {
+  display: none;  /* Hide radio button */
+}
+input.color-input:checked + label.color-input:after {
+  content: '';
+}
+  
+label.color-input {
+  position: relative;
+  display: block;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+label.color-input:after {
+  pointer-events: none;
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  outline: 2px solid black;
+  content: none;
+}
+
+label.color-input.green { background: var(--color-pastel-green); }
+label.color-input.yellow { background: var(--color-pastel-yellow); }
+label.color-input.orange { background: var(--color-pastel-orange); }
+label.color-input.red { background: var(--color-pastel-red); }
