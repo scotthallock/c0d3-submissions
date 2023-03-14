@@ -7,8 +7,14 @@ function KanbanItem (props) {
 
   let newContent = content;
 
-  const handleInput = (e) => {
-    newContent = e.currentTarget.textContent
+  const handleKeyUp = (e) => {
+    newContent = e.currentTarget.textContent;
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      saveItem(colNum, itemNum, newContent);
+    }
   };
 
   const handleEditClick = () => {
@@ -22,11 +28,11 @@ function KanbanItem (props) {
     <div className={"kanban-item" + (editing ? " editing" : "") + " " + color}>
       <div
         className={"content" + (editing ? " editing" : "")}
+        tabIndex={-1}
         contentEditable={editing}
         suppressContentEditableWarning={true}
-        onInput={(e) => handleInput(e)}
-        onBlur={() => saveItem(colNum, itemNum, newContent)}
-        value={content}
+        onKeyDown={(e) => handleKeyDown(e)}
+        onKeyUp={(e) => handleKeyUp(e)}
       >
         {content}
       </div>

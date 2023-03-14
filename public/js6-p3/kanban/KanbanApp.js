@@ -1,7 +1,12 @@
-const { useState, useRef } = React;
+const { useState, useRef, useEffect } = React;
 
 function KanbanApp() {
-  const [items, setItems] = useState(defaultItems);
+  const store = localStorage["items"];
+  const [items, setItems] = useState((store && JSON.parse(store)) || defaultItems);
+
+  useEffect(() => {
+    localStorage["items"] = JSON.stringify(items);
+  });
 
   const handleMoveItem = (colNum, itemNum, dir) => {
     const nextItems = [...items];
@@ -31,7 +36,6 @@ function KanbanApp() {
     nextItems[colNum][itemNum].text = newContent;
     nextItems[colNum][itemNum].editing = false;
     setItems(nextItems);
-    console.log('saving');
   };
 
   const handleAddItem = (colNum, text, color) => {

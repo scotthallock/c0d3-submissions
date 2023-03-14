@@ -5,19 +5,16 @@ const KanbanNewItem = (props) => {
   const [color, setColor] = useState(colors[0]);
   const textAreaRef = useRef(null);
 
-  const handleSelectColor = (selectedColor) => {
-    console.log(selectedColor);
-    setColor(selectedColor);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (textAreaRef.current.value === "") return;
+
     const formData = new FormData(e.target);
     const formJson = Object.fromEntries(formData.entries());
-    const {newItemText, newItemColor} = formJson;
-    
-    addItem(colNum, newItemText, newItemColor); // from "name" props
-    textAreaRef.current.value = ''; // clear <textarea>
+    const {newItemText, newItemColor} = formJson; // from "name" props
+
+    addItem(colNum, newItemText, newItemColor);
+    textAreaRef.current.value = "";
   };
 
   const radioButtons = colors.map((color, i) => {
@@ -34,7 +31,7 @@ const KanbanNewItem = (props) => {
         <label
           htmlFor={"input" + i + "-" + colNum}
           className={"color-input " + color}
-          onClick={() => handleSelectColor(color)}
+          onClick={() => setColor(color)}
         ></label>
       </div>
     );

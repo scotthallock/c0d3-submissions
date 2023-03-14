@@ -31,18 +31,16 @@ function StarRating() {
     numActiveStars = rating;
   }
 
-  const starComponents = Array(5)
-    .fill(null)
-    .map((_, i) => {
-      return (
-        <Star
-          key={i}
-          active={numActiveStars >= i + 1}
-          onMouseEnter={() => handleMouseEnter(i + 1)}
-          onLockIn={() => handleLockIn(i + 1)}
-        />
-      );
-    });
+  const starComponents = Array(5).fill(null).map((_, i) => {
+    return (
+      <Star
+        key={i}
+        active={numActiveStars >= i + 1}
+        onMouseEnter={() => handleMouseEnter(i + 1)}
+        onLockIn={() => handleLockIn(i + 1)}
+      />
+    );
+  });
 
   return (
     <div className="stars-container">

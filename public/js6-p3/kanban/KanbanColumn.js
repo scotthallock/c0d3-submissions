@@ -7,7 +7,7 @@ function KanbanColumn(props) {
   const itemComponents = columnItems.map((item, i) => {
     return (
       <KanbanItem
-        key={i} // need this?
+        key={i}
         itemId={item.id}
         color={item.color}
         content={item.text}
