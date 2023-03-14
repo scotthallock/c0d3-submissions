@@ -5,6 +5,7 @@ function KanbanBoard (props) {
   } = props;
 
   const headers = ["TO DO", "IN PROGRESS", "COMPLETE", "APPROVED"];
+  
   const columnComponents = headers.map((_, i) => {
     return (
       <KanbanColumn
