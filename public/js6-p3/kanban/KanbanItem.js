@@ -1,4 +1,4 @@
-function KanbanItem (props) {
+function KanbanItem(props) {
   const {
     color, content, colNum, itemNum,
     moveItem, editItem, editing, saveItem,

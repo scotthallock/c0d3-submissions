@@ -1,11 +1,11 @@
-function KanbanBoard (props) {
+function KanbanBoard(props) {
   const {
     items, moveItem, editItem, saveItem,
     deleteItem, addItem
   } = props;
 
   const headers = ["TO DO", "IN PROGRESS", "COMPLETE", "APPROVED"];
-  
+
   const columnComponents = headers.map((_, i) => {
     return (
       <KanbanColumn

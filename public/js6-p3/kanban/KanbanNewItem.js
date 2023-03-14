@@ -1,4 +1,4 @@
-const KanbanNewItem = (props) => { 
+function KanbanNewItem(props) { 
   const { colNum, addItem } = props;
 
   const colors = ["green", "yellow", "orange", "red"];
