@@ -1,4 +1,4 @@
-const { useState } = React;
+const { useState, useRef } = React;
 
 function KanbanApp() {
   const [items, setItems] = useState(defaultItems);
