@@ -153,14 +153,22 @@ body {
 /* Kanban New-Item ===================================== */
 .kanban-new-item {
   width: 250px;
-  background-color: var(--color-pastel-yellow);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
+.kanban-new-item.green { background: var(--color-pastel-green); }
+.kanban-new-item.yellow { background: var(--color-pastel-yellow); }
+.kanban-new-item.orange { background: var(--color-pastel-orange); }
+.kanban-new-item.red { background: var(--color-pastel-red); }
+
+.kanban-new-item form {
+  width: 100%;
+}
 .kanban-new-item input[type=text] {
   width: 100%;
-  padding: 1rem;
+  /* padding: 1rem; */
 }
 
 .kanban-new-item .row {
@@ -169,6 +177,64 @@ body {
 }
 
 /* Custom Color Radio Buttons =========================== */
+.new-item {
+  width: 250px;
+  box-shadow: 0 6px 4px -4px rgba(0,0,0,0.7); 
+}
+.new-item.green,
+.new-item.green button {
+  background: var(--color-pastel-green);
+}
+.new-item.yellow,
+.new-item.yellow button {
+  background: var(--color-pastel-yellow);
+}
+.new-item.orange,
+.new-item.orange button {
+  background: var(--color-pastel-orange);
+}
+.new-item.red,
+.new-item.red button {
+  background: var(--color-pastel-red);
+}
+
+.new-item textarea {
+  padding: 1rem;
+  width: 100%;
+  height: 70px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  border: none;
+  background: none;
+  outline: none;
+  resize: vertical;
+}
+
+.new-item button {
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  width: 50px;
+  padding: 0.5rem;
+}
+
+.new-item button:hover {
+  filter: brightness(90%);
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 10px;
+}
+
+.new-item .row {
+  display: flex;
+  justify-content: space-between;
+}
+
 input.color-input {
   display: none;  /* Hide radio button */
 }
@@ -179,22 +245,25 @@ input.color-input:checked + label.color-input:after {
 label.color-input {
   position: relative;
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.5);
   cursor: pointer;
 }
 label.color-input:after {
   pointer-events: none;
   position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 4px);
-  outline: 2px solid black;
+  top: 6px;
+  left: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.5);
   content: none;
 }
 
-label.color-input.green { background: var(--color-pastel-green); }
-label.color-input.yellow { background: var(--color-pastel-yellow); }
-label.color-input.orange { background: var(--color-pastel-orange); }
-label.color-input.red { background: var(--color-pastel-red); }
+label.color-input.green{ background: var(--color-pastel-green); }
+label.color-input.yellow{ background: var(--color-pastel-yellow); }
+label.color-input.orange{ background: var(--color-pastel-orange); }
+label.color-input.red{ background: var(--color-pastel-red); }

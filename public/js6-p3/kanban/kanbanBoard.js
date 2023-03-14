@@ -104,30 +104,42 @@ const KanbanItem = ({ itemId, color, content, colNum, itemNum, moveItem, editIte
 };
 
 const KanbanNewItem = ({ colNum, addItem }) => { 
+  const [color, setColor] = useState("green");
+
+  const handleSelectColor = (selectedColor) => {
+    console.log(selectedColor);
+    setColor(selectedColor);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const formJson = Object.fromEntries(formData.entries());
-
-    const newItemText = formJson["content"]; // "input" comes from the name prop
-    addItem(colNum, newItemText, "yellow");
+    const newItemText = formJson["content"]; // from the 'name' prop
+    const newItemColor = formJson["color-input"];
+    addItem(colNum, newItemText, newItemColor);
   };
+
   return (
-    <div className="kanban-new-item">
+    <div className={"new-item " + color}>
       <form onSubmit={handleSubmit}>
-        <input name="content" type="text" />
-        <div class="row">
-          <input id="input1" type="radio" class="color-input" name="color-input" value="1"/>
-          <label for="input1" class="color-input green"></label>
-          <input id="input2" type="radio" class="color-input" name="color-input" value="2"/>
-          <label for="input2" class="color-input yellow"></label>
-          <input id="input3" type="radio" class="color-input" name="color-input" value="3"/>
-          <label for="input3" class="color-input orange"></label>
-          <input id="input4" type="radio" class="color-input" name="color-input" value="4"/>
-          <label for="input4" class="color-input red"></label>  
-          <button className="new-item-submit" type="submit">Add</button>
+        <div className="row">
+          <div className="radio-group">
+            <input id={"input1-" + colNum} type="radio" className="color-input" name="color-input" value="green" defaultChecked/>
+            <label htmlFor={"input1-" + colNum} className="color-input green" onClick={() => handleSelectColor("green")}></label>
+            <input id={"input2-" + colNum} type="radio" className="color-input" name="color-input" value="yellow"/>
+            <label htmlFor={"input2-" + colNum} className="color-input yellow" onClick={() => handleSelectColor("yellow")}></label>
+            <input id={"input3-" + colNum} type="radio" className="color-input" name="color-input" value="orange"/>
+            <label htmlFor={"input3-" + colNum} className="color-input orange" onClick={() => handleSelectColor("orange")}></label>
+            <input id={"input4-" + colNum} type="radio" className="color-input" name="color-input" value="red"/>
+            <label htmlFor={"input4-" + colNum} className="color-input red" onClick={() => handleSelectColor("red")}></label> 
+          </div> 
+          <button className="new-item-submit" type="submit">
+            <span className={"material-symbols-outlined"}>add</span>
+          </button>
         </div>
+        <textarea name="content" type="text" />
       </form>
     </div>
   );
