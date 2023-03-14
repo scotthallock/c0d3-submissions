@@ -143,6 +143,7 @@ body {
 .kanban-item.editing {
   transform: scale(110%);
   z-index: 3;
+  box-shadow: 0 -6px 4px -4px rgba(0,0,0,0.7); 
 }
 .kanban-item:nth-child(n):hover .menu,
 .kanban-item.editing .menu {

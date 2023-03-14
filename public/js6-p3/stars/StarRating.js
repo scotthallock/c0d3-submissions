@@ -1,19 +1,6 @@
 const { useState } = React;
 
-const Star = ({ active, onMouseEnter, onMouseLeave, onLockIn }) => {
-  return (
-    <div
-      className={active ? "star active" : "star"}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onClick={onLockIn}
-    >
-      <i className="fa-solid fa-star"></i>
-    </div>
-  );
-};
-
-const Stars = () => {
+function StarRating() {
   const [rating, setRating] = useState(0);
   const [lockedRating, setLockedRating] = useState(0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
@@ -27,7 +14,7 @@ const Stars = () => {
     setLockedRating(n);
   };
 
-  /* Cursor enters/leaves the Stars component */
+  /* Track when cursor leaves or enters the StarRating component */
   const handleGroupMouseEnter = () => setCursorEnteredAgain(true);
   const handleGroupMouseLeave = () => setCursorEnteredAgain(false);
 
@@ -69,8 +56,8 @@ const Stars = () => {
       <div className="stars-message">{message}</div>
     </div>
   );
-};
+}
 
 const domContainer = document.querySelector("#root");
 const root = ReactDOM.createRoot(domContainer);
-root.render(<Stars />);
+root.render(<StarRating />);

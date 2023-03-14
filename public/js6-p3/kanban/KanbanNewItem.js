@@ -14,7 +14,9 @@ const KanbanNewItem = (props) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const formJson = Object.fromEntries(formData.entries());
-    addItem(colNum, formJson.newItemText, formJson.newItemColor); // from "name" props
+    const {newItemText, newItemColor} = formJson;
+    
+    addItem(colNum, newItemText, newItemColor); // from "name" props
     textAreaRef.current.value = ''; // clear <textarea>
   };
 
