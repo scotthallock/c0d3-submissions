@@ -65,13 +65,35 @@ function App() {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false); // is this needed...?
+  
+  if (loggedIn) {
+    return (
+      <div>
+        <h1>You are logged in. Nice!</h1>
+      </div>
+    );
+  }
+
+  const authenticateUser = () => {
+    sendQuery(`{
+      user {name, image, lessons {title}},
+      lessons {title}
+    }`)
+      .then(result => {
+        if (result.user) {
+          console.log('authenticated')
+          console.log(result.user);
+          setLoggedIn(true);
+        }
+      })
+  };
+  authenticateUser();
 
   /* Helper functions **************************/
   const searchPokemon = (str) => {
     (debounce(() => {
-      sendQuery(`{
-        search(str: "${str}") {name}
-      }`)
+      sendQuery(`{search(str: "${str}") {name}}`)
         .then(result => {
           setSearchResults(result.search)
         })
@@ -80,9 +102,7 @@ function App() {
   };
 
   const getPokemon = (name) => {
-    sendQuery(`{
-      getPokemon(str: "${name}") {name, image}
-    }`)
+    sendQuery(`{getPokemon(str: "${name}") {name, image}}`)
       .then(result => {
         setLoadedPokemon(result.getPokemon)
       })
@@ -90,14 +110,12 @@ function App() {
   };
 
   const loginPokemon = (name) => {
-    sendQuery(`{
-      login (pokemon: "${name}") {name}
-    }`)
+    sendQuery(`{login (pokemon: "${name}") {name}}`)
       .then(result => {
-        console.log("LOGGED IN!")
         console.log(result);
-        window.location.reload();
+        setLoggedIn(true);
       })
+      .catch(console.error);
   };
 
   /* Event Handlers ****************************/
