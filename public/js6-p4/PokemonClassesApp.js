@@ -26,19 +26,6 @@ const debounce = (fn, time) => {
   };
 };
 
-
-
-function PokemonSelection({name, image, onLogin}) {
-  return (
-    <div className="selectedSection">
-      <h1>{name}</h1>
-      <img src={image} />
-      <button onClick={() => onLogin(name)}>Login</button>
-    </div>
-  );
-};
-
-
 function PokemonSuggestions({searchResults, searchBoxValue, onLoadPokemon}) {
   const matches = searchResults.map((e, i) => {
     const pokemonName = e.name;
@@ -61,60 +48,40 @@ function PokemonSuggestions({searchResults, searchBoxValue, onLoadPokemon}) {
 }
 
 
-function App() {
+function PokemonSelection({name, image, onLogin}) {
+  return (
+    <div className="selectedSection">
+      <h1>{name}</h1>
+      <img src={image} />
+      <button onClick={() => onLogin(name)}>Login</button>
+    </div>
+  );
+};
+
+
+function LoginPage() {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
-  const [loggedIn, setLoggedIn] = useState(false); // is this needed...?
-  
-  if (loggedIn) {
-    return (
-      <div>
-        <h1>You are logged in. Nice!</h1>
-      </div>
-    );
-  }
-
-  const authenticateUser = () => {
-    sendQuery(`{
-      user {name, image, lessons {title}},
-      lessons {title}
-    }`)
-      .then(result => {
-        if (result.user) {
-          console.log('authenticated')
-          console.log(result.user);
-          setLoggedIn(true);
-        }
-      })
-  };
-  authenticateUser();
 
   /* Helper functions **************************/
   const searchPokemon = (str) => {
     (debounce(() => {
       sendQuery(`{search(str: "${str}") {name}}`)
-        .then(result => {
-          setSearchResults(result.search)
-        })
+        .then(data => setSearchResults(data.search))
         .catch(console.error);
     }, 500))();
   };
 
   const getPokemon = (name) => {
     sendQuery(`{getPokemon(str: "${name}") {name, image}}`)
-      .then(result => {
-        setLoadedPokemon(result.getPokemon)
-      })
+      .then(data => setLoadedPokemon(data.getPokemon))
       .catch(console.error);
   };
 
   const loginPokemon = (name) => {
     sendQuery(`{login (pokemon: "${name}") {name}}`)
-      .then(result => {
-        console.log(result);
-        setLoggedIn(true);
-      })
+      .then(data => window.location.reload())
       .catch(console.error);
   };
 
@@ -132,7 +99,6 @@ function App() {
   };
 
   const handleLogin = (name) => {
-    console.log('logging in...')
     loginPokemon(name);
   };
 
@@ -162,6 +128,104 @@ function App() {
       }
     </div>
   );
+}
+
+function EnrollmentPage({user, allLessons}) {
+  const [enrolled, setEnrolled] = useState(user.lessons);
+
+  const handleUnenroll = (title) => {
+    sendQuery(`mutation {
+      unenroll(title: "${title}") {lessons {title}}
+    }`)
+      .then(data => {
+        if (!data.unenroll) { // e.g. not authorized
+          return window.location.reload();
+        }
+        setEnrolled(data.unenroll.lessons);
+      })
+      .catch(console.error);
+  };
+
+  const handleEnroll = (title) => {
+    sendQuery(`mutation {
+      enroll(title: "${title}") {lessons {title}}
+    }`)
+      .then(data => {
+        if (!data.enroll) { // e.g. not authorized
+          return window.location.reload(); 
+        }
+        setEnrolled(data.enroll.lessons);
+      })
+      .catch(console.error);
+  };
+
+  const enrolledLessons = enrolled
+    .map((e, i) => {
+      return (
+        <h4 key={i} onClick={() => handleUnenroll(e.title)}>{e.title}</h4>
+      );
+    });
+
+  const notEnrolledLessons = allLessons
+    .filter(e => !enrolled.some(lesson => lesson.title === e.title))
+    .map((e, i) => {
+      return (
+        <h4 key={i} onClick={() => handleEnroll(e.title)}>{e.title}</h4>
+      );
+    });
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <img src={user.image}/>
+      <hr />
+      <div className="enrolledSection">
+        <h2>Enrolled</h2>
+        <p>Click to unenroll</p>
+        {enrolledLessons}
+      </div>
+      <hr />
+      <div className="notEnrolledSection">
+        <h2>Not Enrolled</h2>
+        <p>Click to enroll</p>
+        {notEnrolledLessons}
+      </div>
+    </div>
+  );
+}
+
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [allLessons, setAllLessons] = useState([]);
+  const [checkedSession, setCheckedSession] = useState(false);
+
+  if (!checkedSession) {
+    sendQuery(`{
+      user {name, image, lessons {title}},
+      lessons {title}
+    }`)
+      .then(data => {
+        if (data.user) {
+          setUser(data.user);
+          setAllLessons(data.lessons);
+        }
+        setCheckedSession(true);
+      });
+
+    return null; // empty screen until we check the session
+  }
+
+  if (user && allLessons) {
+    return (
+      <EnrollmentPage
+        user={user}
+        allLessons={allLessons}
+      />
+    );
+  }
+
+  return <LoginPage />;
 }
 
 /* Helper function for sending Query to GraphQL server */
