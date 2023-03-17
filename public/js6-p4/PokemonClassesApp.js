@@ -47,7 +47,6 @@ function PokemonSuggestions({searchResults, searchBoxValue, onLoadPokemon}) {
   return <div className="suggestions">{matches}</div>;
 }
 
-
 function PokemonSelection({name, image, onLogin}) {
   return (
     <div className="selectedSection">
@@ -58,9 +57,8 @@ function PokemonSelection({name, image, onLogin}) {
   );
 };
 
-
 function LoginPage() {
-  const [search, setSearch] = useState("");
+  const [searchBox, setSearchBox] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
 
@@ -79,17 +77,11 @@ function LoginPage() {
       .catch(console.error);
   };
 
-  const loginPokemon = (name) => {
-    sendQuery(`{login (pokemon: "${name}") {name}}`)
-      .then(data => window.location.reload())
-      .catch(console.error);
-  };
-
   /* Event Handlers ****************************/
   const handleSearch = (e) => {
     setLoadedPokemon(null);
     const str = e.currentTarget.value;
-    setSearch(str);
+    setSearchBox(str);
     searchPokemon(str);
   };
 
@@ -99,7 +91,9 @@ function LoginPage() {
   };
 
   const handleLogin = (name) => {
-    loginPokemon(name);
+    sendQuery(`{login (pokemon: "${name}") {name}}`)
+      .then(data => window.location.reload())
+      .catch(console.error);
   };
 
   return (
@@ -109,7 +103,7 @@ function LoginPage() {
         className="searchBox"
         type="text"
         onChange={handleSearch}
-        value={search}
+        value={searchBox}
         />
       {
         loadedPokemon
@@ -121,7 +115,7 @@ function LoginPage() {
         />
         :
         <PokemonSuggestions
-          searchBoxValue={search}
+          searchBoxValue={searchBox}
           searchResults={searchResults}
           onLoadPokemon={handleLoadPokemon}
         />
@@ -213,7 +207,7 @@ function App() {
         setCheckedSession(true);
       });
 
-    return null; // empty screen until we check the session
+    return null; // render nothing until we check the session
   }
 
   if (user && allLessons) {
@@ -227,8 +221,6 @@ function App() {
 
   return <LoginPage />;
 }
-
-/* Helper function for sending Query to GraphQL server */
 
 const domContainer = document.querySelector("#root");
 const root = ReactDOM.createRoot(domContainer);
