@@ -10,6 +10,6 @@ router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../src/js6-p4/dist/index.html'));
 });
 
-router.use('/', express.static(path.join(__dirname, '../../src/js6-p4/dist/')));
+router.use('/', express.static(path.join(__dirname, '../../src/js6-p4/dist')));
 
 export default router;

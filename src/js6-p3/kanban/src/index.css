@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css2?family=Mynerve&display=swap');
+
+:root {
+  --color-normal: lightgoldenrodyellow;
+  --color-hover: blanchedalmond;
+  --color-pastel-green: #a8e6cf;
+  --color-pastel-yellow: #fdffab;
+  --color-pastel-orange: #ffd3b6;
+  --color-pastel-red: #ffaaa5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: rgb(52, 80, 52);
+  display: flex;
+  justify-content: center;
+  padding: 50px 0;
+  overflow: auto;
+}
+
+/* Kanban Board ======================================== */
+.kanban-board {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.kanban-column h1 {
+  width: 250px;
+  color: white;
+  text-align: center;
+  font-family: 'Mynerve', cursive;
+  font-size: 2rem;
+  padding-bottom: 20px;
+}
+
+.kanban-column > .items {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Kanban Items (Sticky Notes) ========================== */
+.kanban-item {
+  width: 250px;
+  position: relative;
+  box-shadow: 0 6px 4px -4px rgba(0,0,0,0.7); 
+  transition: all 0.15s linear;
+}
+
+.kanban-item > .menu {
+  background-color: var(--color-normal);
+
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  
+  display: flex;
+  justify-content: space-between;
+
+  transition: all 0.15s linear;
+}
+
+.kanban-item > .content {
+  position: relative;
+  min-height: 50px;
+  max-height: 300px;
+  width: 100%;
+
+  padding: 1rem;
+  overflow-y: auto;
+  
+  /* Hide menu behind content */
+  z-index: 2; 
+}
+
+.kanban-item > .content::-webkit-scrollbar {
+  display: none; /* hide scrollbar Chrome, Safari and Opera */
+}
+.kanban-item > .content {
+  -ms-overflow-style: none;  /* hide scrollbar IE and Edge */
+  scrollbar-width: none;  /* hide scrollbar Firefox */
+
+  word-wrap: break-word;
+  white-space: pre-wrap; /* preserve white space */
+  outline: none; /* hide focus outline */
+}
+
+.kanban-item .editing {
+  color: blue;
+}
+.kanban-item button.editing {
+  filter: brightness(90%);
+}
+
+.kanban-item button {
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  flex-grow: 1;
+  padding: 0.5rem;
+  outline: none; /* hide focus outline */
+}
+.kanban-item button:hover {
+  filter: brightness(90%);
+}
+
+.kanban-item.green :is(.content, .menu, button) {
+  background-color: var(--color-pastel-green);
+}
+.kanban-item.yellow :is(.content, .menu, button) {
+  background-color: var(--color-pastel-yellow);
+}
+.kanban-item.orange :is(.content, .menu, button) {
+  background-color: var(--color-pastel-orange);
+}
+.kanban-item.red :is(.content, .menu, button) {
+  background-color: var(--color-pastel-red);
+}
+.kanban-item.green {
+  transform: rotate(-1deg);
+}
+.kanban-item.yellow {
+  transform: rotate(3deg);
+}
+.kanban-item.orange {
+  transform: rotate(1deg);
+}
+.kanban-item.red {
+  transform: rotate(-3deg);
+}
+
+/* We use :nth-child(n) below for added specifity */
+/* Without it, these transformations will not show on hover */
+.kanban-item:nth-child(n):hover,
+.kanban-item.editing {
+  transform: scale(110%);
+  z-index: 3;
+  box-shadow: 0 -6px 4px -4px rgba(0,0,0,0.7); 
+}
+.kanban-item:nth-child(n):hover .menu,
+.kanban-item.editing .menu {
+  transform: translateY(-98%);
+}
+
+
+/* Kanban New-Item ===================================== */
+.kanban-new-item {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kanban-new-item.green { background: var(--color-pastel-green); }
+.kanban-new-item.yellow { background: var(--color-pastel-yellow); }
+.kanban-new-item.orange { background: var(--color-pastel-orange); }
+.kanban-new-item.red { background: var(--color-pastel-red); }
+
+.kanban-new-item form {
+  width: 100%;
+}
+.kanban-new-item input[type=text] {
+  width: 100%;
+  /* padding: 1rem; */
+}
+
+.kanban-new-item .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Custom Color Radio Buttons =========================== */
+.new-item {
+  width: 250px;
+  box-shadow: 0 6px 4px -4px rgba(0,0,0,0.7); 
+}
+.new-item.green,
+.new-item.green button {
+  background: var(--color-pastel-green);
+}
+.new-item.yellow,
+.new-item.yellow button {
+  background: var(--color-pastel-yellow);
+}
+.new-item.orange,
+.new-item.orange button {
+  background: var(--color-pastel-orange);
+}
+.new-item.red,
+.new-item.red button {
+  background: var(--color-pastel-red);
+}
+
+.new-item textarea {
+  padding: 1rem;
+  width: 100%;
+  height: 70px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  border: none;
+  background: none;
+  outline: none;
+  resize: vertical;
+}
+
+.new-item button {
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  width: 50px;
+  padding: 0.5rem;
+}
+
+.new-item button:hover {
+  filter: brightness(90%);
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 10px;
+}
+
+.new-item .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+input.color-input {
+  display: none;  /* Hide radio button */
+}
+input.color-input:checked + label.color-input:after {
+  content: '';
+}
+  
+label.color-input {
+  position: relative;
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+label.color-input:after {
+  pointer-events: none;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.5);
+  content: none;
+}
+
+label.color-input.green{ background: var(--color-pastel-green); }
+label.color-input.yellow{ background: var(--color-pastel-yellow); }
+label.color-input.orange{ background: var(--color-pastel-orange); }
+label.color-input.red{ background: var(--color-pastel-red); }
