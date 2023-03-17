@@ -30,7 +30,7 @@ const {
   ASSET_PATH,
   OUTPUT_PATH,
   TEMPLATE_FILE
-} = CHALLENGE_JS6_3_KANBAN; // Change this based on which challenge we are bundling
+} = CHALLENGE_JS6_4; // Change this based on which challenge to bundle
 
 export default {
   
