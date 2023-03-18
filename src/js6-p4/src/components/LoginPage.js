@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PokemonSelection from './PokemonSelection.js';
 import PokemonSuggestions from './PokemonSuggestions.js';
 import sendQuery from './sendQuery.js';
-
-const { useState } = React;
 
 const debounce = (fn, time) => {
   let timeout;

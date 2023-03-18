@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import EnrollmentPage from './EnrollmentPage.js';
 import LoginPage from './LoginPage.js';
 import sendQuery from './sendQuery.js';
-
-const { useState } = React;
 
 export default function App() {
   const [user, setUser] = useState(null);

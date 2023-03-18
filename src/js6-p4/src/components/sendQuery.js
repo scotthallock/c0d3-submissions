@@ -1,4 +1,4 @@
-export default async function sendQuery(query) {
+export default function sendQuery(query) {
   return fetch("/graphql", {
       method: "POST",
       headers: {

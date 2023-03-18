@@ -1,8 +1,5 @@
-import React from 'react';
-import PokemonProfile from './PokemonProfile.js';
+import React, { useState } from 'react';
 import sendQuery from './sendQuery.js';
-
-const { useState } = React;
 
 export default function EnrollmentPage({user, allLessons}) {
   const [enrolled, setEnrolled] = useState(user.lessons);
