@@ -13,7 +13,7 @@ const debounce = (fn, time) => {
   };
 };
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }) {
   const [searchBox, setSearchBox] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);

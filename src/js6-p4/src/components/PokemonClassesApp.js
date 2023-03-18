@@ -24,6 +24,11 @@ export default function App() {
     return null; // render nothing until we verify if there is a valid session
   }
 
+  const handleLogin = (user, lessons) => {
+    setUser(user);
+    setAllLessons(lessons);
+  };
+
   if (user && allLessons) {
     return (
       <EnrollmentPage
@@ -33,5 +38,9 @@ export default function App() {
     );
   }
 
-  return <LoginPage />;
+  return (
+    <LoginPage
+      onLogin={handleLogin}
+    />
+  );
 }
