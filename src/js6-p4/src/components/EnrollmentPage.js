@@ -50,7 +50,8 @@ export default function EnrollmentPage({user, allLessons}) {
 
   return (
     <div>
-      <PokemonProfile name={user.name} image={user.image} />
+      <h1>{user.name}</h1>
+      <img src={user.image}/>
       <hr />
       <div className="enrolledSection">
         <h2>Enrolled</h2>
