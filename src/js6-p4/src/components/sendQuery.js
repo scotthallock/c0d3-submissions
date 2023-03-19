@@ -11,6 +11,11 @@ export default function sendQuery(query) {
       }),
   })
       .then(r => r.json())
-      .then(r => r.data)
+      .then(r => {
+        if (r.errors && r.errors.some(obj => obj.message === 'Not authorized')) {
+            console.log('Not authorized');
+        }
+        return r.data;
+      })
       .catch(console.error);
 }

@@ -1,4 +1,3 @@
-import { SingleFieldSubscriptionsRule } from 'graphql';
 import React, { useState, useEffect } from 'react';
 import EnrollmentPage from './EnrollmentPage.js';
 import LoginPage from './LoginPage.js';
