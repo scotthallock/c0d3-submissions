@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EnrollmentPage from './EnrollmentPage.js';
 import LoginPage from './LoginPage.js';
 import sendQuery from './sendQuery.js';
@@ -8,7 +8,7 @@ export default function App() {
   const [allLessons, setAllLessons] = useState([]);
   const [checkedSession, setCheckedSession] = useState(false);
 
-  if (!checkedSession) {
+  useEffect(() => {
     sendQuery(`{
       user {name, image, lessons {title}},
       lessons {title}
@@ -19,15 +19,18 @@ export default function App() {
           setAllLessons(data.lessons);
         }
         setCheckedSession(true);
-      });
-
-    return null; // render nothing until we verify if there is a valid session
-  }
+      })
+      .catch(console.error);
+  });
 
   const handleLogin = (user, lessons) => {
     setUser(user);
     setAllLessons(lessons);
   };
+
+  if (!checkedSession) {
+    return null;
+  }
 
   if (user && allLessons) {
     return (
