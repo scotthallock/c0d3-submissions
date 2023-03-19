@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import PokemonSelection from './PokemonSelection.js';
-import PokemonSuggestions from './PokemonSuggestions.js';
 import sendQuery from './sendQuery.js';
 
 const debounce = (fn, time) => {
@@ -21,15 +19,13 @@ export default function LoginPage({ onLogin }) {
   const searchPokemon = (str) => {
     (debounce(() => {
       sendQuery(`{search(str: "${str}") {name}}`)
-        .then(data => setSearchResults(data.search))
-        .catch(console.error);
+        .then(data => setSearchResults(data.search));
     }, 500))();
   };
 
   const getPokemon = (name) => {
     sendQuery(`{getPokemon(str: "${name}") {name, image}}`)
-      .then(data => setLoadedPokemon(data.getPokemon))
-      .catch(console.error);
+      .then(data => setLoadedPokemon(data.getPokemon));
   };
 
   const handleSearch = (e) => {
@@ -45,9 +41,15 @@ export default function LoginPage({ onLogin }) {
   };
 
   const handleLogin = (name) => {
-    sendQuery(`{login (pokemon: "${name}") {name}}`)
-      .then(data => window.location.reload())
-      .catch(console.error);
+    sendQuery(`{
+      login(pokemon: "${name}") {name, image, lessons {title}},
+      lessons {title}
+    }`)
+      .then(data => {
+        if (data.login && data.lessons) {
+          onLogin(data.login, data.lessons);
+        }
+      });
   };
 
   return (
@@ -77,3 +79,35 @@ export default function LoginPage({ onLogin }) {
     </div>
   );
 }
+
+function PokemonSelection({ name, image, onLogin }) {
+  return (
+    <div className="selectedSection">
+      <h1>{name}</h1>
+      <img src={image}/>
+      <button onClick={() => onLogin(name)}>Login</button>
+    </div>
+  );
+}
+
+function PokemonSuggestions({ searchResults, searchBoxValue, onLoadPokemon }) {
+  const matches = searchResults.map((e, i) => {
+    const pokemonName = e.name;
+
+    const result = pokemonName.replace(
+      searchBoxValue,
+      `<span class="match">${searchBoxValue}</span>`
+    );
+  
+    return (
+      <h3
+        key={i}
+        dangerouslySetInnerHTML={{ __html: result}}
+        onClick={() => onLoadPokemon(pokemonName)}
+      />
+    );
+  });
+
+  return <div className="suggestions">{matches}</div>;
+}
+

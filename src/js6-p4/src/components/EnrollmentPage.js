@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import sendQuery from './sendQuery.js';
 
-export default function EnrollmentPage({user, allLessons}) {
+export default function EnrollmentPage({ user, allLessons, onLogout }) {
   const [enrolled, setEnrolled] = useState(user.lessons);
+
+  console.log('enrollment page render')
 
   const handleUnenroll = (title) => {
     sendQuery(`mutation {
@@ -10,11 +12,10 @@ export default function EnrollmentPage({user, allLessons}) {
     }`)
       .then(data => {
         if (!data.unenroll) { // e.g. not authorized
-          return window.location.reload();
+          return onLogout();
         }
         setEnrolled(data.unenroll.lessons);
-      })
-      .catch(console.error);
+      });
   };
 
   const handleEnroll = (title) => {
@@ -23,11 +24,10 @@ export default function EnrollmentPage({user, allLessons}) {
     }`)
       .then(data => {
         if (!data.enroll) { // e.g. not authorized
-          return window.location.reload(); 
+          return onLogout();
         }
         setEnrolled(data.enroll.lessons);
-      })
-      .catch(console.error);
+      });
   };
 
   const enrolledLessons = enrolled
@@ -49,6 +49,8 @@ export default function EnrollmentPage({user, allLessons}) {
     <div>
       <h1>{user.name}</h1>
       <img src={user.image}/>
+      <br />
+      <button onClick={onLogout}>Log out</button>
       <hr />
       <div className="enrolledSection">
         <h2>Enrolled</h2>

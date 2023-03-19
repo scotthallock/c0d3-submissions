@@ -11,5 +11,6 @@ export default function sendQuery(query) {
       }),
   })
       .then(r => r.json())
-      .then(r => r.data);
+      .then(r => r.data)
+      .catch(console.error);
 }
