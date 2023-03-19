@@ -1,27 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import debounce from 'lodash.debounce';
 import sendQuery from './sendQuery.js';
-
-const debounce = (fn, time) => {
-  let timeout;
-  return () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-          fn();
-      }, time);
-  };
-};
 
 export default function LoginPage({ onLogin }) {
   const [searchBox, setSearchBox] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
 
-  const searchPokemon = (str) => {
-    (debounce(() => {
+  const debouncedSearchPokemon = useMemo(str => {
+    return debounce((str) => {
       sendQuery(`{search(str: "${str}") {name}}`)
         .then(data => setSearchResults(data.search));
-    }, 500))();
-  };
+    }, 500);
+  }, []);
 
   const getPokemon = (name) => {
     sendQuery(`{getPokemon(str: "${name}") {name, image}}`)
@@ -32,7 +23,7 @@ export default function LoginPage({ onLogin }) {
     setLoadedPokemon(null);
     const str = e.currentTarget.value;
     setSearchBox(str);
-    searchPokemon(str);
+    debouncedSearchPokemon(str);
   };
 
   const handleLoadPokemon = (name) => {

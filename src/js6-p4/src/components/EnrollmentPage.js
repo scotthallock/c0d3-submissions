@@ -31,17 +31,27 @@ export default function EnrollmentPage({ user, allLessons, onLogout }) {
   };
 
   const enrolledLessons = enrolled
-    .map((e, i) => {
+    .map(e => {
       return (
-        <h4 key={i} onClick={() => handleUnenroll(e.title)}>{e.title}</h4>
+        <h4
+          key={e.title}
+          onClick={() => handleUnenroll(e.title)}
+        >
+          {e.title}
+        </h4>
       );
     });
 
   const notEnrolledLessons = allLessons
     .filter(e => !enrolled.some(lesson => lesson.title === e.title))
-    .map((e, i) => {
+    .map(e => {
       return (
-        <h4 key={i} onClick={() => handleEnroll(e.title)}>{e.title}</h4>
+        <h4
+          key={e.title}
+          onClick={() => handleEnroll(e.title)}
+        >
+          {e.title}
+        </h4>
       );
     });
 
