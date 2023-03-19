@@ -1,16 +1,19 @@
 import React, { useState, useMemo } from 'react';
+import reactStringReplace from 'react-string-replace';
 import debounce from 'lodash.debounce';
 import sendQuery from './sendQuery.js';
 
 export default function LoginPage({ onLogin }) {
-  const [searchBox, setSearchBox] = useState("");
+  const [searchBox, setSearchBox] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
 
   const debouncedSearchPokemon = useMemo(() => {
     return debounce(str => {
       sendQuery(`{search(str: "${str}") {name}}`)
-        .then(data => setSearchResults(data.search));
+        .then(data => {
+          setSearchResults(data.search);
+        });
     }, 500)
   }, []);
 
@@ -84,18 +87,17 @@ function PokemonSelection({ name, image, onLogin }) {
 function PokemonSuggestions({ searchResults, searchBoxValue, onLoadPokemon }) {
   const matches = searchResults.map((e, i) => {
     const pokemonName = e.name;
-
-    const result = pokemonName.replace(
+    
+    const result = reactStringReplace(
+      pokemonName,
       searchBoxValue,
-      `<span class="match">${searchBoxValue}</span>`
+      (match) => (<span className="match">{match}</span>)
     );
   
     return (
-      <h3
-        key={i}
-        dangerouslySetInnerHTML={{ __html: result}}
-        onClick={() => onLoadPokemon(pokemonName)}
-      />
+      <h3 key={pokemonName} onClick={() => onLoadPokemon(pokemonName)}>
+        {result}
+      </h3>
     );
   });
 
