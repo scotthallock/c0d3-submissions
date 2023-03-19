@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import debounce from 'lodash.debounce';
 import sendQuery from './sendQuery.js';
 
@@ -7,11 +7,11 @@ export default function LoginPage({ onLogin }) {
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
 
-  const debouncedSearchPokemon = useMemo(str => {
-    return debounce((str) => {
+  const debouncedSearchPokemon = useMemo(() => {
+    return debounce(str => {
       sendQuery(`{search(str: "${str}") {name}}`)
         .then(data => setSearchResults(data.search));
-    }, 500);
+    }, 500)
   }, []);
 
   const getPokemon = (name) => {
