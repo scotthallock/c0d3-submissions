@@ -71,6 +71,7 @@ const typeDefs = `#graphql
         getPokemon(str: String!): Pokemon
         search(str: String!): [BasicPokemon]
         login(pokemon: String!): User
+        logout: Boolean
         user: User
     }
     type Mutation {
@@ -94,6 +95,10 @@ const resolvers = {
         login: (_, { pokemon }, { req }) => {
             req.session.user = pokemon;
             return users[pokemon];
+        },
+        logout: (_, __, { req }) => {
+            req.session.user = null;
+            return true;
         },
         user: (_, __, { req }) => {
             const pokemon = req.session.user;

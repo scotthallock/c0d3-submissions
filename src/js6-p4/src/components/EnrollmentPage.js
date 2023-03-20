@@ -1,55 +1,53 @@
-import React, { useState } from 'react';
-import sendQuery from './sendQuery.js';
+import React, { useState } from "react";
+import sendQuery from "./sendQuery.js";
+import { useAuth } from "./AuthContext.js";
+import { isConstValueNode } from "graphql";
 
-export default function EnrollmentPage({ user, allLessons, onLogout }) {
+export default function EnrollmentPage({ allLessons }) {
+  const [user, setUser] = useAuth();
   const [enrolled, setEnrolled] = useState(user.lessons);
-
-  console.log('enrollment page render')
 
   const handleUnenroll = (title) => {
     sendQuery(`mutation {
       unenroll(title: "${title}") {lessons {title}}
-    }`)
-      .then(data => {
-        if (!data.unenroll) { // e.g. not authorized
-          return onLogout();
-        }
-        setEnrolled(data.unenroll.lessons);
-      });
+    }`).then((data) => {
+      if (data?.error?.message === "Not authorized") {
+        return handleLogout();
+      }
+      setEnrolled(data.unenroll.lessons);
+    });
   };
 
   const handleEnroll = (title) => {
     sendQuery(`mutation {
       enroll(title: "${title}") {lessons {title}}
-    }`)
-      .then(data => {
-        if (!data.enroll) { // e.g. not authorized
-          return onLogout();
-        }
-        setEnrolled(data.enroll.lessons);
-      });
+    }`).then((data) => {
+      if (data?.error?.message === "Not authorized") {
+        return handleLogout();
+      }
+      setEnrolled(data.enroll.lessons);
+    });
   };
 
-  const enrolledLessons = enrolled
-    .map(e => {
-      return (
-        <h4
-          key={e.title}
-          onClick={() => handleUnenroll(e.title)}
-        >
-          {e.title}
-        </h4>
-      );
+  const handleLogout = () => {
+    sendQuery(`{ logout }`).then((data) => {
+      return setUser(null);
     });
+  };
+
+  const enrolledLessons = enrolled.map((e) => {
+    return (
+      <h4 key={e.title} onClick={() => handleUnenroll(e.title)}>
+        {e.title}
+      </h4>
+    );
+  });
 
   const notEnrolledLessons = allLessons
-    .filter(e => !enrolled.some(lesson => lesson.title === e.title))
-    .map(e => {
+    .filter((e) => !enrolled.some((lesson) => lesson.title === e.title))
+    .map((e) => {
       return (
-        <h4
-          key={e.title}
-          onClick={() => handleEnroll(e.title)}
-        >
+        <h4 key={e.title} onClick={() => handleEnroll(e.title)}>
           {e.title}
         </h4>
       );
@@ -58,9 +56,9 @@ export default function EnrollmentPage({ user, allLessons, onLogout }) {
   return (
     <div>
       <h1>{user.name}</h1>
-      <img src={user.image}/>
+      <img src={user.image} />
       <br />
-      <button onClick={onLogout}>Log out</button>
+      <button onClick={handleLogout}>Log out</button>
       <hr />
       <div className="enrolledSection">
         <h2>Enrolled</h2>
