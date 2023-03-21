@@ -86,14 +86,16 @@ router.post('/api/uploads', jsonParser, async (req, res) => {
     if (!req.body.selfie || !req.body.emoji) {
         return res.status(400).json({error: {message: 'Request is missing a selfie or emoji'}});
     }
-    const time = Date.now();
+    
     const filename = time + '_' + uuidv4() + '.png';
+    const timestamp = Date.now();
     const filepath = uploadsDirectory + '/' + filename;
 
     try {
         await fs.promises.writeFile(filepath, req.body.selfie, 'base64');
         selfies[filename] = {
-            timestamp: time,
+            filename,
+            timestamp,
             emoji: req.body.emoji
         };
         return res.status(201).json(selfies[filename]);
