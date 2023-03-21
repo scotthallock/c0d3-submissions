@@ -91,8 +91,8 @@ router.post('/api/uploads', jsonParser, async (req, res) => {
         return res.status(400).json({error: {message: 'Request is missing a selfie or emoji'}});
     }
     
-    const filename = time + '_' + uuidv4() + '.png';
     const timestamp = Date.now();
+    const filename = timestamp + '_' + uuidv4() + '.png';
     const filepath = uploadsDirectory + '/' + filename;
 
     try {
