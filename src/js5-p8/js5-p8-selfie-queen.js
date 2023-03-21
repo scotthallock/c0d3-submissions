@@ -78,6 +78,7 @@ router.get('/api/uploads', (req, res) => {
 
 /* Create a new selfie */
 router.post('/api/uploads', jsonParser, async (req, res) => {
+    console.log('Create new selfie ouch ', Date.now());
     if (!req.body.selfie || !req.body.emoji) {
         return res.status(400).json({error: {message: 'Request is missing a selfie or emoji'}});
     }

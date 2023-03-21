@@ -161,8 +161,8 @@
                     })
                 });
                 const body = await response.json();
-                if (body.err) {
-                    console.error(body.err.message);
+                if (body.error) {
+                    console.error(body.error.message);
                     renderSelfieUploadMessage('Error uploading selfie... 😔');
                     cancelSelfieHandler();
                     return;
