@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
+import cors from 'cors';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -11,6 +12,9 @@ const jsonParser = bodyParser.json();
 
 const uploadsDirectory = path.join(__dirname, '../../public/js5-p8/uploads');
 const iconsDirectory = path.join(__dirname, '../../public/js5-p8/icons');
+
+/* Allow Cross-Origin Resource Sharing (CORS) for /selfie-queen/api/* */
+router.use('/api/*', cors());
 
 /* Create the /uploads folder if it does not exist */
 if (!fs.existsSync(uploadsDirectory)) fs.mkdirSync(uploadsDirectory);
