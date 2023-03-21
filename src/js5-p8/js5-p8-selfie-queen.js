@@ -22,10 +22,14 @@ if (!fs.existsSync(uploadsDirectory)) fs.mkdirSync(uploadsDirectory);
 /* Initialize selfie metadata object */
 const selfies = {
     '_animal-selfie-1.png': {
+        id: 0,
+        filename: '_animal-selfie-1.png',
         timestamp: Date.now() - (1000 * 60 * 60),
         emoji: '😎'
     },
     '_animal-selfie-2.png': {
+        id: 1,
+        filename: '_animal-selfie-2.png',
         timestamp: Date.now(),
         emoji: '😈'
     }
