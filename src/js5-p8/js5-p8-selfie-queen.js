@@ -94,6 +94,7 @@ router.post('/api/uploads', jsonParser, async (req, res) => {
     try {
         await fs.promises.writeFile(filepath, req.body.selfie, 'base64');
         selfies[filename] = {
+            id: Object.keys(selfies).length,
             filename,
             timestamp,
             emoji: req.body.emoji
