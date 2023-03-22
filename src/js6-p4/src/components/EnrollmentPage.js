@@ -31,7 +31,7 @@ export default function EnrollmentPage({ allLessons }) {
 
   const handleLogout = () => {
     sendQuery(`{ logout }`).then((data) => {
-      return setUser(null);
+      return setUser(undefined);
     });
   };
 

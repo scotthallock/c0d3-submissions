@@ -9,26 +9,23 @@ export default function App() {
   const [allLessons, setAllLessons] = useState(null);
 
   useEffect(() => {
-    sendQuery(`{ user {name, image, lessons {title}} }`).then((data) => {
+    sendQuery(`{
+      lessons {title}
+      user {name, image, lessons {title}}
+    }`).then((data) => {
+      // If there an a "Not authorized" error, GraphQL server will return
+      // data: {user: null, lessons: [...]}
+      // GraphQL errors will be logged in the console as well.
       if (data.user) setUser(data.user);
       else setUser(undefined);
+
+      if (data.lessons) setAllLessons(data.lessons);
+      else setAllLessons(undefined);
     });
   }, []);
 
-  useEffect(() => {
-    sendQuery(`{ lessons {title} }`).then((data) => {
-      if (data.lessons) {
-        setAllLessons(data.lessons);
-      } else {
-        setAllLessons(undefined);
-        console.error("lessons Query failed");
-      }
-    });
-  }, []);
-
-
+  // wait for queries to complete before rendering anything
   if (user === null || allLessons === null) {
-    // wait for queries to complete before rendering anything
     return null;
   }
 
