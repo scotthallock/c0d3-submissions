@@ -32,6 +32,8 @@ export default function sendQuery(query) {
   })
     .then((r) => r.json())
     .then((r) => {
+      // If there are errors from the query, tell the user,
+      // but do not modify the r.data object
       if (r.errors) {
         r.errors.forEach((e) => {
           console.warn(`
