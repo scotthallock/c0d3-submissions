@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { useAuth } from "./AuthContext.js";
 import reactStringReplace from "react-string-replace";
 import debounce from "lodash.debounce";
@@ -11,14 +11,15 @@ export default function LoginPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
 
-  const debouncedSearchPokemon = useMemo(() => {
-    return debounce((str) => {
+  const debouncedSearchPokemon = useCallback(
+    debounce((str) => {
       sendQuery(`{search(str: "${str}") {name}}`).then((data) => {
         setSearchResults(data.search);
         setDebouncedSearchBox(str);
       });
-    }, 500);
-  }, []);
+    }, 500),
+    []
+  );
 
   const getPokemon = (name) => {
     sendQuery(`{getPokemon(str: "${name}") {name, image}}`).then((data) =>
