@@ -1,22 +1,4 @@
-/**
- * Ideally I would like to import { useAuth } from AuthContext.js
- * into this module, and if there is a "Not authorized" error sent back
- * by the GraphQL server, we can call the setUser(null) function.
- *
- * However, this is not a React component, so it doesn't seem possible.
- *
- * Another thing I don't like about this is the error handling...
- *
- * If the GraphQL query includes:
- * - queries that require authorization
- * - queries that do NOT require authorization
- *
- * If the user is not authorized, this function will return an
- * {error: message: { " ... " }} object without the data that the user
- * SHOULD have access to.
- *
- * Do have a suggestion for how to improve this?
- */
+import _ from "lodash";
 
 export default function sendQuery(query) {
   return fetch("/graphql", {
@@ -32,18 +14,20 @@ export default function sendQuery(query) {
   })
     .then((r) => r.json())
     .then((r) => {
-      // If there are errors from the query, tell the user,
-      // but do not modify the r.data object
       if (r.errors) {
-        r.errors.forEach((e) => {
+        r.errors.forEach((error) => {
+          /* Tell the user about the error */
           console.warn(`
 ------------------------------------
-Error from GraphQL query at path ${e.path}:
-message: "${e.message}"
+Error from GraphQL query at path ${error.path}:
+message: "${error.message}"
 ------------------------------------
 `);
+          /* Replace the data with the error message */
+          _.set(r.data, error.path, { error: { message: error.message } });
         });
       }
+
       return r.data;
     })
     .catch(console.error);

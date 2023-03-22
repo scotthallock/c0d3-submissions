@@ -14,13 +14,14 @@ export default function App() {
       user {name, image, lessons {title}}
     }`).then((data) => {
       // If there an a "Not authorized" error, GraphQL server will return
-      // data: {user: null, lessons: [...]}
+      // data: {user: {error: message: "Not authorized"}, lessons: [...]}
       // GraphQL errors will be logged in the console as well.
-      if (data.user) setUser(data.user);
-      else setUser(undefined);
 
-      if (data.lessons) setAllLessons(data.lessons);
-      else setAllLessons(undefined);
+      if (data.user.error) setUser(undefined);
+      else setUser(data.user);
+
+      if (data.lessons.error) setAllLessons(undefined);
+      else setAllLessons(data.lessons);
     });
   }, []);
 

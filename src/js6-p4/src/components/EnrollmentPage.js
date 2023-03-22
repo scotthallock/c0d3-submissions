@@ -10,9 +10,7 @@ export default function EnrollmentPage({ allLessons }) {
     sendQuery(`mutation {
       unenroll(title: "${title}") {lessons {title}}
     }`).then((data) => {
-      if (data?.error?.message === "Not authorized") {
-        return handleLogout();
-      }
+      if (data.unenroll?.error) return handleLogout();
       setEnrolled(data.unenroll.lessons);
     });
   };
@@ -21,9 +19,7 @@ export default function EnrollmentPage({ allLessons }) {
     sendQuery(`mutation {
       enroll(title: "${title}") {lessons {title}}
     }`).then((data) => {
-      if (data?.error?.message === "Not authorized") {
-        return handleLogout();
-      }
+      if (data.enroll?.error) return handleLogout();
       setEnrolled(data.enroll.lessons);
     });
   };
