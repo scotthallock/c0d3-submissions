@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import sendQuery from "./sendQuery.js";
 import { useAuth } from "./AuthContext.js";
-import { isConstValueNode } from "graphql";
 
 export default function EnrollmentPage({ allLessons }) {
   const [user, setUser] = useAuth();
