@@ -11,14 +11,26 @@ export default function App() {
   useEffect(() => {
     sendQuery(`{ user {name, image, lessons {title}} }`).then((data) => {
       if (data.user) setUser(data.user);
+      else setUser(undefined);
     });
   }, []);
 
   useEffect(() => {
     sendQuery(`{ lessons {title} }`).then((data) => {
-      if (data.lessons) setAllLessons(data.lessons);
+      if (data.lessons) {
+        setAllLessons(data.lessons);
+      } else {
+        setAllLessons(undefined);
+        console.error("lessons Query failed");
+      }
     });
   }, []);
+
+
+  if (user === null || allLessons === null) {
+    // wait for queries to complete before rendering anything
+    return null;
+  }
 
   if (user && allLessons) {
     return <EnrollmentPage allLessons={allLessons} />;
