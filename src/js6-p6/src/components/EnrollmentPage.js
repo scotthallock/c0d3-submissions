@@ -3,17 +3,22 @@ import sendQuery from "./sendQuery.js";
 import { useAuth } from "./AuthContext.js";
 import StarRating from "./StarRating.js";
 
+// filter out lessons that the user was once enrolled in, but no longer is
+const getEnrolledLessons = (lessons) => {
+  return lessons.filter(lsn => lsn.currentlyEnrolled);
+};
+
 export default function EnrollmentPage({ allLessons }) {
   const [user, setUser] = useAuth();
-  const [enrolled, setEnrolled] = useState(user.lessons);
+  const [enrolled, setEnrolled] = useState(getEnrolledLessons(user.lessons));
 
   const handleUnenroll = (title) => {
     sendQuery(`mutation {
       unenroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.unenroll?.error) return handleLogout();
-      // filter out lessons that the user was once enrolled in, but no longer is
-      setEnrolled(data.unenroll.lessons.filter(lsn => lsn.currentlyEnrolled)); 
+      const lessons = data.unenroll.lessons;
+      setEnrolled(getEnrolledLessons(lessons)); 
     });
   };
 
@@ -22,12 +27,12 @@ export default function EnrollmentPage({ allLessons }) {
       enroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.enroll?.error) return handleLogout();
-      // filter out lessons that the user was once enrolled in, but no longer is
-      setEnrolled(data.enroll.lessons.filter(lsn => lsn.currentlyEnrolled)); 
+      const lessons = data.enroll.lessons;
+      setEnrolled(getEnrolledLessons(lessons)); 
     });
   };
 
-  const handleLogout = () => {
+  const handleLogout = () => { // SHOULD THIS BE MOVED TO AUTHCONTEXT?
     sendQuery(`{ logout }`).then((data) => {
       return setUser(undefined);
     });
@@ -45,6 +50,7 @@ export default function EnrollmentPage({ allLessons }) {
           {e.title}
         </h4>
         <StarRating
+          editable={true}
           lessonTitle={e.title}
           initialRating={e.rating}
         />
@@ -56,9 +62,16 @@ export default function EnrollmentPage({ allLessons }) {
     .filter((e) => !enrolled.some((lesson) => lesson.title === e.title))
     .map((e) => {
       return (
-        <h4 key={e.title} onClick={() => handleEnroll(e.title)}>
-          {e.title}
-        </h4>
+        <div key={e.title} className="lesson-container">
+          <h4 onClick={() => handleEnroll(e.title)}>
+            {e.title}
+          </h4>
+          <StarRating
+            editable={false}
+            lessonTitle={e.title}
+            initialRating={e.rating}
+          />
+        </div>
       );
     });
 

@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useAuth } from "./AuthContext.js";
+import React, { useState } from "react";
 import sendQuery from "./sendQuery.js";
 
 function Star(props) {
   const { active, onMouseEnter, onMouseLeave, onLockIn } = props;
-  
+
   return (
     <div
       className={active ? "star active" : "star"}
@@ -18,32 +17,26 @@ function Star(props) {
 }
 
 export default function StarRating(props) {
-  const [user, ] = useAuth();
-  const [rating, setRating] = useState(props.initialRating || 0); // should be props.initialRating or something
-  const [lockedRating, setLockedRating] = useState(0);
+  const [rating, setRating] = useState(props.initialRating || 0);
+  const [lockedRating, setLockedRating] = useState(props.initialRating || 0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
 
-  /* These two handlers are passed down to child components */
-  const handleMouseEnter = (n) => {
-    setRating(n);
-  };
-  const handleLockIn = (n) => {
-    // send a mutation request
-    console.log(`... sending query ...`);
+  const handleGroupMouseEnter = () => setCursorEnteredAgain(true);
 
+  const handleGroupMouseLeave = () => setCursorEnteredAgain(false);
+
+  const handleMouseEnter = (n) => setRating(n);
+
+  const handleLockIn = (n) => {
+    if (!props.editable) return;
     sendQuery(`mutation {
       rateLesson(title: "${props.lessonTitle}", rating: ${n}) {lessons {title, rating}}
     }`).then((data) => {
-      console.log(data);
       if (data.rateLesson?.error) return handleLogout();
       setCursorEnteredAgain(false);
-      setLockedRating(n); // change
+      setLockedRating(n);
     });
   };
-
-  /* Track when cursor leaves or enters the StarRating component */
-  const handleGroupMouseEnter = () => setCursorEnteredAgain(true);
-  const handleGroupMouseLeave = () => setCursorEnteredAgain(false);
 
   let numActiveStars = 0;
 
@@ -55,16 +48,22 @@ export default function StarRating(props) {
     numActiveStars = rating;
   }
 
-  const starComponents = Array(5).fill(null).map((_, i) => {
-    return (
-      <Star
-        key={i}
-        active={numActiveStars >= i + 1}
-        onMouseEnter={() => handleMouseEnter(i + 1)}
-        onLockIn={() => handleLockIn(i + 1)}
-      />
-    );
-  });
+  const starComponents = Array(5)
+    .fill(null)
+    .map((_, i) => {
+      return (
+        <Star
+          key={props.lessonTitle}
+          active={numActiveStars >= i + 1}
+          onMouseEnter={
+            props.editable ? () => handleMouseEnter(i + 1) : () => {}
+          }
+          onLockIn={
+            props.editable ? () => handleLockIn(i + 1) : () => {}
+          }
+        />
+      );
+    });
 
   return (
     <div

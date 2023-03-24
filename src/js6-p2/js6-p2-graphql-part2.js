@@ -117,8 +117,7 @@ const resolvers = {
 
       const lessons = users[pokemon].lessons;
       const index = lessons.findIndex((e) => e.title === title);
-
-      if (index < 0) { // enrolling for the first time
+      if (index < 0) { // enrolling for the very first time
         lessons.push({
           title,
           rating: null,
@@ -127,7 +126,7 @@ const resolvers = {
       } else {
         lessons[index].currentlyEnrolled = true; // re-enroll
       }
-      
+
       return users[pokemon];
     },
     unenroll: (_, { title }, { req }) => {
@@ -136,10 +135,7 @@ const resolvers = {
 
       const lessons = users[pokemon].lessons;
       lessons.find((e) => e.title === title).currentlyEnrolled = false;
-      // if (index > -1) lessons.splice(index, 1);
 
-      console.log("UNENROLLED:");
-      console.log(users[pokemon]);
       return users[pokemon];
     },
     rateLesson: (_, { title, rating }, { req }) => {
@@ -150,9 +146,6 @@ const resolvers = {
       const index = lessons.findIndex((e) => e.title === title);
       if (index > -1) lessons[index].rating = rating;
 
-      // console.log(`GQL server: ${pokemon} gave ${rating} star(s) to ${title}`);
-      console.log("GAVE RATING:");
-      console.log(users[pokemon]);
       return users[pokemon];
     },
   },

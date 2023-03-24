@@ -11,7 +11,7 @@ export default function App() {
   useEffect(() => {
     sendQuery(`{
       lessons {title}
-      user {name, image, lessons {title}}
+      user {name, image, lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       // If there an a "Not authorized" error, GraphQL server will return
       // data: {user: {error: {message: "Not authorized"} }, lessons: [...]}
