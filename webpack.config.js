@@ -25,12 +25,19 @@ const CHALLENGE_JS6_4 = {
   TEMPLATE_FILE: './src/js6-p4/src/index.html',
 }
 
+const CHALLENGE_JS6_6 = {
+  ENTRY_FILE: './src/js6-p6/src/index.js',
+  ASSET_PATH: '/star-lesson',
+  OUTPUT_PATH: path.join(__dirname, '/src/js6-p6/dist'),
+  TEMPLATE_FILE: './src/js6-p6/src/index.html',
+}
+
 const {
   ENTRY_FILE,
   ASSET_PATH,
   OUTPUT_PATH,
   TEMPLATE_FILE
-} = CHALLENGE_JS6_4; // Change this based on which challenge to bundle
+} = CHALLENGE_JS6_6; // Change this based on which challenge to bundle
 
 export default {
   

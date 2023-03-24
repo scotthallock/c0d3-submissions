@@ -21,6 +21,8 @@ import js5_9_router from './src/js5-p9/js5-p9-memechat.js';
 import js6_2 from './src/js6-p2/js6-p2-graphql-part2.js';
 import js6_3_router from './src/js6-p3/js6-p3-stars-and-kanban.js';
 import js6_4_router from './src/js6-p4/js6-p4-pokemon-classes.js';
+// js6_5 is an Expo Snack app
+import js6_6_router from './src/js6-p6/js6-p6-star-lesson.js';
 
 const app = express();
 
@@ -69,6 +71,8 @@ app.use('/memechat', js5_9_router);
 app.use('/graphql-part2', js6_2.router);
 app.use('/stars-and-kanban', js6_3_router);
 app.use('/pokemon-classes', js6_4_router);
+// js6_5 is an Expo Snack app
+app.use('/star-lesson', js6_6_router);
 
 /* Start the GraphQL server */
 await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
