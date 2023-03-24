@@ -1,5 +1,4 @@
 import React from 'react';
-import Star from './Star.js'
 
 const { useState } = React;
 
@@ -16,7 +15,7 @@ function Star(props) {
       <i className="fa-solid fa-star"></i>
     </div>
   );
-};
+}
 
 export default function StarRating() {
   const [rating, setRating] = useState(0);
@@ -36,16 +35,14 @@ export default function StarRating() {
   const handleGroupMouseEnter = () => setCursorEnteredAgain(true);
   const handleGroupMouseLeave = () => setCursorEnteredAgain(false);
 
-  let message = "Rate this demo?";
+  let message = "Not yet rated";
   let numActiveStars = 0;
 
   if (lockedRating === 0 && !cursorEnteredAgain) {
     // do nothing - user hasn't rated yet
   } else if (lockedRating > 0 && !cursorEnteredAgain) {
-    message = `You gave a ${lockedRating}-star rating`;
     numActiveStars = lockedRating;
   } else if (rating > 0) {
-    message = `Give ${rating} stars?`;
     numActiveStars = rating;
   }
 
@@ -61,15 +58,12 @@ export default function StarRating() {
   });
 
   return (
-    <div className="stars-container">
-      <div
-        className="stars"
-        onMouseEnter={handleGroupMouseEnter}
-        onMouseLeave={handleGroupMouseLeave}
-      >
-        {starComponents}
-      </div>
-      <div className="stars-message">{message}</div>
+    <div
+      className="stars"
+      onMouseEnter={handleGroupMouseEnter}
+      onMouseLeave={handleGroupMouseLeave}
+    >
+      {starComponents}
     </div>
   );
 }

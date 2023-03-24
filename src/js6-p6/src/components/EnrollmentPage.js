@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import sendQuery from "./sendQuery.js";
 import { useAuth } from "./AuthContext.js";
+import StarRating from "./StarRating.js";
 
 export default function EnrollmentPage({ allLessons }) {
   const [user, setUser] = useAuth();
@@ -32,9 +33,12 @@ export default function EnrollmentPage({ allLessons }) {
 
   const enrolledLessons = enrolled.map((e) => {
     return (
-      <h4 key={e.title} onClick={() => handleUnenroll(e.title)}>
-        {e.title}
-      </h4>
+      <div className="lesson-container">
+        <h4 key={e.title} onClick={() => handleUnenroll(e.title)}>
+          {e.title}
+        </h4>
+        <StarRating/>
+      </div>
     );
   });
 
@@ -55,17 +59,23 @@ export default function EnrollmentPage({ allLessons }) {
       <br />
       <button onClick={handleLogout}>Log out</button>
       <hr />
-      <div className="enrolledSection">
-        <h2>Enrolled</h2>
-        <p>Click to unenroll</p>
-        {enrolledLessons}
-      </div>
-      <hr />
-      <div className="notEnrolledSection">
-        <h2>Not Enrolled</h2>
-        <p>Click to enroll</p>
-        {notEnrolledLessons}
-      </div>
+      {enrolledLessons.length > 0 ? (
+        <>
+          <div className="enrolledSection">
+            <h2>Enrolled</h2>
+            <p>Click to unenroll</p>
+            {enrolledLessons}
+          </div>
+          <hr />
+        </>
+      ) : null}
+      {notEnrolledLessons.length > 0 ? (
+        <div className="notEnrolledSection">
+          <h2>Not Enrolled</h2>
+          <p>Click to enroll</p>
+          {notEnrolledLessons}
+        </div>
+      ) : null}
     </div>
   );
 }
