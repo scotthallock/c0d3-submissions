@@ -5,20 +5,23 @@ import StarRating from "./StarRating.js";
 
 // filter out lessons that the user was once enrolled in, but no longer is
 const getEnrolledLessons = (lessons) => {
-  return lessons.filter(lsn => lsn.currentlyEnrolled);
+  return lessons.filter((lsn) => lsn.currentlyEnrolled);
 };
 
 export default function EnrollmentPage({ allLessons }) {
   const [user, setUser] = useAuth();
-  const [enrolled, setEnrolled] = useState(getEnrolledLessons(user.lessons));
+  // const [enrolled, setEnrolled] = useState(getEnrolledLessons(user.lessons));
+  // lessons in which the user is currently enrolled, or was once enrolled
+  const [userLessons, setUserLessons] = useState(user.lessons);
 
   const handleUnenroll = (title) => {
     sendQuery(`mutation {
       unenroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.unenroll?.error) return handleLogout();
-      const lessons = data.unenroll.lessons;
-      setEnrolled(getEnrolledLessons(lessons)); 
+      // const lessons = data.unenroll.lessons;
+      // setEnrolled(getEnrolledLessons(lessons));
+      setUserLessons(data.unenroll.lessons);
     });
   };
 
@@ -27,53 +30,56 @@ export default function EnrollmentPage({ allLessons }) {
       enroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.enroll?.error) return handleLogout();
-      const lessons = data.enroll.lessons;
-      setEnrolled(getEnrolledLessons(lessons)); 
+      // const lessons = data.enroll.lessons;
+      // setEnrolled(getEnrolledLessons(lessons));
+      setUserLessons(data.enroll.lessons);
     });
   };
 
-  const handleLogout = () => { // SHOULD THIS BE MOVED TO AUTHCONTEXT?
+  const handleLogout = () => {
+    // SHOULD THIS BE MOVED TO AUTHCONTEXT?
     sendQuery(`{ logout }`).then((data) => {
       return setUser(undefined);
     });
   };
 
-  console.log({enrolled})
+  // Rules for rating:
+  // - Users can only rate currently enrolled lessons
+  // - The rating is saved even if a user unenrolls
 
-  // Users can only rate currently enrolled lessons.
-  // The rating is saved even if a user unenrolls.
-  // The rating can only be changed while a user is enrolled.
-  const enrolledLessons = enrolled.map((e) => {
-    return (
-      <div key={e.title} className="lesson-container">
-        <h4 onClick={() => handleUnenroll(e.title)}>
-          {e.title}
-        </h4>
+  const enrolledLessons = [];
+  const notEnrolledLessons = [];
+
+  allLessons.forEach((lsn) => {
+    const { title } = lsn;
+    const found = userLessons.find((usrLsn) => usrLsn.title === title);
+    const rating = found?.rating;
+
+    if (found && found.currentlyEnrolled) {
+      enrolledLessons.push(
+        <div key={title} className="lesson-container">
+          <h4 onClick={() => handleUnenroll(title)}>{title}</h4>
+          <StarRating
+            editable={true}
+            lessonTitle={title}
+            initialRating={rating}
+          />
+        </div>
+      );
+      return;
+    }
+
+    notEnrolledLessons.push(
+      <div key={title} className="lesson-container">
+        <h4 onClick={() => handleEnroll(title)}>{title}</h4>
         <StarRating
-          editable={true}
-          lessonTitle={e.title}
-          initialRating={e.rating}
+          editable={false} // not editable
+          lessonTitle={title}
+          initialRating={rating}
         />
       </div>
     );
   });
-
-  const notEnrolledLessons = allLessons
-    .filter((e) => !enrolled.some((lesson) => lesson.title === e.title))
-    .map((e) => {
-      return (
-        <div key={e.title} className="lesson-container">
-          <h4 onClick={() => handleEnroll(e.title)}>
-            {e.title}
-          </h4>
-          <StarRating
-            editable={false}
-            lessonTitle={e.title}
-            initialRating={e.rating}
-          />
-        </div>
-      );
-    });
 
   return (
     <div>
