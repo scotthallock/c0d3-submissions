@@ -53,6 +53,7 @@ const getPokemonNameAndSprite = async (name) => {
 const typeDefs = `#graphql
     type Lesson {
         title: String
+        rating: Int
     }
     type Pokemon {
         name: String
@@ -77,6 +78,7 @@ const typeDefs = `#graphql
     type Mutation {
         enroll(title: String!): User
         unenroll(title: String!): User
+        rateLesson(title: String!, rating: Int!): User
     }
 `;
 
@@ -126,6 +128,17 @@ const resolvers = {
             if (index > -1) lessons.splice(index, 1);
             return users[pokemon];
         },
+        rateLesson: (_, { title, rating }, { req }) => {
+            const pokemon = req.session.user;
+            if (!pokemon) throw new GraphQLError('Not authorized');
+
+            const lessons = users[pokemon].lessons;
+            const index = lessons.findIndex(e => e.title === title);
+            if (index > -1) lessons[index].rating = rating;
+            
+            console.log(`GQL server: ${pokemon} gave ${rating} star(s) to ${lessons[index].title}`);
+            return users[pokemon];
+        }
     },
 };
 

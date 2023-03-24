@@ -19,7 +19,7 @@ function Star(props) {
 
 export default function StarRating(props) {
   const [user, ] = useAuth();
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(0); // should be props.initialRating or something
   const [lockedRating, setLockedRating] = useState(0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
 
@@ -28,11 +28,17 @@ export default function StarRating(props) {
     setRating(n);
   };
   const handleLockIn = (n) => {
-    setCursorEnteredAgain(false);
-    setLockedRating(n);
-
     // send a mutation request
-    console.log(`${user.name} gave ${n} star(s) to ${props.lessonTitle}`);
+    console.log(`... sending query ...`);
+
+    sendQuery(`mutation {
+      rateLesson(title: "${props.lessonTitle}", rating: ${n}) {lessons {title, rating}}
+    }`).then((data) => {
+      console.log(data);
+      if (data.rateLesson?.error) return handleLogout();
+      setCursorEnteredAgain(false);
+      setLockedRating(n); // change
+    });
   };
 
   /* Track when cursor leaves or enters the StarRating component */
