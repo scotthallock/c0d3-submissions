@@ -9,19 +9,21 @@ export default function EnrollmentPage({ allLessons }) {
 
   const handleUnenroll = (title) => {
     sendQuery(`mutation {
-      unenroll(title: "${title}") {lessons {title}}
+      unenroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.unenroll?.error) return handleLogout();
-      setEnrolled(data.unenroll.lessons);
+      // filter out lessons that the user was once enrolled in, but no longer is
+      setEnrolled(data.unenroll.lessons.filter(lsn => lsn.currentlyEnrolled)); 
     });
   };
 
   const handleEnroll = (title) => {
     sendQuery(`mutation {
-      enroll(title: "${title}") {lessons {title}}
+      enroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.enroll?.error) return handleLogout();
-      setEnrolled(data.enroll.lessons);
+      // filter out lessons that the user was once enrolled in, but no longer is
+      setEnrolled(data.enroll.lessons.filter(lsn => lsn.currentlyEnrolled)); 
     });
   };
 
@@ -31,13 +33,21 @@ export default function EnrollmentPage({ allLessons }) {
     });
   };
 
+  console.log({enrolled})
+
+  // Users can only rate currently enrolled lessons.
+  // The rating is saved even if a user unenrolls.
+  // The rating can only be changed while a user is enrolled.
   const enrolledLessons = enrolled.map((e) => {
     return (
-      <div className="lesson-container">
-        <h4 key={e.title} onClick={() => handleUnenroll(e.title)}>
+      <div key={e.title} className="lesson-container">
+        <h4 onClick={() => handleUnenroll(e.title)}>
           {e.title}
         </h4>
-        <StarRating lessonTitle={e.title}/>
+        <StarRating
+          lessonTitle={e.title}
+          initialRating={e.rating}
+        />
       </div>
     );
   });

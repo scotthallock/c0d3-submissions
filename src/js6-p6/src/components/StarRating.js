@@ -19,7 +19,7 @@ function Star(props) {
 
 export default function StarRating(props) {
   const [user, ] = useAuth();
-  const [rating, setRating] = useState(0); // should be props.initialRating or something
+  const [rating, setRating] = useState(props.initialRating || 0); // should be props.initialRating or something
   const [lockedRating, setLockedRating] = useState(0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
 
