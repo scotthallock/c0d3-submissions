@@ -37,7 +37,7 @@ const createMeme = async (username, isStreaming, image, captionTop, captionBot) 
         ctx.drawImage(loadedImage, 0, 0, 640, 480);
 
         // set up ctx
-        ctx.font = '60px Impact Arial sans-serif';
+        ctx.font = 'bold 60px Impact Arial sans-serif';
         ctx.textAlign = 'center';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 5;
