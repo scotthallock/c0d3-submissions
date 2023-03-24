@@ -37,7 +37,7 @@ export default function EnrollmentPage({ allLessons }) {
         <h4 key={e.title} onClick={() => handleUnenroll(e.title)}>
           {e.title}
         </h4>
-        <StarRating/>
+        <StarRating lessonTitle={e.title}/>
       </div>
     );
   });

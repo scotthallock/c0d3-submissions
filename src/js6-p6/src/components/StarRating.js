@@ -1,6 +1,6 @@
-import React from 'react';
-
-const { useState } = React;
+import React, { useState } from 'react';
+import { useAuth } from "./AuthContext.js";
+import sendQuery from "./sendQuery.js";
 
 function Star(props) {
   const { active, onMouseEnter, onMouseLeave, onLockIn } = props;
@@ -17,7 +17,8 @@ function Star(props) {
   );
 }
 
-export default function StarRating() {
+export default function StarRating(props) {
+  const [user, ] = useAuth();
   const [rating, setRating] = useState(0);
   const [lockedRating, setLockedRating] = useState(0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
@@ -29,13 +30,15 @@ export default function StarRating() {
   const handleLockIn = (n) => {
     setCursorEnteredAgain(false);
     setLockedRating(n);
+
+    // send a mutation request
+    console.log(`${user.name} gave ${n} star(s) to ${props.lessonTitle}`);
   };
 
   /* Track when cursor leaves or enters the StarRating component */
   const handleGroupMouseEnter = () => setCursorEnteredAgain(true);
   const handleGroupMouseLeave = () => setCursorEnteredAgain(false);
 
-  let message = "Not yet rated";
   let numActiveStars = 0;
 
   if (lockedRating === 0 && !cursorEnteredAgain) {
