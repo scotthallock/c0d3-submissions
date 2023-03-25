@@ -17,11 +17,10 @@ export const useAuth = () => {
 
   const handleLogout = () => {
     const [, setUser] = auth;
-    sendQuery(`{ logout }`)
-      .then(() => {
-        console.log('Logged out.')
-        setUser(undefined)
-      });
+    sendQuery(`{ logout }`).then(() => {
+      console.log("Logged out.");
+      setUser(undefined);
+    });
   };
 
   return { auth, handleLogout };

@@ -61,12 +61,8 @@ export default function StarRating(props) {
         <Star
           key={lessonTitle}
           active={numActiveStars >= i + 1}
-          onMouseEnter={
-            editable ? () => handleMouseEnter(i + 1) : () => {}
-          }
-          onLockIn={
-            editable ? () => handleLockIn(i + 1) : () => {}
-          }
+          onMouseEnter={editable ? () => handleMouseEnter(i + 1) : () => {}}
+          onLockIn={editable ? () => handleLockIn(i + 1) : () => {}}
         />
       );
     });

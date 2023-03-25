@@ -5,7 +5,9 @@ import debounce from "lodash.debounce";
 import sendQuery from "./sendQuery.js";
 
 export default function LoginPage() {
-  const { auth: [, setUser] } = useAuth();
+  const {
+    auth: [, setUser],
+  } = useAuth();
   const [searchBox, setSearchBox] = useState("");
   const [debouncedSearchBox, setDebouncedSearchBox] = useState("");
   const [searchResults, setSearchResults] = useState([]);
