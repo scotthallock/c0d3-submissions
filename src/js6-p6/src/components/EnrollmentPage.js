@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext.js";
 import StarRating from "./StarRating.js";
 
 export default function EnrollmentPage({ allLessons }) {
-  const { auth: [user, setUser], logout } = useAuth();
+  const { auth: [user, ], logout } = useAuth();
   const [userLessons, setUserLessons] = useState(user.lessons);
 
   const handleUnenroll = (title) => {

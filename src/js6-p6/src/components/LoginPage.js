@@ -8,7 +8,6 @@ export default function LoginPage() {
   const {
     auth: [, setUser],
   } = useAuth();
-  const [searchBox, setSearchBox] = useState("");
   const [debouncedSearchBox, setDebouncedSearchBox] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadedPokemon, setLoadedPokemon] = useState(null);
@@ -31,9 +30,7 @@ export default function LoginPage() {
 
   const handleSearch = (e) => {
     setLoadedPokemon(null);
-    const str = e.currentTarget.value;
-    setSearchBox(str);
-    debouncedSearchPokemon(str);
+    debouncedSearchPokemon(e.currentTarget.value);
   };
 
   const handleLoadPokemon = (name) => {
@@ -47,6 +44,7 @@ export default function LoginPage() {
     }`).then((data) => {
       if (data.login) {
         setUser(data.login);
+        console.log("Logged in.");
       }
     });
   };
@@ -54,12 +52,7 @@ export default function LoginPage() {
   return (
     <div>
       <h1>Pokemon Search</h1>
-      <input
-        className="searchBox"
-        type="text"
-        onChange={handleSearch}
-        value={searchBox}
-      />
+      <input className="searchBox" type="text" onChange={handleSearch} />
       {loadedPokemon ? (
         <PokemonSelection
           name={loadedPokemon.name}

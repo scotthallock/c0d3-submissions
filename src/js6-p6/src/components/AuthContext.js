@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [, setUser] = auth;
     sendQuery(`{ logout }`).then(() => {
       console.log("Logged out.");
-      setUser(undefined);
+      setUser(null);
     });
   };
 
