@@ -7,6 +7,7 @@ import sendQuery from "./sendQuery.js";
 export default function App() {
   const { auth: [user, setUser] } = useAuth();
   const [allLessons, setAllLessons] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     sendQuery(`{
@@ -16,16 +17,18 @@ export default function App() {
       // If there an a "Not authorized" error, GraphQL server will return
       // data: {user: {error: {message: "Not authorized"} }, lessons: [...]}
       // GraphQL errors will be logged in the console as well.
-      if (data.user.error) setUser(undefined);
+      if (data.user.error) setUser(null);
       else setUser(data.user);
 
-      if (data.lessons.error) setAllLessons(undefined);
+      if (data.lessons.error) setAllLessons(null);
       else setAllLessons(data.lessons);
+
+      setLoaded(true);
     });
   }, []);
 
   // wait for queries to complete before rendering anything
-  if (user === null || allLessons === null) {
+  if (!loaded) {
     return null;
   }
 
