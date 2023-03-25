@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import sendQuery from "./sendQuery.js";
+import { useAuth } from "./AuthContext.js";
+
+// Rules for rating lessons:
+// - Users can only rate currently enrolled lessons
+// - The rating is saved, even if a user unenrolls
 
 function Star(props) {
   const { active, onMouseEnter, onMouseLeave, onLockIn } = props;
-
   return (
     <div
       className={active ? "star active" : "star"}
@@ -17,6 +21,8 @@ function Star(props) {
 }
 
 export default function StarRating(props) {
+  const { editable, lessonTitle } = props;
+  const { handleLogout } = useAuth();
   const [rating, setRating] = useState(props.initialRating || 0);
   const [lockedRating, setLockedRating] = useState(props.initialRating || 0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
@@ -28,9 +34,9 @@ export default function StarRating(props) {
   const handleMouseEnter = (n) => setRating(n);
 
   const handleLockIn = (n) => {
-    if (!props.editable) return;
+    if (!editable) return;
     sendQuery(`mutation {
-      rateLesson(title: "${props.lessonTitle}", rating: ${n}) {lessons {title, rating}}
+      rateLesson(title: "${lessonTitle}", rating: ${n}) {lessons {title, rating}}
     }`).then((data) => {
       if (data.rateLesson?.error) return handleLogout();
       setCursorEnteredAgain(false);
@@ -53,13 +59,13 @@ export default function StarRating(props) {
     .map((_, i) => {
       return (
         <Star
-          key={props.lessonTitle}
+          key={lessonTitle}
           active={numActiveStars >= i + 1}
           onMouseEnter={
-            props.editable ? () => handleMouseEnter(i + 1) : () => {}
+            editable ? () => handleMouseEnter(i + 1) : () => {}
           }
           onLockIn={
-            props.editable ? () => handleLockIn(i + 1) : () => {}
+            editable ? () => handleLockIn(i + 1) : () => {}
           }
         />
       );
@@ -67,7 +73,7 @@ export default function StarRating(props) {
 
   return (
     <div
-      className="stars"
+      className={editable ? "stars" : "stars disabled"}
       onMouseEnter={handleGroupMouseEnter}
       onMouseLeave={handleGroupMouseLeave}
     >

@@ -16,15 +16,18 @@ export default function sendQuery(query) {
     .then((r) => {
       if (r.errors) {
         r.errors.forEach((error) => {
-          /* Tell the user about the error */
+          // Tell the user about the error
           console.warn(`
 ------------------------------------
 Error from GraphQL query at path ${error.path}:
 message: "${error.message}"
 ------------------------------------
 `);
-          /* Replace the data with the error message */
-          _.set(r.data, error.path, { error: { message: error.message } });
+          // Replace the data with the error message
+          // (Not every error will have a path)
+          if (error.path) {
+            _.set(r.data, error.path, { error: { message: error.message } });
+          }
         });
       }
 

@@ -3,15 +3,8 @@ import sendQuery from "./sendQuery.js";
 import { useAuth } from "./AuthContext.js";
 import StarRating from "./StarRating.js";
 
-// filter out lessons that the user was once enrolled in, but no longer is
-const getEnrolledLessons = (lessons) => {
-  return lessons.filter((lsn) => lsn.currentlyEnrolled);
-};
-
 export default function EnrollmentPage({ allLessons }) {
-  const [user, setUser] = useAuth();
-  // const [enrolled, setEnrolled] = useState(getEnrolledLessons(user.lessons));
-  // lessons in which the user is currently enrolled, or was once enrolled
+  const { auth: [user, ], handleLogout } = useAuth();
   const [userLessons, setUserLessons] = useState(user.lessons);
 
   const handleUnenroll = (title) => {
@@ -19,8 +12,6 @@ export default function EnrollmentPage({ allLessons }) {
       unenroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.unenroll?.error) return handleLogout();
-      // const lessons = data.unenroll.lessons;
-      // setEnrolled(getEnrolledLessons(lessons));
       setUserLessons(data.unenroll.lessons);
     });
   };
@@ -30,22 +21,9 @@ export default function EnrollmentPage({ allLessons }) {
       enroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.enroll?.error) return handleLogout();
-      // const lessons = data.enroll.lessons;
-      // setEnrolled(getEnrolledLessons(lessons));
       setUserLessons(data.enroll.lessons);
     });
   };
-
-  const handleLogout = () => {
-    // SHOULD THIS BE MOVED TO AUTHCONTEXT?
-    sendQuery(`{ logout }`).then((data) => {
-      return setUser(undefined);
-    });
-  };
-
-  // Rules for rating:
-  // - Users can only rate currently enrolled lessons
-  // - The rating is saved even if a user unenrolls
 
   const enrolledLessons = [];
   const notEnrolledLessons = [];
@@ -55,7 +33,7 @@ export default function EnrollmentPage({ allLessons }) {
     const found = userLessons.find((usrLsn) => usrLsn.title === title);
     const rating = found?.rating;
 
-    if (found && found.currentlyEnrolled) {
+    if (found?.currentlyEnrolled) {
       enrolledLessons.push(
         <div key={title} className="lesson-container">
           <h4 onClick={() => handleUnenroll(title)}>{title}</h4>
@@ -73,7 +51,7 @@ export default function EnrollmentPage({ allLessons }) {
       <div key={title} className="lesson-container">
         <h4 onClick={() => handleEnroll(title)}>{title}</h4>
         <StarRating
-          editable={false} // not editable
+          editable={false}
           lessonTitle={title}
           initialRating={rating}
         />

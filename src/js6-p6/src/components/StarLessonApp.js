@@ -5,7 +5,7 @@ import LoginPage from "./LoginPage.js";
 import sendQuery from "./sendQuery.js";
 
 export default function App() {
-  const [user, setUser] = useAuth();
+  const { auth: [user, setUser] } = useAuth();
   const [allLessons, setAllLessons] = useState(null);
 
   useEffect(() => {
@@ -16,7 +16,6 @@ export default function App() {
       // If there an a "Not authorized" error, GraphQL server will return
       // data: {user: {error: {message: "Not authorized"} }, lessons: [...]}
       // GraphQL errors will be logged in the console as well.
-
       if (data.user.error) setUser(undefined);
       else setUser(data.user);
 

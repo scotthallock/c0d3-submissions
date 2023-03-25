@@ -117,14 +117,15 @@ const resolvers = {
 
       const lessons = users[pokemon].lessons;
       const index = lessons.findIndex((e) => e.title === title);
+      
       if (index < 0) { // enrolling for the very first time
         lessons.push({
           title,
           rating: null,
           currentlyEnrolled: true,
         });
-      } else {
-        lessons[index].currentlyEnrolled = true; // re-enroll
+      } else { // re-enrolling
+        lessons[index].currentlyEnrolled = true; 
       }
 
       return users[pokemon];

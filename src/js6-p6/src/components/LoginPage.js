@@ -5,7 +5,7 @@ import debounce from "lodash.debounce";
 import sendQuery from "./sendQuery.js";
 
 export default function LoginPage() {
-  const [, setUser] = useAuth();
+  const { auth: [, setUser] } = useAuth();
   const [searchBox, setSearchBox] = useState("");
   const [debouncedSearchBox, setDebouncedSearchBox] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   const handleLogin = (name) => {
     sendQuery(`{
-      login(pokemon: "${name}") {name, image, lessons {title}}
+      login(pokemon: "${name}") {name, image, lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
       if (data.login) {
         setUser(data.login);
