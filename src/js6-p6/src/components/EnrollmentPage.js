@@ -4,17 +4,14 @@ import { useAuth } from "./AuthContext.js";
 import StarRating from "./StarRating.js";
 
 export default function EnrollmentPage({ allLessons }) {
-  const {
-    auth: [user],
-    handleLogout,
-  } = useAuth();
+  const { auth: [user, setUser], logout } = useAuth();
   const [userLessons, setUserLessons] = useState(user.lessons);
 
   const handleUnenroll = (title) => {
     sendQuery(`mutation {
       unenroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
-      if (data.unenroll?.error) return handleLogout();
+      if (data.unenroll?.error) return logout();
       setUserLessons(data.unenroll.lessons);
     });
   };
@@ -23,7 +20,7 @@ export default function EnrollmentPage({ allLessons }) {
     sendQuery(`mutation {
       enroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
     }`).then((data) => {
-      if (data.enroll?.error) return handleLogout();
+      if (data.enroll?.error) return logout();
       setUserLessons(data.enroll.lessons);
     });
   };
@@ -67,7 +64,7 @@ export default function EnrollmentPage({ allLessons }) {
       <h1>{user.name}</h1>
       <img src={user.image} />
       <br />
-      <button onClick={handleLogout}>Log out</button>
+      <button onClick={logout}>Log out</button>
       <hr />
       {enrolledLessons.length > 0 ? (
         <>

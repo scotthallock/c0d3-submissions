@@ -22,7 +22,7 @@ function Star(props) {
 
 export default function StarRating(props) {
   const { editable, lessonTitle } = props;
-  const { handleLogout } = useAuth();
+  const { logout } = useAuth();
   const [rating, setRating] = useState(props.initialRating || 0);
   const [lockedRating, setLockedRating] = useState(props.initialRating || 0);
   const [cursorEnteredAgain, setCursorEnteredAgain] = useState(true);
@@ -38,7 +38,7 @@ export default function StarRating(props) {
     sendQuery(`mutation {
       rateLesson(title: "${lessonTitle}", rating: ${n}) {lessons {title, rating}}
     }`).then((data) => {
-      if (data.rateLesson?.error) return handleLogout();
+      if (data.rateLesson?.error) return logout();
       setCursorEnteredAgain(false);
       setLockedRating(n);
     });

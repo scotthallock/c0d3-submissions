@@ -5,17 +5,8 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const auth = useState(null);
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-};
 
-export const useAuth = () => {
-  const auth = useContext(AuthContext);
-
-  if (!auth) {
-    throw new Error("AuthContext can only be used inside AuthProvider");
-  }
-
-  const handleLogout = () => {
+  const logout = () => {
     const [, setUser] = auth;
     sendQuery(`{ logout }`).then(() => {
       console.log("Logged out.");
@@ -23,5 +14,15 @@ export const useAuth = () => {
     });
   };
 
-  return { auth, handleLogout };
+  return <AuthContext.Provider value={{ auth, logout }}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const value = useContext(AuthContext);
+
+  if (!value) {
+    throw new Error("AuthContext can only be used inside AuthProvider");
+  }
+
+  return value;
 };
