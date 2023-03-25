@@ -57,7 +57,7 @@ export default function LoginPage() {
         <PokemonSelection
           name={loadedPokemon.name}
           image={loadedPokemon.image}
-          onLogin={handleLogin}
+          handleLogin={handleLogin}
         />
       ) : (
         <PokemonSuggestions
@@ -70,12 +70,12 @@ export default function LoginPage() {
   );
 }
 
-function PokemonSelection({ name, image, onLogin }) {
+function PokemonSelection({ name, image, handleLogin }) {
   return (
     <div className="selectedSection">
       <h1>{name}</h1>
       <img src={image} />
-      <button onClick={() => onLogin(name)}>Login</button>
+      <button onClick={() => handleLogin(name)}>Login</button>
     </div>
   );
 }

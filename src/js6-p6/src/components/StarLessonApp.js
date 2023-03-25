@@ -5,7 +5,9 @@ import LoginPage from "./LoginPage.js";
 import sendQuery from "./sendQuery.js";
 
 export default function App() {
-  const { auth: [user, setUser] } = useAuth();
+  const {
+    auth: [user, setUser],
+  } = useAuth();
   const [allLessons, setAllLessons] = useState(null);
   const [loaded, setLoaded] = useState(false);
 

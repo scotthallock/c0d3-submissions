@@ -13,7 +13,7 @@ const allPokemonData = await fetch(
   "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=10000"
 )
   .then((res) => res.json())
-  .then((res) => res.results);
+  .then((data) => data.results);
 const allPokemonNames = allPokemonData.map((e) => ({ name: e.name }));
 
 /* Populate users object - one user per pokemon (~1200) */
@@ -27,25 +27,20 @@ allPokemonData.forEach(async (e) => {
 });
 
 const getLessons = async () => {
-  const response = await fetch(`
-        https://www.c0d3.com/api/lessons/
-    `);
-   return await response.json();
+  const response = await fetch(`https://www.c0d3.com/api/lessons/`);
+  return await response.json();
 };
 
 const getPokemonNameAndSprite = async (name) => {
-  const response = await fetch(
-    `https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`
-  );
-  const data = await response.json();
-  const pokemonName = data.name;
-  const image = data.sprites.front_default;
-
-  users[pokemonName].image = image; // add the image to the users object
-  return {
-    name: pokemonName,
-    image,
-  };
+  if (!users[name].image) {
+    // need to fetch the image
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+    const {
+      sprites: { front_default },
+    } = await response.json();
+    users[name].image = front_default; // cache the image in users object
+  }
+  return users[name];
 };
 
 /* Define schema */
@@ -105,8 +100,8 @@ const resolvers = {
     user: (_, __, { req }) => {
       const pokemon = req.session.user;
       if (!pokemon) throw new GraphQLError("Not authorized");
-      if (!users[pokemon].image) getPokemonNameAndSprite(pokemon); // adds image to user object
-      return users[pokemon];
+
+      return getPokemonNameAndSprite(pokemon);
     },
   },
   Mutation: {
@@ -116,15 +111,17 @@ const resolvers = {
 
       const lessons = users[pokemon].lessons;
       const index = lessons.findIndex((e) => e.title === title);
-      
-      if (index === -1) { // enrolling for the very first time
+
+      if (index === -1) {
+        // enrolling for the very first time
         lessons.push({
           title,
           rating: null,
           currentlyEnrolled: true,
         });
-      } else { // re-enrolling
-        lessons[index].currentlyEnrolled = true; 
+      } else {
+        // re-enrolling
+        lessons[index].currentlyEnrolled = true;
       }
 
       return users[pokemon];
