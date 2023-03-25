@@ -6,20 +6,6 @@ import { useAuth } from "./AuthContext.js";
 // - Users can only rate currently enrolled lessons
 // - The rating is saved, even if a user unenrolls
 
-function Star(props) {
-  const { active, onMouseEnter, onMouseLeave, onLockIn } = props;
-  return (
-    <div
-      className={active ? "star active" : "star"}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onClick={onLockIn}
-    >
-      <i className="fa-solid fa-star"></i>
-    </div>
-  );
-}
-
 export default function StarRating(props) {
   const { editable, lessonTitle } = props;
   const { logout } = useAuth();
@@ -31,10 +17,7 @@ export default function StarRating(props) {
 
   const handleGroupMouseLeave = () => setCursorEnteredAgain(false);
 
-  const handleMouseEnter = (n) => setRating(n);
-
   const handleLockIn = (n) => {
-    if (!editable) return;
     sendQuery(`mutation {
       rateLesson(title: "${lessonTitle}", rating: ${n}) {lessons {title, rating}}
     }`).then((data) => {
@@ -54,16 +37,18 @@ export default function StarRating(props) {
     numActiveStars = rating;
   }
 
-  const starComponents = Array(5)
+  const stars = Array(5)
     .fill(null)
     .map((_, i) => {
       return (
-        <Star
-          key={lessonTitle}
-          active={numActiveStars >= i + 1}
-          onMouseEnter={editable ? () => handleMouseEnter(i + 1) : () => {}}
-          onLockIn={editable ? () => handleLockIn(i + 1) : () => {}}
-        />
+        <div
+          key={lessonTitle + i}
+          className={numActiveStars >= i + 1 ? "star active" : "star"}
+          onMouseEnter={() => editable && setRating(i + 1)}
+          onClick={() => editable && handleLockIn(i + 1)}
+        >
+          <i className="fa-solid fa-star"></i>
+        </div>
       );
     });
 
@@ -73,7 +58,7 @@ export default function StarRating(props) {
       onMouseEnter={handleGroupMouseEnter}
       onMouseLeave={handleGroupMouseLeave}
     >
-      {starComponents}
+      {stars}
     </div>
   );
 }

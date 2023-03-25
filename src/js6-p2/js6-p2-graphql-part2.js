@@ -30,8 +30,7 @@ const getLessons = async () => {
   const response = await fetch(`
         https://www.c0d3.com/api/lessons/
     `);
-  const data = await response.json();
-  return data;
+   return await response.json();
 };
 
 const getPokemonNameAndSprite = async (name) => {
@@ -118,7 +117,7 @@ const resolvers = {
       const lessons = users[pokemon].lessons;
       const index = lessons.findIndex((e) => e.title === title);
       
-      if (index < 0) { // enrolling for the very first time
+      if (index === -1) { // enrolling for the very first time
         lessons.push({
           title,
           rating: null,
