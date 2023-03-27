@@ -1,69 +1,50 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { SEARCH_QUERY, GET_POKEMON_QUERY, LOGIN_QUERY } from "../queriesAndMutations.js";
+
 import { useAuth } from "./AuthContext.js";
 import reactStringReplace from "react-string-replace";
 import debounce from "lodash.debounce";
-import sendQuery from "./sendQuery.js";
 
 export default function LoginPage() {
-  const {
-    auth: [, setUser],
-  } = useAuth();
+  const { auth: [, setUser] } = useAuth();
+  const [querySearch, search] = useLazyQuery(SEARCH_QUERY);
+  const [queryPokemon, pokemon] = useLazyQuery(GET_POKEMON_QUERY);
+  const [queryLogin, login] = useLazyQuery(LOGIN_QUERY);
   const [debouncedSearchBox, setDebouncedSearchBox] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [loadedPokemon, setLoadedPokemon] = useState(null);
+
+  if (login.data) {
+    console.log("Logging in...")
+    setUser(login.data.login);
+  }
 
   const debouncedSearchPokemon = useCallback(
     debounce((str) => {
-      sendQuery(`{search(str: "${str}") {name}}`).then((data) => {
-        setSearchResults(data.search);
-        setDebouncedSearchBox(str);
-      });
+      querySearch({ variables: { str } });
+      setDebouncedSearchBox(str);
     }, 500),
     []
   );
 
-  const getPokemon = (name) => {
-    sendQuery(`{getPokemon(str: "${name}") {name, image}}`).then((data) =>
-      setLoadedPokemon(data.getPokemon)
-    );
-  };
-
-  const handleSearch = (e) => {
-    setLoadedPokemon(null);
-    debouncedSearchPokemon(e.currentTarget.value);
-  };
-
-  const handleLoadPokemon = (name) => {
-    setSearchResults([]);
-    getPokemon(name);
-  };
-
-  const handleLogin = (name) => {
-    sendQuery(`{
-      login(pokemon: "${name}") {name, image, lessons {title, rating, currentlyEnrolled}}
-    }`).then((data) => {
-      if (data.login) {
-        setUser(data.login);
-        console.log("Logged in.");
-      }
-    });
-  };
-
   return (
     <div>
       <h1>Pokemon Search</h1>
-      <input className="searchBox" type="text" onChange={handleSearch} />
-      {loadedPokemon ? (
+      <input
+        className="searchBox"
+        type="text"
+        onChange={(e) => debouncedSearchPokemon(e.currentTarget.value)}
+      />
+      {pokemon.data?.getPokemon ? (
         <PokemonSelection
-          name={loadedPokemon.name}
-          image={loadedPokemon.image}
-          handleLogin={handleLogin}
+          name={pokemon.data.getPokemon.name}
+          image={pokemon.data.getPokemon.image}
+          handleLogin={(pokemon) => queryLogin( { variables: { pokemon }} )}
         />
       ) : (
         <PokemonSuggestions
           searchBoxValue={debouncedSearchBox}
-          searchResults={searchResults}
-          onLoadPokemon={handleLoadPokemon}
+          searchResults={search?.data?.search || []}
+          onLoadPokemon={(str) => queryPokemon( { variables: { str }} )}
         />
       )}
     </div>
