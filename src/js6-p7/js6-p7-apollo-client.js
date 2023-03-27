@@ -7,9 +7,9 @@ const router = express.Router();
 
 /* Serving webpack'ed file in /dist folder */
 router.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../src/js6-p6/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../../src/js6-p7/dist/index.html'));
 });
 
-router.use('/', express.static(path.join(__dirname, '../../src/js6-p6/dist')));
+router.use('/', express.static(path.join(__dirname, '../../src/js6-p7/dist')));
 
 export default router;

@@ -1,5 +1,3 @@
-import path from "path";
-import { fileURLToPath } from "url";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import {
   CHALLENGE_JS6_3_STARS,
@@ -8,8 +6,6 @@ import {
   CHALLENGE_JS6_6,
   CHALLENGE_JS6_7,
 } from "./webpack-constants.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { ENTRY_FILE, ASSET_PATH, OUTPUT_PATH, TEMPLATE_FILE } = CHALLENGE_JS6_7; // CHANGE THIS based on which challenge to bundle
 
