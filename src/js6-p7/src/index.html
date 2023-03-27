@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Lesson</title>
+    <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"
+    />
+    <style>
+      input {
+        width: 100%;
+      }
+      .match {
+        background-color: rgba(0, 255, 0, 0.3);
+      }
+      .suggestions h3 {
+        cursor: pointer;
+      }
+      h4 {
+        cursor: pointer;
+      }
+      h4:hover {
+        color: #3691ff;
+        text-decoration: underline;
+      }
+      .lesson-container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+      .stars {
+        display: flex;
+      }
+      .star {
+        font-size: 20px;
+        cursor: pointer;
+        color: gray;
+      }
+      .disabled > .star {
+        cursor: unset;
+        opacity: 0.4;
+      }
+      .active {
+        color: orange;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Font Awesome icon kit -->
+    <script
+      src="https://kit.fontawesome.com/4f647682c3.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
