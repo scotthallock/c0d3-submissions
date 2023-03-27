@@ -1,33 +1,13 @@
 import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { USER_QUERY, LESSONS_QUERY } from "../queriesAndMutations.js";
+
 import { useAuth } from "./AuthContext.js";
 import EnrollmentPage from "./EnrollmentPage.js";
 import LoginPage from "./LoginPage.js";
 
-// Helpful resource: multiple queries with useQuery
+// Helpful resource: handling multiple queries with useQuery
 // https://atomizedobjects.com/blog/react/how-to-use-apollo-usequery-multiple-queries/
-
-const LESSONS_QUERY = gql`
-  query getLessons {
-    lessons {
-      title
-    }
-  }
-`;
-
-const USER_QUERY = gql`
-  query getUser {
-    user {
-      name,
-      image,
-      lessons {
-        title
-        rating,
-        currentlyEnrolled
-      }
-    }
-  }
-`;
 
 export default function App() {
   const {
