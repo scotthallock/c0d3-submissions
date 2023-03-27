@@ -17,13 +17,12 @@ const allPokemonData = await fetch(
 const allPokemonNames = allPokemonData.map((e) => ({ name: e.name }));
 
 /* Populate users object - one user per pokemon (~1200) */
-allPokemonData.forEach(async (e) => {
-  users[e.name] = {};
-  const user = users[e.name];
-
-  user.name = e.name;
-  user.image = null; // fetch this only when we need it
-  user.lessons = [];
+allPokemonData.forEach(({ name }) => {
+  users[name] = {
+    name,
+    image: null, // fetch this only when we need it
+    lessons: []
+  };
 });
 
 const getLessons = async () => {
@@ -31,7 +30,7 @@ const getLessons = async () => {
   return await response.json();
 };
 
-const getPokemonNameAndSprite = async (name) => {
+const getPokemonUser = async (name) => {
   if (!users[name].image) {
     // need to fetch the image
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
@@ -82,7 +81,7 @@ const resolvers = {
   Query: {
     lessons: getLessons,
 
-    getPokemon: (_, { str }) => getPokemonNameAndSprite(str),
+    getPokemon: (_, { str }) => getPokemonUser(str),
 
     search: (_, { str }) => {
       return allPokemonNames.filter((e) => {
@@ -101,7 +100,7 @@ const resolvers = {
       const pokemon = req.session.user;
       if (!pokemon) throw new GraphQLError("Not authorized");
 
-      return getPokemonNameAndSprite(pokemon);
+      return getPokemonUser(pokemon);
     },
   },
   Mutation: {
