@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/scotthallock/c0d3-submissions#readme",
   "dependencies": {
+    "@apollo/client": "^3.7.10",
     "@apollo/server": "^4.4.1",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
