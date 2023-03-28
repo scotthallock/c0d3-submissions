@@ -11,7 +11,7 @@ import App from "./components/App.js";
 
 const root = createRoot(document.getElementById("root"));
 
-// Need this so cookies are sent to server and we can verify session
+// Need this for session cookies
 const link = createHttpLink({
   uri: "/graphql",
   credentials: "include",
@@ -25,10 +25,10 @@ const client = new ApolloClient({
 
 root.render(
   <StrictMode>
-    <AuthProvider>
-      <ApolloProvider client={client}>
+    <ApolloProvider client={client}>
+      <AuthProvider>
         <App />
-      </ApolloProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ApolloProvider>
   </StrictMode>
 );

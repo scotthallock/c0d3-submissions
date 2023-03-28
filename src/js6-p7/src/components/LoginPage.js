@@ -1,30 +1,58 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { SEARCH_QUERY, GET_POKEMON_QUERY, LOGIN_QUERY } from "../queriesAndMutations.js";
-
+import {
+  SEARCH_QUERY,
+  GET_POKEMON_QUERY,
+  LOGIN_QUERY,
+} from "../queriesAndMutations.js";
 import { useAuth } from "./AuthContext.js";
 import reactStringReplace from "react-string-replace";
 import debounce from "lodash.debounce";
 
 export default function LoginPage() {
-  const { auth: [, setUser] } = useAuth();
-  const [querySearch, search] = useLazyQuery(SEARCH_QUERY);
-  const [queryPokemon, pokemon] = useLazyQuery(GET_POKEMON_QUERY);
-  const [queryLogin, login] = useLazyQuery(LOGIN_QUERY);
-  const [debouncedSearchBox, setDebouncedSearchBox] = useState("");
+  const {
+    auth: [, setUser],
+  } = useAuth();
 
-  if (login.data) {
-    console.log("Logging in...")
-    setUser(login.data.login);
-  }
+  // !! Important: { fetchPolicy: "network-only" } !!
+  // This tells Apollo Client to ignore the cache and make the network request.
+  // This is important so we can login, logout, and re-login as the same user.
+
+  // Don't need fetchPolicy: "network-only" because we can use cached results.
+  const [querySearch, search] = useLazyQuery(SEARCH_QUERY);
+  const [queryPokemon] = useLazyQuery(GET_POKEMON_QUERY);
+
+  // NEED fetchPolicy: "network-only" because we need the server to create a session.
+  const [queryLogin] = useLazyQuery(LOGIN_QUERY, { fetchPolicy: "network-only" });
+
+  const [loadedPokemon, setLoadedPokemon] = useState(null);
+  const [debouncedSearchBox, setDebouncedSearchBox] = useState("");
 
   const debouncedSearchPokemon = useCallback(
     debounce((str) => {
-      querySearch({ variables: { str } });
-      setDebouncedSearchBox(str);
+      querySearch({
+        variables: { str },
+        onCompleted: () => {
+          setDebouncedSearchBox(str);
+        },
+      });
     }, 500),
     []
   );
+
+  const handleLogin = (pokemon) => {
+    queryLogin({
+      variables: { pokemon },
+      onCompleted: (data) => setUser(data.login),
+    });
+  };
+
+  const loadPokemon = (str) => {
+    queryPokemon({
+      variables: { str },
+      onCompleted: (data) => setLoadedPokemon(data.getPokemon),
+    });
+  };
 
   return (
     <div>
@@ -32,24 +60,29 @@ export default function LoginPage() {
       <input
         className="searchBox"
         type="text"
-        onChange={(e) => debouncedSearchPokemon(e.currentTarget.value)}
+        onChange={(e) => {
+          debouncedSearchPokemon(e.currentTarget.value);
+          setLoadedPokemon(null);
+        }}
       />
-      {pokemon.data?.getPokemon ? (
+      {loadedPokemon ? (
         <PokemonSelection
-          name={pokemon.data.getPokemon.name}
-          image={pokemon.data.getPokemon.image}
-          handleLogin={(pokemon) => queryLogin( { variables: { pokemon }} )}
+          name={loadedPokemon.name}
+          image={loadedPokemon.image}
+          handleLogin={handleLogin}
         />
       ) : (
         <PokemonSuggestions
           searchBoxValue={debouncedSearchBox}
-          searchResults={search?.data?.search || []}
-          onLoadPokemon={(str) => queryPokemon( { variables: { str }} )}
+          searchResults={search.data?.search || []}
+          loadPokemon={loadPokemon}
         />
       )}
     </div>
   );
 }
+
+/* ====== CHILD COMPONENTS ====== */
 
 function PokemonSelection({ name, image, handleLogin }) {
   return (
@@ -61,7 +94,7 @@ function PokemonSelection({ name, image, handleLogin }) {
   );
 }
 
-function PokemonSuggestions({ searchResults, searchBoxValue, onLoadPokemon }) {
+function PokemonSuggestions({ searchResults, searchBoxValue, loadPokemon }) {
   const matches = searchResults.map((e, i) => {
     const pokemonName = e.name;
 
@@ -70,7 +103,7 @@ function PokemonSuggestions({ searchResults, searchBoxValue, onLoadPokemon }) {
     ));
 
     return (
-      <h3 key={pokemonName} onClick={() => onLoadPokemon(pokemonName)}>
+      <h3 key={pokemonName} onClick={() => loadPokemon(pokemonName)}>
         {result}
       </h3>
     );

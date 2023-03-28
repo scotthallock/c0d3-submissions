@@ -1,16 +1,19 @@
 import React, { createContext, useContext, useState } from "react";
-import sendQuery from "./sendQuery.js";
+import { useLazyQuery } from "@apollo/client";
+import { LOGOUT_QUERY } from "../queriesAndMutations.js";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const auth = useState(null);
+  const [queryLogout] = useLazyQuery(LOGOUT_QUERY);
 
   const logout = () => {
     const [, setUser] = auth;
-    sendQuery(`{ logout }`).then(() => {
-      console.log("Logged out.");
-      setUser(null);
+    setUser(null);
+    queryLogout({
+      fetchPolicy: "network-only",
+      onCompleted: () => console.log("Logged out."),
     });
   };
 

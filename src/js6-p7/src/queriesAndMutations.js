@@ -52,3 +52,43 @@ export const LOGIN_QUERY = gql`
     }
   }
 `;
+
+export const ENROLL_MUTATION = gql`
+  mutation Enroll($title: String!) {
+    enroll(title: $title) {
+      lessons {
+        title
+        rating
+        currentlyEnrolled
+      }
+    }
+  }
+`;
+
+export const UNENROLL_MUTATION = gql`
+  mutation Unenroll($title: String!) {
+    unenroll(title: $title) {
+      lessons {
+        title
+        rating
+        currentlyEnrolled
+      }
+    }
+  }
+`;
+
+export const RATE_LESSON_MUTATION = gql`
+  mutation RateLesson($title: String!, $rating: Int!) {
+    rateLesson(title: $title, rating: $rating) {
+      lessons {
+        rating
+      }
+    }
+  }
+`;
+
+export const LOGOUT_QUERY = gql`
+  query Logout {
+    logout
+  }
+`;

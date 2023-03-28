@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import sendQuery from "./sendQuery.js";
 import { useAuth } from "./AuthContext.js";
+import { useMutation } from "@apollo/client";
+import { ENROLL_MUTATION, UNENROLL_MUTATION } from "../queriesAndMutations.js";
 import StarRating from "./StarRating.js";
 
 export default function EnrollmentPage({ allLessons }) {
@@ -8,25 +9,20 @@ export default function EnrollmentPage({ allLessons }) {
     auth: [user],
     logout,
   } = useAuth();
+
   const [userLessons, setUserLessons] = useState(user.lessons);
 
-  const handleUnenroll = (title) => {
-    sendQuery(`mutation {
-      unenroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
-    }`).then((data) => {
-      if (data.unenroll?.error) return logout();
-      setUserLessons(data.unenroll.lessons);
-    });
-  };
+  const [mutateEnroll, enroll] = useMutation(ENROLL_MUTATION, {
+    onCompleted: (data) => setUserLessons(data.enroll.lessons),
+  });
 
-  const handleEnroll = (title) => {
-    sendQuery(`mutation {
-      enroll(title: "${title}") {lessons {title, rating, currentlyEnrolled}}
-    }`).then((data) => {
-      if (data.enroll?.error) return logout();
-      setUserLessons(data.enroll.lessons);
-    });
-  };
+  const [mutateUnenroll, unenroll] = useMutation(UNENROLL_MUTATION, {
+    onCompleted: (data) => setUserLessons(data.unenroll.lessons),
+  });
+
+  if (enroll.error || unenroll.error) {
+    return logout();
+  }
 
   const enrolledLessons = [];
   const notEnrolledLessons = [];
@@ -39,7 +35,9 @@ export default function EnrollmentPage({ allLessons }) {
     if (found?.currentlyEnrolled) {
       enrolledLessons.push(
         <div key={title} className="lesson-container">
-          <h4 onClick={() => handleUnenroll(title)}>{title}</h4>
+          <h4 onClick={() => mutateUnenroll({ variables: { title } })}>
+            {title}
+          </h4>
           <StarRating
             editable={true}
             lessonTitle={title}
@@ -52,7 +50,7 @@ export default function EnrollmentPage({ allLessons }) {
 
     notEnrolledLessons.push(
       <div key={title} className="lesson-container">
-        <h4 onClick={() => handleEnroll(title)}>{title}</h4>
+        <h4 onClick={() => mutateEnroll({ variables: { title } })}>{title}</h4>
         <StarRating
           editable={false}
           lessonTitle={title}

@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { USER_QUERY, LESSONS_QUERY } from "../queriesAndMutations.js";
-
 import { useAuth } from "./AuthContext.js";
 import EnrollmentPage from "./EnrollmentPage.js";
 import LoginPage from "./LoginPage.js";
@@ -11,32 +10,37 @@ import LoginPage from "./LoginPage.js";
 
 export default function App() {
   const {
-    auth: [user , setUser],
+    auth: [user, setUser],
   } = useAuth();
-  const currentUser = useQuery(USER_QUERY);
-  const allLessons = useQuery(LESSONS_QUERY);
 
-  if (currentUser.loading || allLessons.loading) {
-    console.log('Loading...')
+  const initialUser = useQuery(USER_QUERY, {
+    fetchPolicy: "network-only",
+    onCompleted: (data) => setUser(data.user),
+  });
+
+  const allLessons = useQuery(LESSONS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  if (initialUser.loading || allLessons.loading) {
+    console.log("Loading...");
     return null;
   }
 
   if (allLessons.error) {
-    console.log(`Error querying lessons: ${allLessons.error.message}`);
-    return <h1>There was an error querying lessons.</h1>
+    return (
+      <>
+        <h1>There was an error querying lessons.</h1>
+        <h3>Something may be wrong with the GraphQL server.</h3>
+      </>
+    );
   }
 
-  if (!user && currentUser?.data?.user) {
-    console.log('Setting user...')
-    setUser(currentUser.data.user);
-    return null;
+  if (!user) {
+    console.log("User not found... going to login page.");
+    return <LoginPage />;
   }
 
-  if (user && allLessons.data.lessons) {
-    console.log(`Welcome back, ${user.name}.`)
-    return <EnrollmentPage allLessons={allLessons.data.lessons}/>
-  }
-
-  console.log("User not found... going to login page.")
-  return <LoginPage />
+  console.log(`Welcome, ${user.name}.`);
+  return <EnrollmentPage allLessons={allLessons.data.lessons} />;
 }
